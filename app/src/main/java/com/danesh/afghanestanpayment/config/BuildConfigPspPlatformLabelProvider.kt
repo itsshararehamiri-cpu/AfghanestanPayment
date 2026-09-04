@@ -15,5 +15,6 @@ class BuildConfigPspPlatformLabelProvider @Inject constructor(
         ActivePsp.FANAVA -> "فناوا"
         ActivePsp.AP -> "آسیاپی"
         ActivePsp.PN -> "پویان"
+        ActivePsp.SADAD -> "سداد"
     }
 }

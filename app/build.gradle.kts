@@ -242,6 +242,8 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     add("hpImplementation", project(":psp:hp"))
     add("bpImplementation", project(":psp:bp"))
+    add("sadadImplementation", project(":psp:sadad"))
+
     implementation(project(":feature:balance"))
     implementation(project(":feature:purchase"))
     implementation(project(":feature:common"))

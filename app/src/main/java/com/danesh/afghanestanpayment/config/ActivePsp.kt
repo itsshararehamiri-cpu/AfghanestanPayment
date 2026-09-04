@@ -5,7 +5,7 @@ enum class ActivePsp {
     FANAVA,
     AP,
     PN,
-    BP;
+    BP,SADAD;
 
 
     val isHamrahPay: Boolean
@@ -13,4 +13,7 @@ enum class ActivePsp {
 
     val isBehpardakht: Boolean
         get() = this == BP
+
+    val isSadad: Boolean
+        get() = this == SADAD
 }

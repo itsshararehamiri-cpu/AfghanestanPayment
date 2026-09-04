@@ -52,6 +52,8 @@ import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionType
 import com.danesh.api.VoucherInput
 import com.danesh.api.VoucherOutput
+import com.danesh.common.menu.MenuFeaturePreferences
+import com.danesh.common.menu.MenuFlavorFeatures
 import com.danesh.engine.TransactionExecutor
 import com.danesh.hp.balance.BalanceHandler
 import com.danesh.hp.balance.HpBalanceRequest
@@ -100,8 +102,33 @@ class HpGateway @Inject constructor(
     private val signOnHandler: SignOnHandler,
     private val  terminalConfigHandler: TerminalConfigHandler,
     private val deviceOperations: PspDeviceOperations,
+    private val menuFlavorFeatures: MenuFlavorFeatures,
+    private val menuFeaturePreferences: MenuFeaturePreferences,
 ) : PspGateway {
+
+    /**
+     * دروازهٔ نهاییِ ارسال: حتی اگر مسیری غیر از منوی اصلی (deep link، وضعیت ناوبری بازیابی‌شده،
+     * صفحهٔ جدید) به این متدها برسد، یک تراکنش غیرفعال‌شده توسط پیکربندی PSP یا تنظیمات کاربر
+     * هرگز به سوییچ ارسال نمی‌شود. [featureName] باید دقیقاً با نام [com.danesh.menu.model.MenuItemType]
+     * یکی باشد که در `BuildConfig.ENABLED_FEATURES` استفاده می‌شود.
+     */
+    private fun isFeatureDispatchable(featureName: String): Boolean {
+        val flavorAllowed = menuFlavorFeatures.enabledFeatures().let { allowed ->
+            allowed.isEmpty() || featureName in allowed
+        }
+        return flavorAllowed && menuFeaturePreferences.isFeatureEnabled(featureName)
+    }
+
+    private fun disabledFeatureResult(type: TransactionType): TransactionResultDetail =
+        TransactionResultDetail(
+            isSuccess = false,
+            transactionType = type,
+            responseCode = FEATURE_DISABLED_CODE,
+            responseMessage = FEATURE_DISABLED_MESSAGE,
+        )
+
     override suspend fun bill(input: BillInput): BillOutput {
+        if (!isFeatureDispatchable(FEATURE_BILL)) return disabledFeatureResult(TransactionType.BILL)
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toPaymentUserInput(),
@@ -111,6 +138,7 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun billInquiry(input: BillInquiryInput): BillInquiryOutput {
+        if (!isFeatureDispatchable(FEATURE_BILL)) return disabledFeatureResult(TransactionType.BILL)
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = BillInquiryRequest(
@@ -125,6 +153,7 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun balance(input: BalanceInput): BalanceOutput {
+        if (!isFeatureDispatchable(FEATURE_BALANCE)) return disabledFeatureResult(TransactionType.BALANCE)
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -134,6 +163,7 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun purchase(input: PurchaseInput): PurchaseOutput {
+        if (!isFeatureDispatchable(FEATURE_PURCHASE)) return disabledFeatureResult(TransactionType.PURCHASE)
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -143,6 +173,7 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun voucher(input: VoucherInput): VoucherOutput {
+        if (!isFeatureDispatchable(FEATURE_VOUCHER)) return disabledFeatureResult(TransactionType.VOUCHER)
         return purchase(
             PurchaseInput(
                 track2 = input.track2,
@@ -185,6 +216,9 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun cashDeposit(input: CashDepositInput): CashDepositOutput {
+        if (!isFeatureDispatchable(FEATURE_CASH_DEPOSIT)) {
+            return disabledFeatureResult(TransactionType.CASH_DEPOSIT)
+        }
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -194,6 +228,9 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun cashOut(input: CashOutInput): CashOutOutput {
+        if (!isFeatureDispatchable(FEATURE_CASH_OUT)) {
+            return disabledFeatureResult(TransactionType.CASH_OUT)
+        }
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -203,6 +240,9 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun cardToCard(input: CardToCardInput): CardToCardOutput {
+        if (!isFeatureDispatchable(FEATURE_TRANSFER)) {
+            return disabledFeatureResult(TransactionType.CARD_TO_CARD)
+        }
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -212,6 +252,9 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun cardToWallet(input: CardToWalletInput): CardToWalletOutput {
+        if (!isFeatureDispatchable(FEATURE_TRANSFER)) {
+            return disabledFeatureResult(TransactionType.CARD_TO_WALLET)
+        }
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -221,6 +264,9 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun walletToWallet(input: WalletToWalletInput): WalletToWalletOutput {
+        if (!isFeatureDispatchable(FEATURE_WALLET_TO_WALLET)) {
+            return disabledFeatureResult(TransactionType.WALLET_TO_WALLET)
+        }
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
@@ -345,4 +391,21 @@ class HpGateway @Inject constructor(
             amount = amount,
             requestId = requestId,
         )
+
+    companion object {
+        // نام‌های زیر باید دقیقاً با نام enum های com.danesh.menu.model.MenuItemType و
+        // توکن‌های BuildConfig.ENABLED_FEATURES یکی باشند.
+        private const val FEATURE_PURCHASE = "PURCHASE"
+        private const val FEATURE_BALANCE = "BALANCE"
+        private const val FEATURE_BILL = "BILL"
+        private const val FEATURE_CASH_DEPOSIT = "CASH_DEPOSIT"
+        private const val FEATURE_CASH_OUT = "CASH_OUT"
+        private const val FEATURE_TRANSFER = "TRANSFER"
+        private const val FEATURE_WALLET_TO_WALLET = "WALLET_TO_WALLET"
+        private const val FEATURE_VOUCHER = "VOUCHER"
+
+        /** کدهای محلی -1..-6 توسط TransactionTransportCodes استفاده شده‌اند؛ این کد صرفاً داخلی HamrahPay است. */
+        private const val FEATURE_DISABLED_CODE = "-8"
+        private const val FEATURE_DISABLED_MESSAGE = "این نوع تراکنش برای این پایانه غیرفعال است"
+    }
 }

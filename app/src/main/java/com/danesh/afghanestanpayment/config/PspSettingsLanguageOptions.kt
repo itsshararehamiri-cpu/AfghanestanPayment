@@ -14,6 +14,7 @@ class PspSettingsLanguageOptions @Inject constructor(
     override fun availableSettingsLanguages(): List<SettingsAppLanguage> = when {
         appRuntimeConfig.activePsp.isBehpardakht -> behpardakhtLanguages()
         appRuntimeConfig.activePsp.isHamrahPay -> hamrahPayLanguages()
+        appRuntimeConfig.activePsp.isSadad->sadadLanguages()
         else -> behpardakhtLanguages()
     }
 
@@ -25,6 +26,10 @@ class PspSettingsLanguageOptions @Inject constructor(
         }
         // همراه‌پی: فقط دری / پشتو
         appRuntimeConfig.activePsp.isHamrahPay -> when (language) {
+            AppLanguage.PersianPashto -> SettingsAppLanguage.PersianPashto
+            else -> SettingsAppLanguage.PersianDari
+        }
+        appRuntimeConfig.activePsp.isSadad -> when (language) {
             AppLanguage.PersianPashto -> SettingsAppLanguage.PersianPashto
             else -> SettingsAppLanguage.PersianDari
         }
@@ -70,6 +75,11 @@ class PspSettingsLanguageOptions @Inject constructor(
         SettingsAppLanguage.Persian,
         SettingsAppLanguage.English,
     )
+    private fun sadadLanguages() = listOf(
+        SettingsAppLanguage.Persian,
+        SettingsAppLanguage.English,
+    )
+
 
     /** همراه‌پی: core PersianDari + PersianPashto */
     private fun hamrahPayLanguages() = listOf(

@@ -52,10 +52,7 @@ open class NACChannel2 : BaseChannel {
     override fun getMessageLength(): Int {
         val b = ByteArray(2)
         serverIn.readFully(b, 0, 2)
-        println("hhhhhhhhhhhhhhhh${         (((b[0].toInt()) and 0xFF) shl 8) or ((b[1].toInt()) and 0xFF)
-        }")
         return (((b[0].toInt()) and 0xFF) shl 8) or ((b[1].toInt()) and 0xFF)
-        // return  136
     }
 
     @Throws(IOException::class)
@@ -98,7 +95,6 @@ open class NACChannel2 : BaseChannel {
             m.setDirection(ISOMsg.OUTGOING) // filter may have dropped this info
             m.setPackager(p) // and could have dropped packager as well
             val b = m.pack()
-            println(ISOUtil.hexString(b))
             synchronized(serverOutLock) {
                 sendMessageLength(b.size + getHeaderLength(m))
                 sendMessageHeader(m, b.size)
@@ -134,12 +130,10 @@ open class NACChannel2 : BaseChannel {
 
         synchronized(serverInLock){ // TODO:
             val len = getMessageLength()
-            println("length--->$len")
             val data = ByteArray(len)
             getMessage(data, 0, len)
 
             m.setPackager(packager)
-            m.dump(System.out,">>")
             m.unpack(data)
 
         }

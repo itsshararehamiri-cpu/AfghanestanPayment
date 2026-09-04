@@ -24,8 +24,7 @@ class HpCardToWalletMessageBuilder @Inject constructor(
         val session = messageSupport.beginSession()
         val profile = TransactionIsoProfile.CARD_TO_WALLET
         val walletCode = request.walletCode.filter { it.isDigit() }.take(8)
-        val track2 ="9004230100000049=31042210000000000000"
-            //messageSupport.normalizeTrack2(request.track2)
+        val track2 = messageSupport.normalizeTrack2(request.track2)
         val rrn = request.rrn.trim().ifBlank { session.dateTime }
         val holderName = request.holderName.trim()
 
@@ -33,8 +32,7 @@ class HpCardToWalletMessageBuilder @Inject constructor(
             mti = profile.mti
             processingCode = profile.processingCode
             stan = messageSupport.nextStan()
-            pan ="9004230100000038"
-                //messageSupport.resolvePan(request.pan, request.track2)
+            pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = request.amount
             dateTime = session.dateTime
            // messageSupport.run { applyHpStandardTerminalFields() }
@@ -42,7 +40,9 @@ class HpCardToWalletMessageBuilder @Inject constructor(
             messageSupport.run { applyHpFunctionCode(profile) }
             currency = session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
           //  tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
-            //this.track2 = track2
+            if (track2.isNotBlank()) {
+                this.track2 = track2
+            }
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
            //setRrn(rrn)
