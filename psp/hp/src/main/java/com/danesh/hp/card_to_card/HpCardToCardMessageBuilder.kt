@@ -42,7 +42,9 @@ class HpCardToCardMessageBuilder @Inject constructor(
             currency = session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
           //  tt51 = "971"
             //HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
-            // this.track2 = track2
+            if (track2.isNotBlank()) {
+                this.track2 = track2
+            }
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
           //  setRrn(rrn)

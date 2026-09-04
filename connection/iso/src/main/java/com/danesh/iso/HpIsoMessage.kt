@@ -227,13 +227,50 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
 
     override fun getIsoMessage(): ISOMsg = isoMsg
 
+    /**
+     * DE2 (PAN), DE35 (Track 2) و DE52 (PIN block) هرگز — صرف نظر از پارامتر [sanitized] —
+     * در خروجی لاگ چاپ نمی‌شوند؛ چون [com.danesh.engine.TransactionExecutor] این متد را همیشه
+     * با sanitized پیش‌فرض (false) صدا می‌زند، ماسک‌کردن باید بدون قید‌وشرط باشد.
+     */
     override fun print(type: String) {
-        isoMsg.dump(System.out, type)
+        printEachField(type, sanitized = true)
     }
+
+    override fun printEachField(prefix: String, sanitized: Boolean) {
+        Log.d(LOG_TAG, "$prefix<mti>${mti}</mti>")
+        for (field in 0..isoMsg.maxField) {
+            if (!isoMsg.hasField(field)) continue
+            val binary = field == 52 || field == 64
+            val typeAttr = if (binary) " type=\"binary\"" else ""
+            Log.d(LOG_TAG, "$prefix<field id=\"$field\"$typeAttr>${formatFieldLogValue(field)}</field>")
+        }
+    }
+
+    override fun printSanitized(type: String) {
+        printEachField(type, sanitized = true)
+    }
+
+    private fun formatFieldLogValue(field: Int): String {
+        // DE52 (PIN block) is always in ALWAYS_REDACTED_FIELDS, so its binary bytes never reach here.
+        if (field in ALWAYS_REDACTED_FIELDS) return REDACTED_VALUE
+        return isoMsg.getString(field)?.takeIf { it.isNotEmpty() }
+            ?: isoMsg.getBytes(field)?.let { bytes ->
+                bytes.joinToString(separator = "") { byte -> "%02X".format(byte.toInt() and 0xFF) }
+            }.orEmpty()
+    }
+
     override fun getFieldByTag(tag: String): String {
         return  getField48Tag(tag)?:""
     }
     override var f72: String
         get() = ""
         set(value) {}
+
+    companion object {
+        private const val LOG_TAG = "HpIsoMessage"
+        private const val REDACTED_VALUE = "***"
+
+        /** PAN (DE2), Track 2 (DE35) و PIN block (DE52) — هرگز در لاگ درج نمی‌شوند. */
+        private val ALWAYS_REDACTED_FIELDS = intArrayOf(2, 35, 52)
+    }
 }

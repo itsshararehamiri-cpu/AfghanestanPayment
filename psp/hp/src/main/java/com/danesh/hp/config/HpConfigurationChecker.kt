@@ -18,12 +18,11 @@ class HpConfigurationChecker @Inject constructor(
 ) : PspConfigurationChecker {
 
     override fun isConfigured(): Boolean {
-     /*   if (!hasConnectionSettings()) return false
+        if (!hasConnectionSettings()) return false
         if (configurationStore.isConfigured()) return true
 
         val config = contextProvider.getTerminalConfig()
-        return config.terminalId.isNotBlank() && config.merchantId.isNotBlank()*/
-        return true
+        return config.terminalId.isNotBlank() && config.merchantId.isNotBlank()
     }
 
     private fun hasConnectionSettings(): Boolean =
