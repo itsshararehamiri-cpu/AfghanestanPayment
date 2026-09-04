@@ -1,0 +1,15 @@
+<resources>
+    <string name="purchase_title">Purchase</string>
+    <string name="transaction_info">Transaction information</string>
+    <string name="plz_enter_transaction_info">Please enter transaction information</string>
+    <string name="amount_currency">Amount (AFN)</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="show_qr_code">Show QR code</string>
+    <string name="pla_enter_amount">Please enter the amount</string>
+    <string name="invalid_amount_entered">The entered amount is not valid</string>
+    <string name="amount_below_minimum">The received amount is below the allowed minimum.</string>
+    <string name="amount_too_many_digits">Amount must not exceed 12 digits</string>
+    <string name="purchase_was_successful">Purchase completed successfully.</string>
+    <string name="purchase_failed">Purchase failed.</string>
+
+</resources>

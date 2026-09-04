@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transaction_info">د معاملې معلومات</string>
+    <string name="plz_enter_transaction_info">مهرباني وکړئ د معاملې معلومات ولیکئ</string>
+    <string name="amount_currency">مبلغ (AFN)</string>
+    <string name="enter_amount">مبلغ ولیکئ</string>
+    <string name="pla_enter_amount">مهرباني وکړئ مبلغ ولیکئ</string>
+    <string name="invalid_amount_entered">داخل شوی مبلغ ناسم دی</string>
+    <string name="cash_out_success">نغدي ایستل په بریالیتوب سره ترسره شو.</string>
+    <string name="cash_out_failed">نغدي ایستل ناکام شو.</string>
+</resources>

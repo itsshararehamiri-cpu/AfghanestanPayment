@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="customer_receipt">د پیرودونکي رسید</string>
+    <string name="merchant_receipt">د پذیرونکي رسید</string>
+    <string name="duplicate_receipt">بیا رسید</string>
+    <string name="sum_of_all_transactions">د ټولو معاملو مجموعه</string>
+    <string name="amount_with_currency">%1$s ریال</string>
+    <string name="trace__">د تعقیب شمیره</string>
+    <string name="trace_rrn">د تعقیب/مرجع شمیره</string>
+    <string name="balance_">موجودي</string>
+    <string name="balance_transaction_fee">د موجودي فیس:</string>
+    <string name="withdrawable_account_balance">د ایستلو وړ حساب بیلانس</string>
+    <string name="voucher_serial">د چارج سریال</string>
+    <string name="voucher_pin">د چارج پټنوم</string>
+    <string name="customer_signature">د پیرودونکي لاسلیک</string>
+    <string name="success_operation">بریالی عملیات</string>
+    <string name="unsuccess_transaction">ناکامه معامله</string>
+    <string name="card_number_title">د کارت شمیره</string>
+    <string name="balance_success_title">د موجودي پوښتنه په بریالیتوب سره ترسره شوه.</string>
+    <string name="balance_failed_title">د موجودي پوښتنه ناکامه شوه.</string>
+</resources>

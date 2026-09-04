@@ -1,0 +1,11 @@
+<resources>
+    <string name="topup_title">خرید شارژ مستقیم</string>
+    <string name="topup_mobile_label">شماره موبایل گیرنده</string>
+    <string name="topup_mobile_placeholder">شماره موبایل را وارد کنید</string>
+    <string name="topup_amount_label">مبلغ شارژ (ریال)</string>
+    <string name="topup_amount_placeholder">مبلغ را انتخاب کنید</string>
+    <string name="topup_confirm">تایید و ادامه</string>
+    <string name="topup_failed">خرید شارژ مستقیم ناموفق شد.</string>
+    <string name="topup_was_successful">خرید شارژ مستقیم با موفقیت انجام شد.</string>
+
+</resources>

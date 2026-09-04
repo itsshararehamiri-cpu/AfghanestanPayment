@@ -1,0 +1,179 @@
+<resources>
+    <string name="app_name">PayAfghanestan</string>
+
+    <string name="balance_nfc_title">Use NFC</string>
+    <string name="balance_nfc_description">Swipe up to pay via NFC</string>
+    <string name="balance_back">Back</string>
+    <string name="balance_swipe_up">Swipe up</string>
+    <string name="balance_success_message">Purchase completed successfully.</string>
+    <string name="balance_transaction_title">Purchase transaction</string>
+
+    <string name="balance_label_terminal">Terminal / Merchant</string>
+    <string name="balance_label_card_reader">Card reader code</string>
+    <string name="label_card_info">Card information</string>
+    <string name="label_datetime">Date and time</string>
+<string name="invalid_card_information_plz_try_again">Invalid card information. Please try again.</string>
+    <string name="balance_label_amount">Payment amount</string>
+    <string name="pin_could_not_be_processed_please_enter_your_pin_again">PIN could not be processed. Please enter your PIN again.</string>
+    <string name="label_amount">Amount</string>
+<string name="device_is_not_ready">Device initialization failed. Please try again.</string>
+    <string name="rrn_stan">Tracking/Reference code</string>
+    <string name="balance_home">Home</string>
+    <string name="balance_print_receipt">Print receipt</string>
+    <string name="balance_qr_scan_title">Scan QR</string>
+    <string name="balance_qr_waiting_hint">Waiting for customer to scan and pay...</string>
+    <string name="balance_label_payment_company">Payment company</string>
+    <string name="balance_label_transaction_type">Transaction type</string>
+    <string name="balance_label_merchant_name">Merchant name</string>
+    <string name="balance_label_payable_amount">Payable amount</string>
+    <string name="swipe_card_title">Swipe card</string>
+    <string name="plz_swipe">Please swipe your card...</string>
+    <string name="swipe_card_reading">Please swipe your card...</string>
+    <string name="swipe_card_retry">Swipe your card again to retry</string>
+    <string name="password_title">Password</string>
+    <string name="settings_login_title">Settings login</string>
+    <string name="settings_password_instruction">Please enter your password</string>
+    <string name="settings_supervisor_password_instruction">Please enter the supervisor password</string>
+    <string name="settings_merchant_password_instruction">Please enter the merchant password</string>
+    <string name="pin_entry_timeout">Pin Entry Timeout</string>
+    <string name="swipe_card_fail">Card could not be read. Please swipe the card again.</string>
+    <string name="password_keypad_clear">Clear</string>
+    <string name="password_keypad_confirm">Confirm</string>
+    <string name="password_hint">Please enter your card PIN</string>
+    <string name="report_password_hint">Please enter the report password</string>
+    <string name="pin_reading">Reading PIN...</string>
+    <string name="transaction_processing">Processing transaction...</string>
+    <string name="pin_retry">Enter your PIN again to retry</string>
+    <string name="password_shield_icon">Secure password</string>
+
+    <string name="label_balance">Balance</string>
+    <string name="label_available_balance">Withdrawable account balance</string>
+
+    <string name="success_result">Success</string>
+    <string name="unsuccess_result">Failed</string>
+
+    <string name="customer_receipt">Customer receipt</string>
+    <string name="merchant_receipt">Merchant receipt</string>
+    <string name="duplicate_receipt">Duplicate receipt</string>
+    <string name="amount_with_currency">%1$s AFN</string>
+    <string name="trace__">Tracking number</string>
+    <string name="trace_rrn">Tracking/Reference number</string>
+    <string name="card_number_title">Card number</string>
+    <string name="pay_by_card">Pay by card</string>
+    <string name="merchant_name">Merchant name</string>
+    <string name="date_time">Date/Time</string>
+    <string name="merchant_id">Merchant name</string>
+    <string name="terminal_id">Terminal number</string>
+    <string name="card_number">Card number</string>
+    <string name="transaction_type">Transaction type</string>
+    <string name="trace_number">Tracking number</string>
+    <string name="amount">Amount</string>
+    <string name="balance">Balance</string>
+    <string name="card_holder_signature">Cardholder signature</string>
+
+    <!-- Application language -->
+    <string name="language_persian_dari">Persian-Dari</string>
+    <string name="language_persian_pashto">Pashto</string>
+    <string name="language_other">Other</string>
+
+    <!-- Transaction types -->
+    <string name="tx_type_balance">Balance inquiry</string>
+    <string name="tx_type_purchase">Purchase</string>
+    <string name="tx_type_card_to_card">Card to card</string>
+    <string name="tx_type_bill">Bill payment</string>
+    <string name="tx_type_advice">Advice</string>
+    <string name="tx_type_settlement">Settlement</string>
+    <string name="tx_type_cash_deposit">Cash deposit</string>
+    <string name="tx_type_cash_out">Cash withdrawal</string>
+
+    <!-- Transaction messages -->
+    <string name="tx_msg_success">Success</string>
+    <string name="tx_msg_failed">Transaction failed</string>
+    <string name="tx_msg_queue_failed">Transaction queue was not cleared</string>
+
+    <!-- Validation and errors -->
+    <string name="error_invalid_card_number">Invalid card number</string>
+    <string name="error_invalid_card">Invalid card</string>
+    <string name="error_wrong_password">Incorrect password</string>
+    <string name="error_wrong_current_password">Current password is incorrect</string>
+    <string name="error_no_transaction_found">No transaction found</string>
+    <string name="error_report_load_failed">Failed to load report</string>
+    <string name="error_card_reader_connection">Could not connect to the card reader.</string>
+    <string name="error_card_reader_connection_code">Could not connect to the card reader. Error code %1$d</string>
+    <string name="error_card_read">Error reading card information</string>
+    <string name="error_card_data_not_read">Could not read card information. Please swipe the card again.</string>
+    <string name="error_card_pan_invalid">Invalid card number. Please swipe the card again.</string>
+    <string name="error_card_read_cancelled">Card read cancelled</string>
+    <string name="error_card_swipe">Error reading card</string>
+    <string name="error_pin_read">Unable to read card PIN. Please try again.</string>
+    <string name="error_device_access">Error accessing device</string>
+    <string name="error_device_unavailable">Device is unavailable. Please try again.</string>
+    <string name="error_printer_no_paper">Printer is out of paper</string>
+    <string name="error_printer">Error printing receipt</string>
+    <string name="error_print_device">Printer device is unavailable</string>
+    <string name="error_printer_not_open">Printer is not open</string>
+    <string name="error_printer_busy">Printer is busy</string>
+    <string name="error_printer_no_response">Printer is not responding</string>
+    <string name="error_printer_data_error">Invalid print data</string>
+    <string name="error_printer_over_heater">Printer overheated</string>
+    <string name="error_printer_head_over_height">Printer head temperature is too high</string>
+    <string name="error_printer_cmd_error">Printer command error</string>
+    <string name="error_printer_low_memory">Printer memory is low</string>
+    <string name="error_printer_unknown_exception">Unknown printer error</string>
+    <string name="error_printer_listener_null">Printer listener error</string>
+    <string name="error_printer_low_power">Printer battery is low</string>
+    <string name="error_printer_unknown_code">Error printing receipt (code %1$d)</string>
+    <string name="error_icc_device">Could not connect to smart card</string>
+    <string name="error_icc_card_not_found">Smart card not detected</string>
+    <string name="error_scan_device">Scanner camera is unavailable</string>
+    <string name="error_scan_failed">Scan failed</string>
+    <string name="error_scan_empty_result">No scan result received. Please scan again.</string>
+    <string name="error_led_device">Device lights are unavailable</string>
+    <string name="error_beep">Error playing alert sound</string>
+    <string name="error_decrypt_data">Error processing security data</string>
+    <string name="error_with_detail">%1$s (%2$s)</string>
+    <string name="error_enter_destination_card">Please enter the destination card number</string>
+    <string name="error_card_must_16_digits">Card number must be 16 digits</string>
+    <string name="error_enter_amount">Please enter the amount</string>
+    <string name="error_enter_mobile">Please enter the mobile number</string>
+    <string name="error_mobile_10_digits">Mobile number must be 10 digits</string>
+    <string name="error_mobile_start_07">Mobile number must start with 07</string>
+    <string name="error_select_operator">Please select an operator</string>
+    <string name="error_enter_bill_id">Please enter the bill ID</string>
+    <string name="error_enter_payment_id">Please enter the payment ID</string>
+    <string name="error_not_implemented_card_to_card">Card-to-card transfer is not implemented yet</string>
+    <string name="error_not_implemented_topup">Top-up is not implemented yet</string>
+    <string name="error_not_implemented_bill">Bill payment is not implemented yet</string>
+
+    <!-- General UI -->
+    <string name="action_retry">Retry</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_bill_inquiry">Bill inquiry</string>
+    <string name="action_show_qr">Show QR code</string>
+    <string name="bill_payment_title">Bill payment</string>
+    <string name="bill_enter_info">Please enter bill information</string>
+    <string name="bill_id_label">Bill ID</string>
+    <string name="bill_id_placeholder">Enter bill ID</string>
+    <string name="payment_id_label">Payment ID</string>
+    <string name="payment_id_placeholder">Enter payment ID</string>
+    <string name="bill_type_generic">Bill</string>
+    <string name="bill_type_water">Water bill</string>
+    <string name="balance_success_title">Balance inquiry completed successfully.</string>
+    <string name="balance_failed_title">Balance inquiry failed.</string>
+    <string name="label_terminal_merchant">Terminal/Merchant</string>
+    <string name="currency_afn">AFN</string>
+    <string name="currency_asp">ASP</string>
+
+    <string name="placeholder_not_available">—</string>
+    <string name="placeholder_amount_unavailable">— AFN</string>
+    <string name="content_desc_splash">POS Terminal</string>
+
+
+    <string name="receipt_payback_message_part1">If the amount is debited from your account</string>
+    <string name="receipt_payback_message_part2">the amount will be refunded to your account within 72 hours</string>
+    <string name="receipt_payback_message_part3">otherwise, for follow-up please contact</string>
+    <string name="receipt_payback_message_part4">customer support at</string>
+    <string name="receipt_payback_message_part4_s">For follow-up, please call 021-27312731</string>
+    <string name="receipt_payback_message_part5_s">.</string>
+
+</resources>

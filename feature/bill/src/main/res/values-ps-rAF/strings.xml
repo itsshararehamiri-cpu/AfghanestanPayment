@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bill_inquiry_result_title">د بل پوښتنې پایله</string>
+    <string name="bill_label_bill_id">د بل پیژندنه</string>
+    <string name="bill_label_debt_amount">د پور مبلغ</string>
+    <string name="bill_label_tax">مالیه</string>
+    <string name="bill_label_payment_deadline">د تادیې وخت</string>
+    <string name="bill_label_payable_amount">د تادیې وړ مبلغ</string>
+    <string name="bill_confirm_and_pay">تایید او تادیه</string>
+    <string name="bill_inquiry_error_ok">تایید</string>
+
+    <string name="bill_failed">پیرود ناکام شو.</string>
+    <string name="bill_was_successful">پیرود په بریالیتوب سره ترسره شو.</string>
+
+</resources>

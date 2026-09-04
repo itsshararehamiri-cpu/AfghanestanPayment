@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_back">بیرته</string>
+    <string name="balance_title">د موجودي اعلان</string>
+    <string name="label_terminal_merchant">ټرمینل / پذیرونکی</string>
+    <string name="balance_home">کور پاڼه</string>
+    <string name="balance_print_receipt">رسید چاپ</string>
+    <string name="balance_reprint_receipt">د رسید بیا چاپ</string>
+    <string name="date_picker_title">د نیټې انتخاب</string>
+    <string name="date_picker_confirm">تایید</string>
+    <string name="bottom_sheet_close">تړل</string>
+</resources>

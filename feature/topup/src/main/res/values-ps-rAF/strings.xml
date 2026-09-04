@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="topup_title">چارج پیرود</string>
+    <string name="topup_mobile_label">د ترلاسه کوونکي موبایل شمیره</string>
+    <string name="topup_mobile_placeholder">د موبایل شمیره ولیکئ</string>
+    <string name="topup_amount_label">د چارج مبلغ (AFN)</string>
+    <string name="topup_amount_placeholder">مبلغ ولیکئ</string>
+    <string name="topup_confirm">تایید او دوام</string>
+
+    <string name="topup_failed">چارج پیرود ناکام شو.</string>
+    <string name="topup_was_successful">چارج پیرود په بریالیتوب سره ترسره شو.</string>
+
+</resources>

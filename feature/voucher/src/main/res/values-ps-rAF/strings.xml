@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voucher_title">چارج پیرود</string>
+    <string name="voucher_amount_placeholder">مبلغ ولیکئ</string>
+    <string name="voucher_confirm">تایید او دوام</string>
+</resources>

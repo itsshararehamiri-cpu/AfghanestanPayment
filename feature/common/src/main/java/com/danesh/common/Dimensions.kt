@@ -1,0 +1,114 @@
+package com.danesh.common
+
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+val BUTTON_CORNER_RADIUS=16.dp
+val TINY_PADDING = 3.dp
+val END_PADDING = 12.dp
+val START_PADDING = 12.dp
+val MARGIN_BOTTOM_MAINBUTTON = 16.dp
+
+val SMALL_PADDING = 5.dp
+val MEDIUM_PADDING = 8.dp
+val LARGE_PADDING = 12.dp
+val ULTRA_LARGE_PADDING = 16.dp
+val MARGIN = 8.dp
+val TINY_MARGIN = 2.dp
+val SMALL_MARGIN = 4.dp
+val MEDIUM_MARGIN = 8.dp
+val LARGE_MARGIN = 16.dp
+val ULTRA_LARGE_MARGIN = 32.dp
+val SIDE_MARGIN_CHANGE_PRICE_DIALOG = 15.dp
+
+
+val UNDERLINE_ACTIONBAR = 2.dp
+val UNDERLINE_PAYMENT = 1.dp
+
+val PRIORITY_INDICATER_SIZE = 12.dp
+val TOP_APP_BAR_HEIGHT = 56.dp
+val TASK_ITEM_ELEVATION = 5.dp
+val PRIORITY_DROP_DOWN = 60.dp
+val FONT_SIZE_12 = 12.sp
+val FONT_SIZE_13 = 13.sp
+val FONT_SIZE_14 = 14.sp
+val FONT_SIZE_16 = 16.sp
+val FONT_SIZE_18 = 18.sp
+val FONT_SIZE_20 = 20.sp
+val SMALL_CORNER_RADIUS = 5
+val MEDIUM_CORNER_RADIUS = 10
+val LARGE_CORNER_RADIUS = 15
+
+val TINY_STORK_WIDTH = 1.dp
+val SMALL_STORK_WIDTH = 2.dp
+val MEDIUM_STORK_WIDTH = 3.dp
+val LARGE_STORK_WIDTH = 4.dp
+
+val CIRCULAR_PROGRESS_BAR_SMALL_SIZE = 24.dp
+val CIRCULAR_PROGRESS_BAR_MEDIUM_SIZE = 32.dp
+val CIRCULAR_PROGRESS_BAR_LARGE_SIZE = 48.dp
+val CIRCULAR_PROGRESS_BAR_ULTRA_LARGE_SIZE = 64.dp
+val TEXT_FILED_HEIGHT_SIZE = 50.dp
+val ADD_CUSTOMER_ICON_WIDTH_HEIGHT_SIZE = 50.dp
+val USER_ICON_WIDTH_HEIGHT_SIZE = 32.dp
+val TEXT_FIELD_ICON_WIDTH_HEIGHT_SMALL_SIZE = 24.dp
+val TEXT_FIELD_ICON_WIDTH_HEIGHT_MEDIUM_SIZE = 28.dp
+val TEXT_FIELD_ICON_WIDTH_HEIGHT_LARGE_SIZE = 32.dp
+val DIALOG_CLOSE_ICON_WIDTH_HEIGHT_SIZE = 32.dp
+
+val RemoveOrderIconSize = 32.dp
+val MarginSideOrderItem = 10.dp
+val MarginTopOrderItem = 15.dp
+val MarginTopTextInputWithTitleOrderItem = 12.dp
+val MarginSideTable = 5.dp
+val MarginSideProductInOrder = 5.dp
+
+
+val HEIGHT_TEXT_INPUT = 50.dp
+val HEIGHT_SELECT_DATE_TIME_I5000 = 88.dp
+
+val HEIGHT_TEXT_INPUT_I5000 = 55.dp
+
+val SMALL_HEIGHT_TEXT_INPUT = 55.dp
+
+val MARGIN_BOTTOM_MAIN_CONFIRM = 25.dp
+val MARGIN_SIDE_MAIN_CONFIRM = 12.dp
+val MARGIN_SIDE = 20.dp
+
+
+val MARGIN_TOP_ROW = 12.dp
+val MARGIN_TOP_Bill_INQUERY_ROW = 16.dp
+
+object Dimensions {
+    val smallPadding = 8.dp
+    val mediumPadding = 16.dp
+    val largePadding = 24.dp
+    val buttonHeight = 48.dp
+    val cardSize = 120.dp
+    val FONT_SIZE_PAPER_RECEIPT = 9.sp
+    val FONT_SIZE_UNSUCCESS_PAPER_RECEIPT = 10.sp
+    val FONT_SIZE_RECEIPT = 14.sp
+    val FONT_SIZE_UNSUCCESS_RECEIPT = 16.sp
+
+    val MARGIN_TOP_ROW_RECEIPT = 0.dp
+    val MARGIN_TOP_ROW_PAGER_RECEIPT = 0.dp
+
+    val PSP_LOGO_hEIGHT_IS_PAPER_RECEPINT = 50.dp
+    val PSP_LOGO_hEIGHT_RECEPINT = 40.dp
+    val MARGIN_TOP_MAINBUTTON = 10.dp
+    val MARGIN_BOTTOM_RETURNBACK = 5.dp
+    val MARGIN_TOP_RETURNBACK = 10.dp
+    val MARGIN_BOTTOM_RECEIPT = 10.dp
+
+
+    val LINE_HEIGHT_PAPER_RECEIPT = 10.sp
+    val LINE_HEIGHT_RECEIPT = 26.sp
+    val LOADING_HEIGHT = 150.dp
+    val SMALL_LOADING_HEIGHT = 32.dp
+
+    val TOTAN_ICON_SIZE = 100.dp
+    val PADDING_BOTTOM_SETTINGS=70.dp
+    val PADDING_SIDE_ROW_RECEIPT=0.dp
+    val BUTTON_HEIGHT=47.dp
+    val MARGIN_SIDE_DIALOG=30.dp
+    val MARGIN_TOP_TEXTFIELD_WITH_TITLE=12.dp
+}

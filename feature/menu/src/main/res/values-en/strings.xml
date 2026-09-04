@@ -1,0 +1,31 @@
+<resources>
+    <string name="menu_app_name">Hamrah Pay</string>
+    <string name="menu_app_name_behpardakht">Behpardakht</string>
+    <string name="menu_app_name_fanava">Fanava</string>
+    <string name="menu_app_name_ap">Asia Pay</string>
+    <string name="menu_app_name_sadad">Sadad</string>
+
+    <string name="menu_app_name_pn">Pouyan</string>
+    <string name="menu_terminal_label">Terminal number:</string>
+    <string name="menu_purchase">Purchase</string>
+    <string name="menu_report">Reports</string>
+    <string name="menu_balance">Balance inquiry</string>
+    <string name="menu_bill">Bill payment</string>
+    <string name="menu_topup">Mobile top-up</string>
+    <string name="menu_voucher">Voucher</string>
+    <string name="menu_support">Support</string>
+    <string name="menu_transfer">Fund transfer</string>
+    <string name="menu_wallet_to_wallet">Wallet to wallet</string>
+    <string name="menu_cash_deposit">Cash deposit</string>
+    <string name="menu_cash_out">Cash withdrawal</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_change_account">Change account</string>
+    <string name="menu_promo_title">Special gift for merchants</string>
+    <string name="menu_promo_amount">10,000 AFN</string>
+    <string name="menu_qr_content_description">Terminal QR code</string>
+    <string name="menu_configuration_setup_action">Go to setup</string>
+    <string name="menu_configuration_dialog_dismiss">Got it</string>
+    <string name="menu_configuration_blocked_message">Complete terminal setup in Settings before starting this transaction.</string>
+    <string name="menu_configuration_required_title">Terminal is not configured yet</string>
+    <string name="menu_configuration_required_description">Configure the terminal in Settings before using payment services.</string>
+</resources>

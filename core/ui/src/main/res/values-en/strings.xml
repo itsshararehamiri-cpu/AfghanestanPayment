@@ -1,0 +1,12 @@
+<resources>
+    <string name="label_back">Back</string>
+    <string name="label_pending_saf_receipt_title">Pending transaction receipt</string>
+    <string name="balance_title">Balance Inquiry</string>
+    <string name="label_terminal_merchant">Terminal / Merchant</string>
+    <string name="balance_home">Home</string>
+    <string name="balance_print_receipt">Print receipt</string>
+    <string name="balance_reprint_receipt">Reprint receipt</string>
+    <string name="date_picker_title">Select date</string>
+    <string name="date_picker_confirm">Confirm</string>
+    <string name="bottom_sheet_close">Close</string>
+</resources>

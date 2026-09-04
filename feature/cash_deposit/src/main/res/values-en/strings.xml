@@ -1,0 +1,11 @@
+<resources>
+    <string name="cash_deposit_title">Cash deposit</string>
+    <string name="transaction_info">Transaction information</string>
+    <string name="plz_enter_transaction_info">Please enter transaction information</string>
+    <string name="amount_currency">Amount (AFN)</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="pla_enter_amount">Please enter the amount</string>
+    <string name="invalid_amount_entered">The entered amount is not valid</string>
+    <string name="cash_deposit_success">Cash deposit completed successfully.</string>
+    <string name="cash_deposit_failed">Cash deposit failed.</string>
+</resources>

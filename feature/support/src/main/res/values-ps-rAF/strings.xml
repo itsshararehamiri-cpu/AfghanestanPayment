@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="support_title">د ملاتړ خدمتونه</string>
+    <string name="support_transaction_title">د ملاتړ معامله</string>
+    <string name="support_transaction_was_successful">د ملاتړ معامله په بریالیتوب سره ترسره شوه.</string>
+    <string name="support_continue">دوام</string>
+    <string name="support_empty">د ملاتړ خدمتونو لیست خالي دی. لومړی Logon ترسره کړئ ترڅو د خدمتونو مینو (ټګ ۲۳) له الماس څخه ترلاسه شي.</string>
+    <string name="support_select_item">یو د ملاتړ مورد وټاکئ</string>
+    <string name="support_invalid_amount">د دې مورد اندازه ناسمه ده</string>
+    <string name="support_failed_title">د ملاتړ معامله ناکامه شوه.</string>
+</resources>

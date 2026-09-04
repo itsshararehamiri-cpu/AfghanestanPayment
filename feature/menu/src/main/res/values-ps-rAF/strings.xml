@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_app_name">همراه پی</string>
+    <string name="menu_app_name_behpardakht">به‌پرداخت</string>
+    <string name="menu_app_name_fanava">فناوا</string>
+    <string name="menu_app_name_ap">آسیاپی</string>
+    <string name="menu_app_name_sadad">سداد</string>
+
+    <string name="menu_app_name_pn">پویان</string>
+    <string name="menu_terminal_label">د ټرمینال شمیره:</string>
+    <string name="menu_purchase">پیرود</string>
+    <string name="menu_report">راپورونه</string>
+    <string name="menu_balance">د موجودي پوښتنه</string>
+    <string name="menu_bill">بل تادیه</string>
+    <string name="menu_topup">موبایل چارج</string>
+    <string name="menu_voucher">کد شارژ</string>
+    <string name="menu_support">ملاتړ</string>
+    <string name="menu_transfer">پیسې لیږد</string>
+    <string name="menu_wallet_to_wallet">والټ څخه والټ</string>
+    <string name="menu_cash_deposit">نغدي زیرمه</string>
+    <string name="menu_cash_out">نغدي ایستل</string>
+    <string name="menu_settings">تنظیمات</string>
+    <string name="menu_change_account">حساب بدلول</string>
+    <string name="menu_promo_title">د پذیرونکو لپاره ځانګړی ډالۍ</string>
+    <string name="menu_promo_amount">10,000 AFN</string>
+    <string name="menu_qr_content_description">د ټرمینال QR کوډ</string>
+    <string name="menu_configuration_setup_action">پیکربندي ته لاړ شئ</string>
+    <string name="menu_configuration_dialog_dismiss">پوه شوم</string>
+    <string name="menu_configuration_blocked_message">د دې معاملې لپاره، لومړی باید ټرمینال له تنظیماتو برخې څخه پیکربندي کړئ.</string>
+    <string name="menu_configuration_required_title">ټرمینال لا پیکربندي نه دی</string>
+    <string name="menu_configuration_required_description">د تادیې خدماتو کارولو لپاره، لومړی ټرمینال پیکربندي کړئ.</string>
+</resources>

@@ -1,0 +1,11 @@
+<resources>
+    <string name="cash_deposit_title">واریز نقدی</string>
+    <string name="transaction_info">اطلاعات تراکنش</string>
+    <string name="plz_enter_transaction_info">لطفا اطلاعات تراکنش را وارد کنید</string>
+    <string name="amount_currency">مبلغ (AFN)</string>
+    <string name="enter_amount">مبلغ را وارد کنید</string>
+    <string name="pla_enter_amount">لطفا مبلغ را وارد کنید</string>
+    <string name="invalid_amount_entered">مبلغ وارد شده معتبر نیست</string>
+    <string name="cash_deposit_success">واریز نقدی با موفقیت انجام شد.</string>
+    <string name="cash_deposit_failed">واریز نقدی ناموفق شد.</string>
+</resources>

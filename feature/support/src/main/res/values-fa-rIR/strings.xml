@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="support_title">خدمات پشتیبانی</string>
+    <string name="support_transaction_title">تراکنش پشتیبانی</string>
+    <string name="support_transaction_was_successful">تراکنش پشتیبانی با موفقیت انجام شد.</string>
+    <string name="support_continue">ادامه</string>
+    <string name="support_empty">لیست خدمات پشتیبانی خالی است. ابتدا Logon را انجام دهید تا منوی سرویس‌ها (تگ ۲۳) از الماس دریافت شود.</string>
+    <string name="support_select_item">یک مورد پشتیبانی را انتخاب کنید</string>
+    <string name="support_invalid_amount">مبلغ این مورد نامعتبر است</string>
+    <string name="support_failed_title">تراکنش پشتیبانی ناموفق شد.</string>
+</resources>

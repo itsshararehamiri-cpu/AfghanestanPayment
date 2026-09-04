@@ -1,0 +1,11 @@
+<resources>
+    <string name="topup_title">Buy top-up</string>
+    <string name="topup_mobile_label">Recipient mobile number</string>
+    <string name="topup_mobile_placeholder">Enter mobile number</string>
+    <string name="topup_amount_label">Top-up amount (AFN)</string>
+    <string name="topup_amount_placeholder">Enter amount</string>
+    <string name="topup_confirm">Confirm and continue</string>
+    <string name="topup_failed">TopUp failed.</string>
+    <string name="topup_was_successful">TopUp transfer was successful.</string>
+
+</resources>

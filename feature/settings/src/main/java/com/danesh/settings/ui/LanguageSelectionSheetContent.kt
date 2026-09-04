@@ -1,0 +1,63 @@
+package com.danesh.settings.ui
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.danesh.settings.R
+import com.danesh.settings.model.AppLanguage
+
+@Composable
+fun LanguageSelectionSheetContent(
+    selectedLanguage: AppLanguage,
+    availableLanguages: List<AppLanguage>,
+    onLanguageSelected: (AppLanguage) -> Unit,
+    onCloseClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 28.dp),
+    ) {
+        SettingsSheetDragHandle()
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        SettingsSheetHeader(
+            title = stringResource(R.string.settings_language_sheet_title),
+            onCloseClick = onCloseClick,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        availableLanguages.forEachIndexed { index, language ->
+            if (index > 0) {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            SettingsSelectionOptionRow(
+                label = stringResource(language.labelRes),
+                isSelected = selectedLanguage == language,
+                onClick = { onLanguageSelected(language) },
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF022631)
+@Composable
+private fun LanguageSelectionSheetContentPreview() {
+    LanguageSelectionSheetContent(
+        selectedLanguage = AppLanguage.PersianDari,
+        availableLanguages = AppLanguage.entries,
+        onLanguageSelected = {},
+        onCloseClick = {},
+    )
+}

@@ -1,0 +1,20 @@
+<resources>
+    <string name="customer_receipt">Customer receipt</string>
+    <string name="merchant_receipt">Merchant receipt</string>
+    <string name="duplicate_receipt">Duplicate receipt</string>
+    <string name="sum_of_all_transactions">Total of all transactions</string>
+    <string name="amount_with_currency">%1$s AFN</string>
+    <string name="trace__">Tracking number</string>
+    <string name="trace_rrn">Tracking/Reference number</string>
+    <string name="balance_">Balance</string>
+    <string name="balance_transaction_fee">Balance fee:</string>
+    <string name="withdrawable_account_balance">Withdrawable account balance</string>
+    <string name="voucher_serial">Top-up serial</string>
+    <string name="voucher_pin">Top-up PIN</string>
+    <string name="customer_signature">Customer signature</string>
+    <string name="success_operation">Operation successful</string>
+    <string name="unsuccess_transaction">Transaction failed</string>
+    <string name="card_number_title">Card number</string>
+    <string name="balance_success_title">Balance inquiry completed successfully.</string>
+    <string name="balance_failed_title">Balance inquiry failed.</string>
+</resources>
