@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wallet_to_wallet_title">والټ څخه والټ</string>
+    <string name="wallet_to_wallet_transfer_to">انتقال ته:</string>
+    <string name="wallet_to_wallet_source_label">د مبدا والټ</string>
+    <string name="wallet_to_wallet_source_placeholder">۱۶ ګڼیز د مبدا والټ شمیره دننه کړئ</string>
+    <string name="wallet_to_wallet_dest_label">د مقصد والټ</string>
+    <string name="wallet_to_wallet_dest_placeholder">۱۶ ګڼیز د مقصد والټ شمیره دننه کړئ</string>
+    <string name="wallet_to_wallet_amount_label">د انتقال اندازه:</string>
+    <string name="wallet_to_wallet_amount_placeholder">اندازه دننه کړئ</string>
+    <string name="wallet_to_wallet_continue">تایید او دوام ورکړئ</string>
+    <string name="wallet_to_wallet_confirm_title">د والټ څخه والټ انتقال تایید</string>
+    <string name="wallet_to_wallet_confirm">انتقال تایید کړئ</string>
+    <string name="wallet_to_wallet_name_inquiry_title">د مقصد پوښتنه</string>
+    <string name="wallet_to_wallet_was_successful">د والټ څخه والټ انتقال په بریالیتوب سره تر سره شو.</string>
+    <string name="wallet_to_wallet_failed">د والټ څخه والټ انتقال ناکامه شو.</string>
+    <string name="wallet_to_wallet_validation_16_digits">د والټ شمیره باید ۱۶ ګڼې وي</string>
+    <string name="wallet_to_wallet_validation_enter_source">د مبدا والټ شمیره دننه کړئ</string>
+    <string name="wallet_to_wallet_validation_enter_dest">د مقصد والټ شمیره دننه کړئ</string>
+    <string name="wallet_to_wallet_validation_same_wallet">د مبدا او مقصد والټونه نشي کولی یو شان وي</string>
+    <string name="wallet_to_wallet_validation_enter_amount">اندازه دننه کړئ</string>
+</resources>

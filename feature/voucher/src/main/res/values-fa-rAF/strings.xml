@@ -1,0 +1,8 @@
+<resources>
+    <string name="voucher_title">خرید شارژ</string>
+    <string name="voucher_amount_placeholder">مبلغ را انتخاب کنید</string>
+    <string name="voucher_confirm">تایید و ادامه</string>
+    <string name="voucher_was_successful">خرید کد شارژ با موفقیت انجام شد.</string>
+    <string name="voucher_failed">خرید کد شارژ ناموفق شد.</string>
+
+</resources>

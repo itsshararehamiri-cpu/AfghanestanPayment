@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="currency_afn">IRR</string>
+    <string name="amount_currency">Amount (IRR)</string>
+    <string name="amount_with_currency">%1$s IRR</string>
+    <string name="placeholder_amount_unavailable">— IRR</string>
+</resources>

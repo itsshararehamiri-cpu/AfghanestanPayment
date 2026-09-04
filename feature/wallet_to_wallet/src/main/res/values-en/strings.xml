@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wallet_to_wallet_title">Wallet to Wallet</string>
+    <string name="wallet_to_wallet_transfer_to">Transfer to:</string>
+    <string name="wallet_to_wallet_source_label">Source Wallet</string>
+    <string name="wallet_to_wallet_source_placeholder">Enter 16-digit source wallet number</string>
+    <string name="wallet_to_wallet_dest_label">Destination Wallet</string>
+    <string name="wallet_to_wallet_dest_placeholder">Enter 16-digit destination wallet number</string>
+    <string name="wallet_to_wallet_amount_label">Transfer Amount:</string>
+    <string name="wallet_to_wallet_amount_placeholder">Enter amount</string>
+    <string name="wallet_to_wallet_continue">Confirm &amp; Continue</string>
+    <string name="wallet_to_wallet_confirm_title">Confirm Wallet Transfer</string>
+    <string name="wallet_to_wallet_confirm">Confirm Transfer</string>
+    <string name="wallet_to_wallet_name_inquiry_title">Recipient Inquiry</string>
+    <string name="wallet_to_wallet_was_successful">Wallet-to-wallet transfer was successful.</string>
+    <string name="wallet_to_wallet_failed">Wallet-to-wallet transfer failed.</string>
+    <string name="wallet_to_wallet_validation_16_digits">Wallet number must be 16 digits</string>
+    <string name="wallet_to_wallet_validation_enter_source">Enter source wallet number</string>
+    <string name="wallet_to_wallet_validation_enter_dest">Enter destination wallet number</string>
+    <string name="wallet_to_wallet_validation_same_wallet">Source and destination wallets cannot be the same</string>
+    <string name="wallet_to_wallet_validation_enter_amount">Enter amount</string>
+</resources>

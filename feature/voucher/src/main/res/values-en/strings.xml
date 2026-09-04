@@ -1,0 +1,6 @@
+<resources>
+    <string name="voucher_title">Buy top-up</string>
+    <string name="voucher_amount_placeholder">Choose amount</string>
+    <string name="voucher_confirm">Confirm and continue</string>
+
+</resources>

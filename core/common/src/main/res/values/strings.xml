@@ -1,0 +1,49 @@
+<resources>
+    <string name="lang_persian_dari">فارسی-دری</string>
+    <string name="lang_persian_pashto">فارسی-پشتو</string>
+    <string name="lang_persian_iranian">فارسی ایرانی</string>
+    <string name="lang_english">English</string>
+
+    <string name="tx_message_success">موفق</string>
+    <string name="tx_message_failed">تراکنش ناموفق</string>
+    <string name="tx_message_queue_failed">صف تراکنش خالی نشد</string>
+    <string name="tx_message_connect_failed">اتصال به سرور برقرار نشد</string>
+    <string name="tx_message_send_failed">ارسال پیام ناموفق بود</string>
+    <string name="tx_message_receive_failed">دریافت پاسخ ناموفق بود</string>
+    <string name="tx_message_network_failed">خطای شبکه</string>
+
+    <string name="error_invalid_card_number">شماره کارت نامعتبر است</string>
+    <string name="error_wrong_password">رمز اشتباه است</string>
+    <string name="error_current_password_wrong">رمز فعلی اشتباه است</string>
+    <string name="error_invalid_card">کارت نامعتبر است</string>
+    <string name="error_transaction_not_found">تراکنشی یافت نشد</string>
+    <string name="error_report_load_failed">خطا در دریافت گزارش</string>
+
+    <string name="balance_success_title">استعلام موجودی با موفقیت انجام شد.</string>
+    <string name="balance_failed_title">استعلام موجودی ناموفق شد.</string>
+    <string name="purchase_success_title">خرید با موفقیت انجام شد.</string>
+    <string name="purchase_failed_title">خرید ناموفق شد.</string>
+
+    <string name="terminal_merchant_label">پایانه/پذیرنده</string>
+
+    <string name="card_to_card_not_implemented">کارت به کارت هنوز پیاده‌سازی نشده است</string>
+    <string name="topup_not_implemented">شارژ هنوز پیاده‌سازی نشده است</string>
+    <string name="bill_not_implemented">پرداخت قبض هنوز پیاده‌سازی نشده است</string>
+
+    <string name="validation_enter_destination_card">لطفا شماره کارت مقصد را وارد کنید</string>
+    <string name="validation_card_16_digits">شماره کارت باید ۱۶ رقم باشد</string>
+    <string name="validation_wallet_8_digits">کد کیف پول باید ۸ رقم باشد</string>
+    <string name="validation_enter_amount">لطفا مبلغ را وارد کنید</string>
+    <string name="validation_enter_mobile">لطفا شماره موبایل را وارد کنید</string>
+    <string name="validation_mobile_10_digits">شماره موبایل باید 11 رقم باشد</string>
+    <string name="validation_mobile_prefix">شماره موبایل باید با ۰۷ شروع شود</string>
+    <string name="validation_select_operator">لطفا اپراتور را انتخاب کنید</string>
+    <string name="validation_enter_bill_id">لطفا شناسه قبض را وارد کنید</string>
+    <string name="validation_enter_payment_id">لطفا شناسه پرداخت را وارد کنید</string>
+
+    <string name="bill_type_generic">قبض</string>
+    <string name="bill_type_water">قبض آب</string>
+    <string name="unsuccess_result">تراکنش ناموفق</string>
+    <string name="label_terminal_merchant">پایانه / پذیرنده</string>
+
+</resources>

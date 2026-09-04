@@ -1,0 +1,5 @@
+<resources>
+     <string name="boot_launch_channel_name">Auto launch</string>
+    <string name="boot_launch_channel_description">Opens the app after device boot</string>
+    <string name="boot_launch_notification_text">Preparing app…</string>
+</resources>

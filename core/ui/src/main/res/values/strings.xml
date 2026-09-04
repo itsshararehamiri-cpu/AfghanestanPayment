@@ -1,0 +1,12 @@
+<resources>
+    <string name="label_back">بازگشت</string>
+    <string name="label_pending_saf_receipt_title">رسید تراکنش معلق</string>
+    <string name="balance_title">اعلام موجودی</string>
+    <string name="label_terminal_merchant">پایانه / پذیرنده</string>
+    <string name="balance_home">صفحه اصلی</string>
+    <string name="balance_print_receipt">چاپ رسید</string>
+    <string name="balance_reprint_receipt">چاپ مجدد رسید</string>
+    <string name="date_picker_title">انتخاب تاریخ</string>
+    <string name="date_picker_confirm">تایید</string>
+    <string name="bottom_sheet_close">بستن</string>
+</resources>

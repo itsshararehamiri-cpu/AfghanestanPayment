@@ -1,0 +1,5 @@
+<resources>
+    <string name="boot_launch_channel_name">راه‌اندازی خودکار</string>
+    <string name="boot_launch_channel_description">باز کردن اپ پس از روشن شدن دستگاه</string>
+    <string name="boot_launch_notification_text">در حال آماده‌سازی اپ…</string>
+</resources>

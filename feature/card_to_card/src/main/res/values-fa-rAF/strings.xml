@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="card_to_card_title">انتقال وجه</string>
+    <string name="card_to_card_transfer_to">انتقال به :</string>
+    <string name="card_to_card_source_label">کارت مبدأ</string>
+    <string name="card_to_card_destination_card_label">کارت مقصد</string>
+    <string name="card_to_card_destination_wallet_label">کد کیف پول مقصد</string>
+    <string name="card_to_card_amount_label">مبلغ انتقال:</string>
+    <string name="card_to_card_confirm">تایید انتقال وجه</string>
+    <string name="card_to_card_card_label">شماره کارت</string>
+    <string name="card_to_card_card_placeholder">شماره کارت مقصد را وارد کنید</string>
+    <string name="card_to_card_wallet_label">کد کیف پول</string>
+    <string name="card_to_card_wallet_placeholder">کد ۸ رقمی کیف پول را وارد کنید</string>
+    <string name="card_to_card_dest_card">کارت</string>
+    <string name="card_to_card_dest_wallet">کیف پول</string>
+    <string name="card_to_card_amount_field_label">مبلغ (AFN)</string>
+    <string name="card_to_card_amount_placeholder">مبلغ را وارد کنید</string>
+    <string name="card_to_card_continue">تایید و ادامه</string>
+    <string name="card_to_card_name_inquiry_title">استعلام مقصد</string>
+    <string name="card_to_card_was_successful">کارت به کارت با موفقیت انجام شد.</string>
+    <string name="card_to_wallet_was_successful">کارت به کیف پول با موفقیت انجام شد.</string>
+    <string name="card_to_card_failed">کارت به کارت ناموفق شد.</string>
+    <string name="card_to_wallet_failed">کارت به کیف پول ناموفق شد.</string>
+</resources>

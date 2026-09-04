@@ -1,0 +1,14 @@
+<resources>
+    <string name="bill_inquiry_result_title">نتیجه استعلام قبض</string>
+    <string name="bill_label_bill_id">شناسه قبض</string>
+    <string name="bill_label_debt_amount">مبلغ بدهی</string>
+    <string name="bill_label_tax">مالیات</string>
+    <string name="bill_label_payment_deadline">مهلت پرداخت</string>
+    <string name="bill_label_payable_amount">مبلغ قابل پرداخت</string>
+    <string name="bill_confirm_and_pay">تایید و پرداخت</string>
+    <string name="bill_inquiry_error_ok">تایید</string>
+    <string name="enter_amount">مبلغ را وارد کنید</string>
+    <string name="bill_failed">پرداخت قبض  ناموفق شد.</string>
+    <string name="bill_was_successful">پرداخت قبض ناموفق شد.</string>
+
+</resources>

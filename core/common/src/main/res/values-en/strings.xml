@@ -1,0 +1,49 @@
+<resources>
+    <string name="lang_persian_dari">Persian-Dari</string>
+    <string name="lang_persian_pashto">Pashto</string>
+    <string name="lang_persian_iranian">Persian</string>
+    <string name="lang_english">English</string>
+
+    <string name="tx_message_success">Success</string>
+    <string name="tx_message_failed">Transaction failed</string>
+    <string name="tx_message_queue_failed">Transaction queue was not cleared</string>
+    <string name="tx_message_connect_failed">Failed to connect to host</string>
+    <string name="tx_message_send_failed">Failed to send message</string>
+    <string name="tx_message_receive_failed">Failed to receive response</string>
+    <string name="tx_message_network_failed">Network error</string>
+
+    <string name="error_invalid_card_number">Invalid card number</string>
+    <string name="error_wrong_password">Incorrect password</string>
+    <string name="error_current_password_wrong">Current password is incorrect</string>
+    <string name="error_invalid_card">Invalid card</string>
+    <string name="error_transaction_not_found">No transaction found</string>
+    <string name="error_report_load_failed">Failed to load report</string>
+
+    <string name="balance_success_title">Balance inquiry completed successfully.</string>
+    <string name="balance_failed_title">Balance inquiry failed.</string>
+    <string name="purchase_success_title">Purchase completed successfully.</string>
+    <string name="purchase_failed_title">Purchase failed.</string>
+
+    <string name="terminal_merchant_label">Terminal/Merchant</string>
+
+    <string name="card_to_card_not_implemented">Card-to-card transfer is not implemented yet</string>
+    <string name="topup_not_implemented">Top-up is not implemented yet</string>
+    <string name="bill_not_implemented">Bill payment is not implemented yet</string>
+
+    <string name="validation_enter_destination_card">Please enter the destination card number</string>
+    <string name="validation_card_16_digits">Card number must be 16 digits</string>
+    <string name="validation_wallet_8_digits">Wallet code must be 8 digits</string>
+    <string name="validation_enter_amount">Please enter the amount</string>
+    <string name="validation_enter_mobile">Please enter the mobile number</string>
+    <string name="validation_mobile_10_digits">Mobile number must be 10 digits</string>
+    <string name="validation_mobile_prefix">Mobile number must start with 07</string>
+    <string name="validation_select_operator">Please select an operator</string>
+    <string name="validation_enter_bill_id">Please enter the bill ID</string>
+    <string name="validation_enter_payment_id">Please enter the payment ID</string>
+
+    <string name="bill_type_generic">Bill</string>
+    <string name="bill_type_water">Water bill</string>
+    <string name="unsuccess_result">Transaction failed</string>
+    <string name="label_terminal_merchant">Terminal / Merchant</string>
+
+</resources>

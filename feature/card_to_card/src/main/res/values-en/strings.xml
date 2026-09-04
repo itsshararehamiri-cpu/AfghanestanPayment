@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="card_to_card_title">Fund Transfer</string>
+    <string name="card_to_card_transfer_to">Transfer to:</string>
+    <string name="card_to_card_source_label">Source Card</string>
+    <string name="card_to_card_destination_card_label">Destination Card</string>
+    <string name="card_to_card_destination_wallet_label">Destination Wallet Code</string>
+    <string name="card_to_card_amount_label">Transfer Amount:</string>
+    <string name="card_to_card_confirm">Confirm Transfer</string>
+    <string name="card_to_card_card_label">Card Number</string>
+    <string name="card_to_card_card_placeholder">Enter destination card number</string>
+    <string name="card_to_card_wallet_label">Wallet Code</string>
+    <string name="card_to_card_wallet_placeholder">Enter 8-digit wallet code</string>
+    <string name="card_to_card_dest_card">Card</string>
+    <string name="card_to_card_dest_wallet">Wallet</string>
+    <string name="card_to_card_amount_field_label">Amount (AFN)</string>
+    <string name="card_to_card_amount_placeholder">Enter amount</string>
+    <string name="card_to_card_continue">Confirm &amp; Continue</string>
+    <string name="card_to_card_name_inquiry_title">Recipient Inquiry</string>
+    <string name="card_to_card_was_successful">Card-to-card transfer was successful.</string>
+    <string name="card_to_wallet_was_successful">Card-to-wallet transfer was successful.</string>
+    <string name="card_to_card_failed">Card-to-card transfer failed.</string>
+    <string name="card_to_wallet_failed">Card-to-wallet transfer failed.</string>
+</resources>

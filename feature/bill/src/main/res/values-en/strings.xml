@@ -1,0 +1,13 @@
+<resources>
+    <string name="bill_inquiry_result_title">Bill inquiry result</string>
+    <string name="bill_label_bill_id">Bill ID</string>
+    <string name="bill_label_debt_amount">Debt amount</string>
+    <string name="bill_label_tax">Tax</string>
+    <string name="bill_label_payment_deadline">Payment deadline</string>
+    <string name="bill_label_payable_amount">Payable amount</string>
+    <string name="bill_confirm_and_pay">Confirm and pay</string>
+    <string name="bill_inquiry_error_ok">OK</string>
+    <string name="bill_failed">Bill failed.</string>
+    <string name="bill_was_successful">Bill was successful.</string>
+
+</resources>

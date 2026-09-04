@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="currency_afn">ریال</string>
+    <string name="amount_currency">مبلغ (ریال)</string>
+    <string name="amount_with_currency">%1$s ریال</string>
+    <string name="placeholder_amount_unavailable">— ریال</string>
+</resources>

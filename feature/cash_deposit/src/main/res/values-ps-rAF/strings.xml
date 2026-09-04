@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cash_deposit_title">نغدي زیرمه</string>
+    <string name="transaction_info">د معاملې معلومات</string>
+    <string name="plz_enter_transaction_info">مهرباني وکړئ د معاملې معلومات ولیکئ</string>
+    <string name="amount_currency">مبلغ (AFN)</string>
+    <string name="enter_amount">مبلغ ولیکئ</string>
+    <string name="pla_enter_amount">مهرباني وکړئ مبلغ ولیکئ</string>
+    <string name="invalid_amount_entered">داخل شوی مبلغ ناسم دی</string>
+    <string name="cash_deposit_success">نغدي زیرمه په بریالیتوب سره ترسره شوه.</string>
+    <string name="cash_deposit_failed">نغدي زیرمه ناکامه شوه.</string>
+</resources>

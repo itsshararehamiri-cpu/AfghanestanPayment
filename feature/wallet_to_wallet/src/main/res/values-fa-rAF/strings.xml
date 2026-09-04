@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wallet_to_wallet_title">کیف به کیف</string>
+    <string name="wallet_to_wallet_transfer_to">انتقال به :</string>
+    <string name="wallet_to_wallet_source_label">کیف پول مبدأ</string>
+    <string name="wallet_to_wallet_source_placeholder">شماره ۱۶ رقمی کیف پول مبدأ را وارد کنید</string>
+    <string name="wallet_to_wallet_dest_label">کیف پول مقصد</string>
+    <string name="wallet_to_wallet_dest_placeholder">شماره ۱۶ رقمی کیف پول مقصد را وارد کنید</string>
+    <string name="wallet_to_wallet_amount_label">مبلغ انتقال:</string>
+    <string name="wallet_to_wallet_amount_placeholder">مبلغ را وارد کنید</string>
+    <string name="wallet_to_wallet_continue">تایید و ادامه</string>
+    <string name="wallet_to_wallet_confirm_title">تایید انتقال کیف به کیف</string>
+    <string name="wallet_to_wallet_confirm">تایید انتقال</string>
+    <string name="wallet_to_wallet_name_inquiry_title">استعلام مقصد</string>
+    <string name="wallet_to_wallet_was_successful">انتقال کیف به کیف با موفقیت انجام شد.</string>
+    <string name="wallet_to_wallet_failed">انتقال کیف به کیف ناموفق شد.</string>
+    <string name="wallet_to_wallet_validation_16_digits">شماره کیف پول باید ۱۶ رقم باشد</string>
+    <string name="wallet_to_wallet_validation_enter_source">شماره کیف پول مبدأ را وارد کنید</string>
+    <string name="wallet_to_wallet_validation_enter_dest">شماره کیف پول مقصد را وارد کنید</string>
+    <string name="wallet_to_wallet_validation_same_wallet">کیف پول مبدأ و مقصد نمی‌توانند یکسان باشند</string>
+    <string name="wallet_to_wallet_validation_enter_amount">مبلغ را وارد کنید</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="support_title">Support services</string>
+    <string name="support_transaction_title">Support transaction</string>
+    <string name="support_transaction_was_successful">Support transaction completed successfully.</string>
+    <string name="support_continue">Continue</string>
+    <string name="support_empty">The support service list is empty. Perform Logon first so the service menu (tag 23) is received from the switch.</string>
+    <string name="support_select_item">Select a support item</string>
+    <string name="support_invalid_amount">The amount for this item is invalid</string>
+    <string name="support_failed_title">Support transaction failed.</string>
+</resources>

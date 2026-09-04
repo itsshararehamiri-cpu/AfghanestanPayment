@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="card_to_card_title">د پیسو انتقال</string>
+    <string name="card_to_card_transfer_to">انتقال ته:</string>
+    <string name="card_to_card_source_label">د مبدا کارت</string>
+    <string name="card_to_card_destination_card_label">د مقصد کارت</string>
+    <string name="card_to_card_destination_wallet_label">د مقصد والټ کوډ</string>
+    <string name="card_to_card_amount_label">د انتقال اندازه:</string>
+    <string name="card_to_card_confirm">د پیسو انتقال تایید کړئ</string>
+    <string name="card_to_card_card_label">د کارت شمیره</string>
+    <string name="card_to_card_card_placeholder">د مقصد کارت شمیره دننه کړئ</string>
+    <string name="card_to_card_wallet_label">د والټ کوډ</string>
+    <string name="card_to_card_wallet_placeholder">۸ ګڼیز والټ کوډ دننه کړئ</string>
+    <string name="card_to_card_dest_card">کارت</string>
+    <string name="card_to_card_dest_wallet">والټ</string>
+    <string name="card_to_card_amount_field_label">اندازه (AFN)</string>
+    <string name="card_to_card_amount_placeholder">اندازه دننه کړئ</string>
+    <string name="card_to_card_continue">تایید او دوام ورکړئ</string>
+    <string name="card_to_card_name_inquiry_title">د مقصد پوښتنه</string>
+    <string name="card_to_card_was_successful">د کارت نه کارت انتقال په بریالیتوب سره تر سره شو.</string>
+    <string name="card_to_wallet_was_successful">د کارت نه والټ ته انتقال په بریالیتوب سره تر سره شو.</string>
+    <string name="card_to_card_failed">د کارت نه کارت انتقال ناکامه شو.</string>
+    <string name="card_to_wallet_failed">د کارت نه والټ ته انتقال ناکامه شو.</string>
+</resources>
