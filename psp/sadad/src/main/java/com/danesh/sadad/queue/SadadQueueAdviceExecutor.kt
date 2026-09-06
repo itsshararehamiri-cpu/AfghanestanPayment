@@ -14,6 +14,7 @@ import javax.inject.Singleton
 @Singleton
 class SadadQueueAdviceExecutor @Inject constructor(
     private val executorProvider: Provider<TransactionExecutor<IsoMessage>>,
+    private val adviceHandler: SadadAdviceHandler,
     private val reverseHandler: SadadReverseHandler,
 ) : QueueAdviceExecutor<IsoMessage> {
 
@@ -21,9 +22,9 @@ class SadadQueueAdviceExecutor @Inject constructor(
         return withContext(Dispatchers.IO) {
             val executor = executorProvider.get()
             when {
-                SafStatuses.needsAdvice(item.status) -> SadadAdviceResult(
-                    isSuccess = true,
-                    responseCode = "000",
+                SafStatuses.needsAdvice(item.status) -> executor.execute(
+                    request = SadadAdviceRequest(item),
+                    handler = adviceHandler,
                 )
                 else -> executor.execute(
                     request = SadadReverseRequest(item),

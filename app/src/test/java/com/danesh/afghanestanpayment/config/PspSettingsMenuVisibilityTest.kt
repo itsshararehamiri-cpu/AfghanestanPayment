@@ -26,6 +26,24 @@ class PspSettingsMenuVisibilityTest {
     }
 
     @Test
+    fun sadad_showsSupportServicesAndTmsButNotFeeOrMicroPayment() {
+        val visibility = providerFor(
+            activePsp = ActivePsp.SADAD,
+            enabledFeatures = setOf(
+                MenuItemType.PURCHASE.name,
+                MenuItemType.BALANCE.name,
+            ),
+        ).visibility()
+
+        assertTrue(visibility.showSupportServices)
+        assertFalse(visibility.showVatPercentage)
+        assertTrue(visibility.showTmsSection)
+        assertFalse(visibility.showMerchantShowFee)
+        assertFalse(visibility.showMerchantMicroPaymentIndex)
+        assertFalse(visibility.showSupportMicroPaymentIndex)
+    }
+
+    @Test
     fun hamrahPay_hidesSupportServicesAndVatAndTms() {
         val visibility = providerFor(
             activePsp = ActivePsp.HP,

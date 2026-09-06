@@ -12,6 +12,11 @@ class DefaultAppLanguageMappingTest {
     }
 
     @Test
+    fun sadad_defaultLanguage_isPersian() {
+        assertEquals(AppLanguage.Other, ActivePsp.SADAD.toDefaultAppLanguage())
+    }
+
+    @Test
     fun hamrahPay_defaultLanguage_isDari() {
         assertEquals(AppLanguage.PersianDari, ActivePsp.HP.toDefaultAppLanguage())
         assertEquals(AppLanguage.PersianDari, ActivePsp.FANAVA.toDefaultAppLanguage())
