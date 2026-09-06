@@ -40,6 +40,9 @@ class KeyLoadingViewModel @Inject constructor(
     )
     val uiState: StateFlow<KeyLoadingUiState> = _uiState.asStateFlow()
 
+    /** true برای PSPهایی که کلیدگذاری با کارت هوشمند دارند (سداد) — UI باید جریان دیگری نمایش دهد. */
+    val usesKeyCardLoading: Boolean = initialConfigurationPolicy.usesKeyCardLoading
+
     fun updateFirstBallotTicket(ticket: String) {
         if (_uiState.value.isLoading) return
         _uiState.update {

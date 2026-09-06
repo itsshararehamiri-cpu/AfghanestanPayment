@@ -22,11 +22,13 @@ import com.danesh.settings.model.MerchantSupportLaunchRequest
 import com.danesh.settings.presentation.InitialConfigurationViewModel
 import com.danesh.settings.presentation.KeyLoadingViewModel
 import com.danesh.settings.presentation.MerchantExitPasswordViewModel
+import com.danesh.settings.presentation.SadadKeyCardLoadingViewModel
 import com.danesh.settings.presentation.SupportServicesFlowViewModel
 import com.danesh.support.SupportScreen
 import com.danesh.support.presentation.SupportViewModel
 import com.danesh.settings.ui.ConfigurationScreen
 import com.danesh.settings.ui.KeyLoadingScreen
+import com.danesh.settings.ui.SadadKeyCardLoadingScreen
 import com.danesh.settings.ui.TerminalSetupScreen
 import com.danesh.settings.ui.BackupPlatformRoute
 import com.danesh.settings.ui.DefaultIdSettingsRoute
@@ -220,20 +222,37 @@ fun SupportSettingsNavHost(
 
         composable(SupportSettingsRoutes.KEY_LOADING) {
             val viewModel: KeyLoadingViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val title = stringResource(R.string.settings_key_loading)
 
-            KeyLoadingScreen(
-                title = title,
-                uiState = uiState,
-                onBackClick = { navController.popBackStack() },
-                onFirstBallotTicketChange = viewModel::updateFirstBallotTicket,
-                onSecondBallotTicketChange = viewModel::updateSecondBallotTicket,
-                onScanFirstBallotTicket = viewModel::scanFirstBallotTicket,
-                onScanSecondBallotTicket = viewModel::scanSecondBallotTicket,
-                onConfirmClick = viewModel::confirm,
-                onCancelClick = { navController.popBackStack() },
-            )
+            if (viewModel.usesKeyCardLoading) {
+                val cardViewModel: SadadKeyCardLoadingViewModel = hiltViewModel()
+                val cardUiState by cardViewModel.uiState.collectAsStateWithLifecycle()
+
+                SadadKeyCardLoadingScreen(
+                    uiState = cardUiState,
+                    onBackClick = { navController.popBackStack() },
+                    onKeyIndexChange = cardViewModel::updateKeyIndex,
+                    onCardAPinChange = cardViewModel::updateCardAPin,
+                    onCardBcPinChange = cardViewModel::updateCardBcPin,
+                    onSelectCard = cardViewModel::selectCard,
+                    onReadCardA = cardViewModel::readCardA,
+                    onReadCardBc = cardViewModel::readCardBOrC,
+                )
+            } else {
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val title = stringResource(R.string.settings_key_loading)
+
+                KeyLoadingScreen(
+                    title = title,
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onFirstBallotTicketChange = viewModel::updateFirstBallotTicket,
+                    onSecondBallotTicketChange = viewModel::updateSecondBallotTicket,
+                    onScanFirstBallotTicket = viewModel::scanFirstBallotTicket,
+                    onScanSecondBallotTicket = viewModel::scanSecondBallotTicket,
+                    onConfirmClick = viewModel::confirm,
+                    onCancelClick = { navController.popBackStack() },
+                )
+            }
         }
 
         composable(SupportSettingsRoutes.INITIAL_CONFIGURATION) {

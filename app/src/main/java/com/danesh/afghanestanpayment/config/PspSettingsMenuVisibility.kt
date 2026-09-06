@@ -17,7 +17,8 @@ class PspSettingsMenuVisibility @Inject constructor(
 
         return SettingsMenuVisibility(
             showSupportServices = isBehpardakht,
-            showVatPercentage = MenuItemType.TOPUP.name in features,
+            showVatPercentage = MenuItemType.TOPUP.name in features &&
+                !appRuntimeConfig.activePsp.isHamrahPay,
             showTmsSection = isBehpardakht,
             showMerchantShowFee = isBehpardakht,
             showMerchantMicroPaymentIndex = isBehpardakht,

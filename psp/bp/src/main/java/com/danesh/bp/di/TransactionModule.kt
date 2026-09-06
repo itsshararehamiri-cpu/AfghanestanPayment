@@ -2,6 +2,7 @@ package com.danesh.bp.di
 
 import android.util.Log
 import com.danesh.api.InitialConfigurationPolicy
+import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.PspConfigurationChecker
 import com.danesh.api.PspGateway
 import com.danesh.api.BillFlowPolicy
@@ -93,6 +94,11 @@ abstract class TransactionModule {
     ): InitialConfigurationPolicy
 
     companion object {
+        @Provides
+        @Singleton
+        fun provideKeyCardLoadingService(): KeyCardLoadingService =
+            com.danesh.api.UnsupportedKeyCardLoadingService
+
         @Provides
         @Singleton
         fun provideTransactionFeeCalculator(

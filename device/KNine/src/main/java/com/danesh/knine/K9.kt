@@ -105,9 +105,9 @@ class K9 @Inject constructor(
     override suspend fun writeMacKey(
         macKey: ByteArray, index: Int, wrappingTmk: ByteArray?
     ) {
-    }
-
-    suspend fun writeMacKey(macKey: ByteArray, index: Int) {
+        // wrappingTmk نادیده گرفته می‌شود: keyManager از TMK کش‌شده‌ی خودش
+        // (فعال‌شده توسط writeMasterKey) برای رمزنگاری این کلید plaintext استفاده می‌کند،
+        // دقیقاً مشابه writeDataKey/writePinKey.
         keyManager.writePlaintextMacKey(macKey, index)
         Log.d(
             "TAG", "K9K9K9>-writeMacKey${HexUtils.bytesToHexString(macKey)},index=$index"

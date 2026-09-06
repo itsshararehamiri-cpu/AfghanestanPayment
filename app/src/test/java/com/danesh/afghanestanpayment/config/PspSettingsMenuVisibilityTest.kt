@@ -43,6 +43,26 @@ class PspSettingsMenuVisibilityTest {
         assertFalse(visibility.showSupportMicroPaymentIndex)
     }
 
+    @Test
+    fun hamrahPay_withTopupEnabled_stillHidesVatPercentage() {
+        val visibility = providerFor(
+            activePsp = ActivePsp.HP,
+            enabledFeatures = setOf(MenuItemType.TOPUP.name),
+        ).visibility()
+
+        assertFalse(visibility.showVatPercentage)
+    }
+
+    @Test
+    fun behpardakht_withoutTopupEnabled_hidesVatPercentage() {
+        val visibility = providerFor(
+            activePsp = ActivePsp.BP,
+            enabledFeatures = emptySet(),
+        ).visibility()
+
+        assertFalse(visibility.showVatPercentage)
+    }
+
     private fun providerFor(
         activePsp: ActivePsp,
         enabledFeatures: Set<String>,
