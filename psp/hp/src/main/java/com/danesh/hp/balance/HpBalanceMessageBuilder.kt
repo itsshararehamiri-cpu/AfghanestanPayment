@@ -25,11 +25,13 @@ class HpBalanceMessageBuilder @Inject constructor(
             amount = "0"
             dateTime = session.dateTime
          //   messageSupport.run { applyHpStandardTerminalFields() }
-            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.BALANCE) }
+          //  messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.BALANCE) }
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
+//            terminalId="12345678"
+//            merchantId="44236789"
             terminalId="12345678"
-            merchantId="44236789"
+            merchantId="HPA000400300200"//"44236789"
             setField48 {
                 setTransactionType("702")
             }
@@ -37,4 +39,5 @@ class HpBalanceMessageBuilder @Inject constructor(
             mac = TransactionIsoProfile.BALANCE.emptyMac
         }
     }
+//    /Balance Inquiry | `310000` | `702` | `000000000000` | `002003702` |
 }

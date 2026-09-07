@@ -1,5 +1,6 @@
 package com.danesh.iso
 
+
 import android.util.Log
 import com.danesh.iso.field48.Field48Tlv
 import org.jpos.iso.ISOException
@@ -11,9 +12,9 @@ import java.nio.charset.Charset
 import java.util.Date
 
 private val CP1256 = Charset.forName("cp1256")
-private const val LOG_TAG = "BpIsoMessage"
+private const val LOG_TAG = "SadadIsoMessage"
 
-class BpIsoMessage(
+class SadadIsoMessage(
     private val field48: Field48Tlv,
 ) : IsoMessage {
     private var isoMsg = ISOMsg()
@@ -28,6 +29,10 @@ class BpIsoMessage(
     lateinit var date: Date
         private set
 
+
+    override var posConditionCode: String
+        set(value) = isoMsg.set(25, value)
+        get() = isoMsg.getString(25) ?: ""
     override var stan: String
         set(value) = isoMsg.set(11, value)
         get() = isoMsg.getString(11) ?: ""
@@ -119,11 +124,6 @@ class BpIsoMessage(
         get() = isoMsg.getString(24) ?: ""
 
     override var messageReasonCode: String
-        set(value) = isoMsg.set(25, value)
-        get() = isoMsg.getString(25) ?: ""
-
-
-    override var posConditionCode: String
         set(value) = isoMsg.set(25, value)
         get() = isoMsg.getString(25) ?: ""
 
@@ -253,7 +253,9 @@ class BpIsoMessage(
     override fun setPackager(packager: ISOPackager) {
         isoMsg.setPackager(packager)
     }
-
+    override var transportData: String
+        set(value) = isoMsg.set(59, value)
+        get() = isoMsg.getString(59).orEmpty()
     override var f72: String
         get() = ""
         set(value) {}
@@ -266,9 +268,6 @@ class BpIsoMessage(
         return macInput
     }
 
-    override var transportData: String
-        get() = ""
-        set(value) {}
     fun packIsoBody(): ByteArray = isoMsg.pack()
 
     fun primaryBitmapHex(macInput: ByteArray): String {
@@ -297,7 +296,7 @@ class BpIsoMessage(
         val macField = resolveMacField(clone)
         clone.unset(macField)
         return dumpIsoMsg(clone) +
-            "\n(MAC input: bitmap bit $macField set field bytes excluded)"
+                "\n(MAC input: bitmap bit $macField set field bytes excluded)"
     }
 
     fun getSanitizedMacInputDump(): String {
@@ -312,7 +311,7 @@ class BpIsoMessage(
                 }
             }
         return dumpIsoMsg(clone) +
-            "\n(MAC input: bitmap bit $macField set field bytes excluded)"
+                "\n(MAC input: bitmap bit $macField set field bytes excluded)"
     }
 
     fun printMacInput(type: String) {
@@ -364,7 +363,7 @@ class BpIsoMessage(
                     bytes.joinToString(separator = "") { byte -> "%02X".format(byte.toInt() and 0xFF) }
                 }
             }
-            .orEmpty()
+                .orEmpty()
     }
 
     override fun print(type: String) {
@@ -389,7 +388,7 @@ class BpIsoMessage(
     }
 
     override fun getFieldByTag(tag: String): String {
-      return  getField48Tag(tag)?:""
+        return  getField48Tag(tag)?:""
     }
     override fun getIsoMessage(): ISOMsg = isoMsg
 

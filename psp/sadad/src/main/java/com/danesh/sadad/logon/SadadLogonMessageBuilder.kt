@@ -19,16 +19,35 @@ class SadadLogonMessageBuilder @Inject constructor(
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
         return messageProvider.create().apply {
-            mti = TransactionIsoProfile.LOGON.mti
-            processingCode = TransactionIsoProfile.LOGON.processingCode
+            mti ="0800" //TransactionIsoProfile.LOGON.mti
+            processingCode ="920000"// TransactionIsoProfile.LOGON.processingCode
             stan = contextProvider.nextStan()
-            dateTime = "${clock.date.drop(2)}${clock.time}"
+           // dateTime = "${clock.date.drop(2)}${clock.time}"
             terminalId = config.terminalId
             merchantId = config.merchantId
             pointOfServiceEntryMode = config.pointOfServiceEntryMode
+            posConditionCode="14"
             currency = config.currency
-            nii = TransactionIsoProfile.LOGON.messageNii ?: config.nii
+            nii ="007"// TransactionIsoProfile.LOGON.messageNii ?: config.nii
+            transportData=""// TODO:
             mac = TransactionIsoProfile.LOGON.emptyMac
         }
     }
 }
+/*
+This transaction is used for TMS update, logon and change keys.
+Request to Switch:
+Bit Data Element Name Attribute Request Comments
+Message Type Id n 4 0800
+Bit Map b 8 M Mandatory
+03 Processing Code n 6 920000
+11 Systems Trace No n 6 M
+22 POS Entry Mode n 3 021 *
+24 NII n 3 007
+25 POS Condition Code n 2 14 *
+41 Card acceptor Terminal Id ans 8 M
+42 Card acceptor Identification code ans 15 M Merchant code
+59 Transport data ans ....999 M *
+64 Message Auth. Code b 8 M MAC
+
+ */

@@ -24,17 +24,19 @@ class HpCashDepositMessageBuilder @Inject constructor(
             amount = request.amount
             dateTime = session.dateTime
            // messageSupport.run { applyHpStandardTerminalFields() }
-            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_DEPOSIT) }
+          //  messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_DEPOSIT) }
 
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = TransactionIsoProfile.CASH_DEPOSIT.emptyMac
+            terminalId="12345678"//06493050
+            merchantId="HPA000400300200"//"44236789"
             setField48 {
                 setTransactionType("618")
-                setTerminalType("2")
-                setCard2NNumber(request.destinationAccount)
-                setFinancialTransactionIndicator("1")
+//                setTerminalType("2")
+//                setCard2NNumber(request.destinationAccount)
+//                setFinancialTransactionIndicator("1")
             }
         }
     }

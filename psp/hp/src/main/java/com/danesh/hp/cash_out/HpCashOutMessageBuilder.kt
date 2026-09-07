@@ -24,12 +24,14 @@ class HpCashOutMessageBuilder @Inject constructor(
             amount = request.amount
             dateTime = session.dateTime
            // messageSupport.run { applyHpStandardTerminalFields() }
-            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_OUT) }
+//            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_OUT) }
 
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = TransactionIsoProfile.CASH_OUT.emptyMac
+            terminalId="12345678"//06493050
+            merchantId="HPA000400300200"//"44236789"
             setField48 {
                 setTransactionType("700")
                 setTerminalType("2")

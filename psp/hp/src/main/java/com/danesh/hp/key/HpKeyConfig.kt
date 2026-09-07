@@ -30,6 +30,7 @@ object HpKeyConfig {
 
     /** DE22 — فقط کارت‌به‌کارت و کارت‌به‌کیف مالی */
     const val CARD_TO_CARD_POS_ENTRY_MODE = "100010100131"
+    //100010100131
 
     /** DE26 — Card acceptor business code / MCC */
     const val MERCHANT_TYPE = "6018"

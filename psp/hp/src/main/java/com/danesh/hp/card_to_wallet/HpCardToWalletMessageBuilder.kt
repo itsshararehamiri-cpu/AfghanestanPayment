@@ -37,7 +37,7 @@ class HpCardToWalletMessageBuilder @Inject constructor(
             dateTime = session.dateTime
            // messageSupport.run { applyHpStandardTerminalFields() }
             pointOfServiceEntryMode = HpKeyConfig.CARD_TO_CARD_POS_ENTRY_MODE
-            messageSupport.run { applyHpFunctionCode(profile) }
+           // messageSupport.run { applyHpFunctionCode(profile) }
             currency = session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
           //  tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
             if (track2.isNotBlank()) {
@@ -48,7 +48,7 @@ class HpCardToWalletMessageBuilder @Inject constructor(
            //setRrn(rrn)
        //     messageSupport.run { applyHpTransferAcquirerFields(track2) }
             setField48 {
-             //   setTransactionType(FUNCTION_CODE)
+               setTransactionType(FUNCTION_CODE)
                 setField48Tag(WALLET_TAG, walletCode)
                 if (holderName.isNotBlank()) {
                     setField48Tag(HOLDER_NAME_TAG, holderName)

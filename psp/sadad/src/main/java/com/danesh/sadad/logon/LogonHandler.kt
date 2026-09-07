@@ -67,7 +67,7 @@ class LogonHandler @Inject constructor(
         sentMessage: IsoMessage,
         response: IsoMessage?,
     ): SadadNetworkResult {
-        return try {
+        return try {// TODO:
             if (response != null) {
                 kotlinx.coroutines.runBlocking {
                     deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())

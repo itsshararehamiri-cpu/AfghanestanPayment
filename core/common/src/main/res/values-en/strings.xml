@@ -32,7 +32,7 @@
 
     <string name="validation_enter_destination_card">Please enter the destination card number</string>
     <string name="validation_card_16_digits">Card number must be 16 digits</string>
-    <string name="validation_wallet_8_digits">Wallet code must be 8 digits</string>
+    <string name="validation_wallet_8_digits">Wallet code must be 16 digits</string>
     <string name="validation_enter_amount">Please enter the amount</string>
     <string name="validation_enter_mobile">Please enter the mobile number</string>
     <string name="validation_mobile_10_digits">Mobile number must be 10 digits</string>

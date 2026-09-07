@@ -32,7 +32,7 @@
 
     <string name="validation_enter_destination_card">لطفا شماره کارت مقصد را وارد کنید</string>
     <string name="validation_card_16_digits">شماره کارت باید ۱۶ رقم باشد</string>
-    <string name="validation_wallet_8_digits">کد کیف پول باید ۸ رقم باشد</string>
+    <string name="validation_wallet_8_digits">کد کیف پول باید 16 رقم باشد</string>
     <string name="validation_enter_amount">لطفا مبلغ را وارد کنید</string>
     <string name="validation_enter_mobile">لطفا شماره موبایل را وارد کنید</string>
     <string name="validation_mobile_10_digits">شماره موبایل باید 11 رقم باشد</string>

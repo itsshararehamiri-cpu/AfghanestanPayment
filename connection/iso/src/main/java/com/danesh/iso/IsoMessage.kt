@@ -23,11 +23,15 @@ interface IsoMessage : RawMessage {
     var pinBlock: ByteArray?
     var mac: ByteArray?
     var merchantId: String
+    var mcc: String
+
     val rrn: String?
     var pan: String
     var amount: String
     var nii: String
     var messageReasonCode: String
+    var posConditionCode: String
+
     var securityControlInfo: String
     var additionalAmounts: String
     var field55: String
@@ -39,6 +43,7 @@ interface IsoMessage : RawMessage {
     var privateUseField63: String
 
     var f72: String
+    var transportData: String
 
 
 

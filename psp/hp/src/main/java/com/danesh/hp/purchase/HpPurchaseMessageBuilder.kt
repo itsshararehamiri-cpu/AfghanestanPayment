@@ -27,14 +27,14 @@ class HpPurchaseMessageBuilder @Inject constructor(
             amount = request.amount
             dateTime = session.dateTime
            // messageSupport.run { applyHpStandardTerminalFields() }
-            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.PURCHASE) }
+//            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.PURCHASE) }
             currency = session.currency
             tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = TransactionIsoProfile.PURCHASE.emptyMac
             terminalId="12345678"
-            merchantId="44236789"
+            merchantId="HPA000400300200"//"44236789"
             setField48 {
                 setTransactionType("774")
             }

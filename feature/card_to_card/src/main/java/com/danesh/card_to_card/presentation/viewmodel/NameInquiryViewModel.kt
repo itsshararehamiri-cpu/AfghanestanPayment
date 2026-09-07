@@ -1,5 +1,6 @@
 package com.danesh.card_to_card.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -68,6 +69,8 @@ class NameInquiryViewModel @Inject constructor(
                     failureResponseJson = null,
                 )
             }
+            Log.d("TAG", "CardToCardNavHost: ddtrdddddddddddddj$destinationType")
+
             val result = runCatching {
                 nameInquiryUseCase(
                     forWallet = destinationType == TransferDestinationType.WALLET,

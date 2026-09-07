@@ -13,7 +13,7 @@ class KarenSignOnStartupTask @Inject constructor(
 
     override suspend fun run() {
         Log.d("TAG", "run: KarenSignOnStartupTaskKarenSignOnStartupTask")
-        pspGateway.signOn(SignOnInput(""))
+       // pspGateway.signOn(SignOnInput(""))
         pspGateway.terminalConfig(TerminalConfigInput(""))
     }
 }

@@ -34,18 +34,18 @@ enum class TransactionIsoProfile(
      */
     CASH_DEPOSIT(
         mti = "1100",
-        processingCode = "210000",
-        messageNii = "702",
+        processingCode = "100000",//210000
+        messageNii = "618",//702
     ),
     CASH_OUT(
         mti = "1100",
         processingCode = "010000",
-        messageNii = "702",
+        messageNii = "700",//702
     ),
     /** Bill Payment — Info (Function Code 511) */
     BILL_INQUIRY(
         mti = "1100",
-        processingCode = "310000",
+        processingCode = "500000",//310000
         messageNii = "511",
     ),
     /** Bill Payment — Save (Function Code 508) */

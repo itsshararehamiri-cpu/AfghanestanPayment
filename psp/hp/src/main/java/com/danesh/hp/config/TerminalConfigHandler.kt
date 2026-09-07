@@ -22,6 +22,7 @@ class TerminalConfigHandler @Inject constructor(
     private val transport: HpIsoHandlerSupport,
     private val configurationStore: DeviceConfigurationStore,
     private val deviceOperations: PspDeviceOperations,
+    private val terminalConfigStore: HpTerminalConfigStore,
 ) : HandlerTransaction<HpTerminalConfigRequest, HpTerminalConfigResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -71,6 +72,7 @@ class TerminalConfigHandler @Inject constructor(
     ): HpTerminalConfigResult {
         return try {
             configurationStore.markConfigured()
+            terminalConfigStore.markActivated()
             HpTerminalConfigResult(
                 detail = transport.map(
                     transactionType = TransactionType.INIT,

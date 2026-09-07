@@ -46,7 +46,7 @@ class CardToCardTransferViewModel @Inject constructor(
     }
 
     fun onDestinationChange(value: String) {
-        val maxLen = if (_uiState.value.destinationType == TransferDestinationType.WALLET) 8 else 16
+        val maxLen = if (_uiState.value.destinationType == TransferDestinationType.WALLET) 16 else 16
         _uiState.update {
             it.copy(
                 destination = normalizeDigits(value).take(maxLen),
@@ -82,7 +82,7 @@ class CardToCardTransferViewModel @Inject constructor(
             }
         } else if (!isWallet && normalized.length != 16) {
             destinationError = appStrings.validationCard16Digits()
-        } else if (isWallet && normalized.length != 8) {
+        } else if (isWallet && normalized.length != 16) {
             destinationError = appStrings.validationWallet8Digits()
         }
 

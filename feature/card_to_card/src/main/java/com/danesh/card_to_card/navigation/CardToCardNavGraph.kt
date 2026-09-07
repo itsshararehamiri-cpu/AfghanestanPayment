@@ -2,6 +2,7 @@ package com.danesh.card_to_card.navigation
 
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -160,6 +161,7 @@ fun CardToCardNavHost(onFlowComplete: () -> Unit) {
                 navArgument(SwipeCardNavArgs.TRACK_2) { type = NavType.StringType },
             ),
         ) { backStackEntry ->
+            Log.d("TAG", "CardToCardNavHost: ddtrdddddddddddddj")
             val sourcePan = backStackEntry.arguments?.getString(SwipeCardNavArgs.PAN).orEmpty()
             val sourceTrack2 = backStackEntry.arguments?.getString(SwipeCardNavArgs.TRACK_2).orEmpty()
             NameInquiryRoute(

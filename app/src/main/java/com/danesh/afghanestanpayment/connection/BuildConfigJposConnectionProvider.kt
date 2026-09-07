@@ -6,6 +6,7 @@ import com.danesh.iso.BpJposConnection
 import com.danesh.iso.HpJposConnection
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.JposConnectionProvider
+import com.danesh.iso.SadadJposConnection
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,10 +14,14 @@ import javax.inject.Singleton
 class BuildConfigJposConnectionProvider @Inject constructor(
     private val bpConnection: BpJposConnection,
     private val hpConnection: HpJposConnection,
-) : JposConnectionProvider {
+    private val sadadConnection: SadadJposConnection,
+
+    ) : JposConnectionProvider {
 
     private val delegate: Connection<IsoMessage> = when (BuildConfig.ACTIVE_PSP) {
         "BP" -> bpConnection
+        "HP" -> hpConnection
+        "SADAD"->sadadConnection
         else -> hpConnection
     }
 

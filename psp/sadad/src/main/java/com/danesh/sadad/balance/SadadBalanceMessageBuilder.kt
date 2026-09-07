@@ -37,13 +37,32 @@ class SadadBalanceMessageBuilder @Inject constructor(
             stan = messageSupport.nextStan()
             pointOfServiceEntryMode = SadadKeyConfig.BALANCE_POS_ENTRY_MODE
             nii = SadadKeyConfig.BALANCE_NII
-            messageReasonCode = SadadKeyConfig.BALANCE_POS_CONDITION_CODE
+            posConditionCode="14"// TODO:
+//            messageReasonCode = SadadKeyConfig.BALANCE_POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
+            transportData=""
             messageSupport.run { setSadadTransportData(transportData()) }
             mac = SadadKeyConfig.EMPTY_MAC
         }
     }
 }
+/*
+Bit Data Element Name Attribute Request Comments
+Message Type Id n 4 0100
+Bit Map b 8 M
+03 Processing Code n 6 310000
+11 Systems Trace No n 6 M
+22 POS Entry Mode n 3 021 *
+24 NII n 3 007
+25 POS Condition Code n 2 14 *
+35 Track 2 Data z ..37 M
+41 Card acceptor Terminal Id ans 8 M
+42 Card acceptor Identification code ans 15 M
+52 Personal Identification Number (PIN) data b 8 M
+59 Transport data ans ....999 M *
+64 Message Auth. Code b 8 M
+
+ */

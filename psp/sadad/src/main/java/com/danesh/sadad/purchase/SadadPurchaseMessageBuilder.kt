@@ -43,7 +43,7 @@ class SadadPurchaseMessageBuilder @Inject constructor(
             stan = messageSupport.nextStan()
             pointOfServiceEntryMode = SadadKeyConfig.PURCHASE_POS_ENTRY_MODE
             nii = SadadKeyConfig.PURCHASE_NII
-            messageReasonCode = SadadKeyConfig.PURCHASE_POS_CONDITION_CODE
+            posConditionCode = SadadKeyConfig.PURCHASE_POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
@@ -51,7 +51,31 @@ class SadadPurchaseMessageBuilder @Inject constructor(
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             messageSupport.run { setSadadTransportData(transportData()) }
             privateUseField61 = messageSupport.multiMerchantModeOne()
+            getIsoMessage().set(63, "")
+
             mac = SadadKeyConfig.EMPTY_MAC
         }
     }
 }
+/*
+Bit Data Element Name Attribute Request Comments
+Message Type Id n 4 0200
+Bit Map b 8 M
+03 Processing Code n 6 000000
+04 Amount, Trans. n 12 M
+11 Systems Trace No n 6 M
+22 POS Entry Mode n 3 021 *
+24 NII n 3 007
+25 POS Condition Code n 2 14 *
+35 Track 2 Data z ..37 M
+41 Card acceptor Terminal Id ans 8 M
+42 Card acceptor Identification code ans 15 M
+48 Add. Data – Private ans ...999 M additional data
+52 Personal Identification Number (PIN) data b 8 M
+59 Transport data ans ....999 M *
+60 Private1 * ans ....999
+61 Private2 * ans ....999
+63 Private4 * ans ....999
+64 Message Auth. Code b 8 M
+
+ */
