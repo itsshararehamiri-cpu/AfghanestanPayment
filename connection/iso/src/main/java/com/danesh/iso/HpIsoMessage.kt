@@ -262,9 +262,12 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
     override fun getFieldByTag(tag: String): String {
         return  getField48Tag(tag)?:""
     }
+    /** DE72 — فقط پروفایل اختیاری پیکربندی ترمینال (1304/1305/1314)، هرگز 1100/1600/1420. */
     override var f72: String
-        get() = ""
-        set(value) {}
+        get() = isoMsg.getString(72)
+            ?: isoMsg.getBytes(72)?.let { String(it, CP1256) }
+            ?: ""
+        set(value) = isoMsg.set(72, value)
 
     companion object {
         private const val LOG_TAG = "HpIsoMessage"
