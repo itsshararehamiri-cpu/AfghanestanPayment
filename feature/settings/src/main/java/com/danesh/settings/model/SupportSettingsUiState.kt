@@ -28,4 +28,12 @@ data class SupportSettingsUiState(
     val showMicroPaymentIndex: Boolean = false,
     val microPaymentIndexAmount: String = "",
     val usesSimplifiedSupportSettings: Boolean = false,
+    /** همراه‌پی: ردیف «کلیدگذاری» مستقیم و ردیف «پیکربندی پایانه» بدون جابه‌جایی صفحه. */
+    val usesTerminalConfigFlow: Boolean = false,
+    val isKeyLoadingInProgress: Boolean = false,
+    val keyLoadingKcvSummary: KeyLoadingKcvSummary? = null,
+    val keyLoadingErrorMessage: String? = null,
+    val isTerminalInfoInProgress: Boolean = false,
+    val terminalInfoSummary: InitialConfigurationSummary? = null,
+    val terminalInfoErrorMessage: String? = null,
 )
