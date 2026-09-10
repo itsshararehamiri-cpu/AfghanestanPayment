@@ -56,11 +56,12 @@ class HpTerminalConfigMessageHandler @Inject constructor(
             nii = TransactionIsoProfile.TERMINAL_CONFIG.messageNii
                 ?: error("HP Function Code (DE24) is missing for TERMINAL_CONFIG")
 
-//            if (hasActiveProfile(config)) {
-//               terminalId = config.terminalId
-//               merchantId = config.merchantId
-//
-//            }
+
+            if (hasActiveProfile(config)) {
+                terminalId = config.terminalId
+                merchantId = config.merchantId
+            }
+
             f72 = HpField48Tlv().apply {
                 addNode(TAG_RECORD_TYPE, RECORD_TYPE)
                 addNode(TAG_SCHEMA_VERSION, SCHEMA_VERSION)
