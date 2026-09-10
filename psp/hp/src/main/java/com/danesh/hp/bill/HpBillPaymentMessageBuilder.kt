@@ -1,6 +1,5 @@
 package com.danesh.hp.bill
 
-import android.util.Log
 import com.danesh.api.BillUserInput
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.hp.iso.HpIsoMessageSupport
@@ -21,7 +20,6 @@ class HpBillPaymentMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
     fun build(request: BillUserInput): IsoMessage {
-        Log.d("TAG", "builfdfdd: dddddddddd")
         val session = messageSupport.beginSession()
         val profile = TransactionIsoProfile.BILL_PAYMENT
         val billNumber = request.billId.trim().take(7)
@@ -35,8 +33,6 @@ class HpBillPaymentMessageBuilder @Inject constructor(
             pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = billAmount
             dateTime = session.dateTime
-         //   messageSupport.run { applyHpStandardTerminalFields() }
-//            messageSupport.run { applyHpFunctionCode(profile) }
             currency = session.currency
             tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
             track2 = messageSupport.normalizeTrack2(request.track2)

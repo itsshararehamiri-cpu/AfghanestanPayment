@@ -1,6 +1,5 @@
 package com.danesh.hp.config
 
-import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.InitialConfigurationPolicy
 import com.danesh.api.PspDeviceOperations
@@ -19,7 +18,6 @@ class HpInitialConfigurationPolicy @Inject constructor(
     override val usesTerminalConfigFlow: Boolean = true
 
     override suspend fun injectKeys(): Result<Unit> = runCatching {
-        Log.d("TAG", "injectKeys: kkkkkd")
         deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())
         configurationStore.markConfigured()
     }

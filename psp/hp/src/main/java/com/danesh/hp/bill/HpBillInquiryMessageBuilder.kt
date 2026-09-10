@@ -32,16 +32,9 @@ class HpBillInquiryMessageBuilder @Inject constructor(
             // DE12 — مثل بقیه تراکنش‌های HP
             dateTime = session.dateTime
             // DE22 (+ DE41/DE42) — مثل بقیه تراکنش‌های HP؛ بدون DE24
-         //   messageSupport.run { applyHpStandardTerminalFields() }
             currency = session.currency
             // بدون DE35 Track 2
             mac = profile.emptyMac
-//            setField48 {
-//                setTransactionType("700")
-//                setTerminalType("2")
-//                setCard2NNumber(request.destinationAccount)
-//                setFinancialTransactionIndicator("1")
-//            }
             messageSupport.run { applyHpAcceptorIds() }
             setField48 {
                 setTransactionType(FUNCTION_CODE) // 002

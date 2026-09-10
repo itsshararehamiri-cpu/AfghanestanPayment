@@ -1,8 +1,5 @@
 package com.danesh.hp.signon
 
-
-
-import android.util.Log
 import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.TransactionSessionClock
@@ -12,8 +9,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Init همراه‌پی — شامل فیلدهای ترمینال (22، 24، 41، 42) از تنظیمات.
- * برخلاف به‌پرداخت، فیلدهای 61/62/63 در Init HP ارسال نمی‌شوند.
+ * Network sign-on همراه‌پی (MTI 1804) — طبق سند پروتکل کارن فقط DE0, DE7, DE11, DE12, DE24
+ * مجاز است؛ DE41/DE42/DE22/DE49 (شماره پایانه/پذیرنده، POS entry mode، ارز) در پیام sign-on
+ * ارسال نمی‌شوند و فقط در تراکنش‌های مالی/پیکربندی پایانه به‌کار می‌روند.
  */
 @Singleton
 class HpSignOnMessageHandler @Inject constructor(
@@ -27,18 +25,10 @@ class HpSignOnMessageHandler @Inject constructor(
         sessionClock.capture(clock)
         return messageProvider.create().apply {
             mti = TransactionIsoProfile.SIGNON.mti
-            //processingCode = TransactionIsoProfile.SIGNON.processingCode
-            // TODO:
-            transmissionDateTime="${clock.date.drop(4)}${clock.time}"
-            Log.d("TAG", "build: vvvkkkkkkghghgh${clock.date.drop(2)}${clock.time}")
+            transmissionDateTime = "${clock.date.drop(4)}${clock.time}"
             stan = contextProvider.nextStan()
             dateTime = "${clock.date.drop(2)}${clock.time}"
-//            terminalId = config.terminalId
-//            merchantId = config.merchantId
-//            pointOfServiceEntryMode = config.pointOfServiceEntryMode
-//            currency = config.currency
             nii = TransactionIsoProfile.SIGNON.messageNii ?: config.nii
-          //  mac = TransactionIsoProfile.INIT.emptyMac
         }
     }
 }

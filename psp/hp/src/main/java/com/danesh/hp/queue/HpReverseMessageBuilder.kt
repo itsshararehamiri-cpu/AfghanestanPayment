@@ -1,6 +1,5 @@
 package com.danesh.hp.queue
 
-import android.util.Log
 import com.danesh.api.QueueItem
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.TransactionType
@@ -28,9 +27,6 @@ class HpReverseMessageBuilder @Inject constructor(
         val amount = item.amount.filter { it.isDigit() }.padStart(12, '0').takeLast(12)
         val stan = item.stan.filter { it.isDigit() }.padStart(6, '0').takeLast(6)
         val originalRrn = item.rrn?.trim().orEmpty().takeIf { it.isNotBlank() }
-        val destTag = item.reverseDestTag?.takeIf { it.isNotBlank() }
-        val destValue = item.reverseDestValue?.takeIf { it.isNotBlank() }
-            ?: item.reverseField48Tag21?.takeIf { it.isNotBlank() }
         return messageProvider.create().apply {
             mti = REVERSE_MTI
             // --- از تراکنش اصلی ---
@@ -46,19 +42,8 @@ class HpReverseMessageBuilder @Inject constructor(
             dateTime = session.dateTime
             setField48 {
                 setTransactionType(functionCode)
-//                if (!destTag.isNullOrBlank() && !destValue.isNullOrBlank()) {
-//                    when (destTag) {
-//                        DEST_TAG_CARD -> setCard2NNumber(destValue.filter { it.isDigit() }.take(16))
-//                        DEST_TAG_WALLET -> setField48Tag(
-//                            DEST_TAG_WALLET,
-//                            destValue.filter { it.isDigit() }.take(8),
-//                        )
-//                        else -> setField48Tag(destTag, destValue)
-//                    }
-//                }
             }
             mac = TransactionIsoProfile.BALANCE.emptyMac
-
         }
     }
 
@@ -86,7 +71,5 @@ class HpReverseMessageBuilder @Inject constructor(
 
     companion object {
         private const val REVERSE_MTI = "1420"
-        private const val DEST_TAG_CARD = "021"
-        private const val DEST_TAG_WALLET = "045"
     }
 }

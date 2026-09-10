@@ -3,6 +3,7 @@ package com.danesh.hp.wallet_to_wallet
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.WalletToWalletUserInput
 import com.danesh.hp.iso.HpIsoMessageSupport
+import com.danesh.hp.key.HpKeyConfig
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import org.jpos.iso.ISOUtil
@@ -29,11 +30,11 @@ class HpWalletToWalletMessageBuilder @Inject constructor(
             pan = sourceWallet
             amount = request.amount
             dateTime = session.dateTime
-          //  messageSupport.run { applyHpStandardTerminalFields() }
             messageSupport.run { applyHpFunctionCode(profile) }
-            currency = session.currency.ifBlank { com.danesh.hp.key.HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
+            currency = session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
+            messageSupport.run { applyHpAcceptorIds() }
             setRrn(rrn)
             setField48 {
                 setField48Tag("004", "000")

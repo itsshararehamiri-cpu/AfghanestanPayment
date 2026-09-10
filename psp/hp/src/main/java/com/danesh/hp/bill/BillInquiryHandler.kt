@@ -1,18 +1,15 @@
 package com.danesh.hp.bill
 
-import android.util.Log
 import com.danesh.api.BillInquiryOutput
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
-import com.danesh.hp.balance.HpBalanceResult
 import com.danesh.hp.util.HpIsoHandlerSupport
 import com.danesh.hp.util.HpTransactionMessages
 import com.danesh.iso.IsoMessage
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class BillInquiryHandler @Inject constructor(
@@ -81,7 +78,7 @@ class BillInquiryHandler @Inject constructor(
             isSuccess = true,
             responseMessage = messages.success(),
         )
-        val k= HpBillInquiryResult(
+        return HpBillInquiryResult(
             inquiry = mapInquiry(
                 request = request,
                 response = response,
@@ -91,8 +88,6 @@ class BillInquiryHandler @Inject constructor(
             ),
             detail = detail,
         )
-        Log.d("TAG", "success:dmdmdmdmd $k")
-        return k
     }
 
     override fun connectFailure(
@@ -107,12 +102,10 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.CONNECT_FAILED,
             responseMessage = transport.connectFailedMessage(error),
         )
-        val v= HpBillInquiryResult(
+        return HpBillInquiryResult(
             inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
             detail = detail,
         )
-        Log.d("TAG", "connectFailure: dmdmdmdmd$v")
-        return v
     }
 
     override fun sendFailure(
@@ -127,12 +120,10 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.SEND_FAILED,
             responseMessage = transport.sendFailedMessage(error),
         )
-        val b= HpBillInquiryResult(
+        return HpBillInquiryResult(
             inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
             detail = detail,
         )
-        Log.d("TAG", "sendFailure: dmdmdmdmd$b")
-        return b
     }
 
     override fun receiveFailure(
@@ -147,22 +138,17 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.RECEIVE_FAILED,
             responseMessage = transport.receiveFailedMessage(error),
         )
-        val v= HpBillInquiryResult(
+        return HpBillInquiryResult(
             inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
             detail = detail,
         )
-        Log.d("TAG", "receiveFailure: dmdmdmdmd$v")
-        return v
     }
 
     override fun networkError(
         request: HpBillInquiryRequest,
         sentMessage: IsoMessage,
         e: Exception,
-    ): HpBillInquiryResult {
-        val v=receiveFailure(request, sentMessage, e)
-        return v
-    }
+    ): HpBillInquiryResult = receiveFailure(request, sentMessage, e)
 
     private fun mapInquiry(
         request: HpBillInquiryRequest,
@@ -184,27 +170,17 @@ class BillInquiryHandler @Inject constructor(
             responseMessage = responseMessage,
             billId = response?.getField48Tag("850")?.ifBlank { request.billId } ?: request.billId,
             amount = billAmount,
-//            companyCode = response?.getField48Tag("858").orEmpty(),
-//            payerName = response?.getField48Tag("860").orEmpty(),
-//            requestId = response?.getField48Tag("898").orEmpty(),
-//            remainingBalance = response?.getField48Tag("019").orEmpty(),
         )
-
-
     }
 
     private fun failureOutput(
         request: HpBillInquiryRequest,
         responseCode: String,
         responseMessage: String,
-    ): BillInquiryOutput {
-        val v=BillInquiryOutput(
-            isSuccess = false,
-            responseCode = responseCode,
-            responseMessage = responseMessage,
-            billId = request.billId,
-        )
-        Log.d("TAG", "failureOutput: dmdmdmdmd$v")
-        return v
-    }
+    ): BillInquiryOutput = BillInquiryOutput(
+        isSuccess = false,
+        responseCode = responseCode,
+        responseMessage = responseMessage,
+        billId = request.billId,
+    )
 }

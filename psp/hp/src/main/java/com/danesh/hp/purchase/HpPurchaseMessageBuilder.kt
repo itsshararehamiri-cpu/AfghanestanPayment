@@ -26,8 +26,6 @@ class HpPurchaseMessageBuilder @Inject constructor(
             pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = request.amount
             dateTime = session.dateTime
-           // messageSupport.run { applyHpStandardTerminalFields() }
-//            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.PURCHASE) }
             currency = session.currency
             tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
             track2 = messageSupport.normalizeTrack2(request.track2)

@@ -23,9 +23,6 @@ class HpCashOutMessageBuilder @Inject constructor(
             pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = request.amount
             dateTime = session.dateTime
-           // messageSupport.run { applyHpStandardTerminalFields() }
-//            messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_OUT) }
-
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)

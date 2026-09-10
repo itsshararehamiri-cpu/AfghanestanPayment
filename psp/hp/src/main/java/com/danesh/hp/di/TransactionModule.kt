@@ -1,26 +1,26 @@
 package com.danesh.hp.di
 
-import android.util.Log
+import com.danesh.api.BillFlowPolicy
 import com.danesh.api.InitialConfigurationPolicy
 import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.PspConfigurationChecker
 import com.danesh.api.PspGateway
-import com.danesh.api.BillFlowPolicy
-import com.danesh.api.SafQueueFlusher
-import com.danesh.api.TransferFlowPolicy
-import com.danesh.api.TransactionFeeCalculator
-import com.danesh.hp.config.HpConfigurationChecker
-import com.danesh.hp.config.HpInitialConfigurationPolicy
 import com.danesh.api.QueueRemovalPolicy
+import com.danesh.api.SafQueueFlusher
 import com.danesh.api.SupportCatalog
+import com.danesh.api.TransactionFeeCalculator
+import com.danesh.api.TransferFlowPolicy
+import com.danesh.api.UnsupportedKeyCardLoadingService
 import com.danesh.engine.HostTimeSynchronizer
 import com.danesh.engine.NoOpHostTimeSynchronizer
 import com.danesh.engine.QueueAdviceExecutor
 import com.danesh.engine.QueueProcessor
 import com.danesh.engine.TransactionStore
-import com.danesh.hp.bill.HpBillFlowPolicy
 import com.danesh.hp.HpGateway
 import com.danesh.hp.HpTransactionStore
+import com.danesh.hp.bill.HpBillFlowPolicy
+import com.danesh.hp.config.HpConfigurationChecker
+import com.danesh.hp.config.HpInitialConfigurationPolicy
 import com.danesh.hp.fee.ZeroTransactionFeeCalculator
 import com.danesh.hp.queue.HpQueueAdviceExecutor
 import com.danesh.hp.queue.HpQueueRemovalPolicy
@@ -97,7 +97,7 @@ abstract class TransactionModule {
         @Provides
         @Singleton
         fun provideKeyCardLoadingService(): KeyCardLoadingService =
-            com.danesh.api.UnsupportedKeyCardLoadingService
+            UnsupportedKeyCardLoadingService
 
         @Provides
         @Singleton

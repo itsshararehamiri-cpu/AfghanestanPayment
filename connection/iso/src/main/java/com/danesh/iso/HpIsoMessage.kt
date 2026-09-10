@@ -11,9 +11,7 @@ import java.io.PrintStream
 import java.nio.charset.Charset
 import javax.inject.Inject
 
-
 private val CP1256 = Charset.forName("cp1256")
-
 
 class HpIsoMessage @Inject constructor() : IsoMessage {
     private var isoMsg = ISOMsg()
@@ -97,7 +95,6 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
         set(value) = isoMsg.set(24, value)
         get() = isoMsg.getString(24) ?: ""
 
-
     override var posConditionCode: String
         set(value) = isoMsg.set(25, value)
         get() = isoMsg.getString(25) ?: ""
@@ -152,29 +149,24 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
         set(value) = isoMsg.set(63, value)
         get() = isoMsg.getString(63).orEmpty()
 
-
     override fun toIsoMessage(received: ISOMsg?) {
-      try {
-
-          if (received == null) return
-          isoMsg = ISOMsg()
-          received.packager?.let { isoMsg.setPackager(it) }
-          for (field in 0..received.maxField) {
-              if (received.hasField(field)) {
-                  try {
-                      isoMsg.set(received.getComponent(field))
-                  } catch (e: ISOException) {
-                      Log.w("HpIsoMessage", "copy field $field failed: ${e.message}")
-                  }
-              }
-          }
-          unpackField48()
-      }
-      catch (e: Exception){
-          Log.d("TAG", "toIsoMessage: ddd${e.cause}")
-          Log.d("TAG", "toIsoMessage: ddd${e.message}")
-
-      }
+        try {
+            if (received == null) return
+            isoMsg = ISOMsg()
+            received.packager?.let { isoMsg.setPackager(it) }
+            for (field in 0..received.maxField) {
+                if (received.hasField(field)) {
+                    try {
+                        isoMsg.set(received.getComponent(field))
+                    } catch (e: ISOException) {
+                        Log.w(LOG_TAG, "copy field $field failed: ${e.message}")
+                    }
+                }
+            }
+            unpackField48()
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "toIsoMessage failed: ${e.message}", e)
+        }
     }
     override var transportData: String
         get() = ""
@@ -282,9 +274,8 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
             }.orEmpty()
     }
 
-    override fun getFieldByTag(tag: String): String {
-        return  getField48Tag(tag)?:""
-    }
+    override fun getFieldByTag(tag: String): String = getField48Tag(tag) ?: ""
+
     /** DE72 — فقط پروفایل اختیاری پیکربندی ترمینال (1304/1305/1314)، هرگز 1100/1600/1420. */
     override var f72: String
         get() = isoMsg.getString(72)

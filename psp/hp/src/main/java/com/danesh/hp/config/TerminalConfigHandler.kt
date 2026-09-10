@@ -1,9 +1,6 @@
 package com.danesh.hp.config
 
-
-import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
-import com.danesh.api.IsoResponseCodes
 import com.danesh.api.PspDeviceOperations
 import com.danesh.api.TerminalConfig
 import com.danesh.api.TransactionContextProvider
@@ -19,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TerminalConfigHandler @Inject constructor(
-    private val terminalConfigMessageMessageBuilder: HpTerminalConfigMessageHandler,
+    private val messageBuilder: HpTerminalConfigMessageHandler,
     private val messages: HpTransactionMessages,
     private val transport: HpIsoHandlerSupport,
     private val configurationStore: DeviceConfigurationStore,
@@ -32,10 +29,9 @@ class TerminalConfigHandler @Inject constructor(
     override val needReport: Boolean = false
     override val skipQueueFlush: Boolean = true
 
-    override fun buildMessage(request: HpTerminalConfigRequest): IsoMessage {
-        Log.d("TAG", "buildMessage: dddddddddrt")
-        return terminalConfigMessageMessageBuilder.build()
-    }
+    override fun buildMessage(request: HpTerminalConfigRequest): IsoMessage =
+        messageBuilder.build()
+
     override fun queueFailure(request: HpTerminalConfigRequest): HpTerminalConfigResult {
         val message = buildMessage(request)
         return HpTerminalConfigResult(
@@ -50,8 +46,7 @@ class TerminalConfigHandler @Inject constructor(
         )
     }
 
-    override fun isFailure(response: IsoMessage?): Boolean =(response?.responseCode!="300")
-       // IsoResponseCodes.isFailure(response?.responseCode)
+    override fun isFailure(response: IsoMessage?): Boolean = response?.responseCode != "300"
 
     override fun failure(
         request: HpTerminalConfigRequest,

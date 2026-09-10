@@ -23,9 +23,6 @@ class HpCashDepositMessageBuilder @Inject constructor(
             pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = request.amount
             dateTime = session.dateTime
-           // messageSupport.run { applyHpStandardTerminalFields() }
-          //  messageSupport.run { applyHpFunctionCode(TransactionIsoProfile.CASH_DEPOSIT) }
-
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
@@ -33,9 +30,6 @@ class HpCashDepositMessageBuilder @Inject constructor(
             messageSupport.run { applyHpAcceptorIds() }
             setField48 {
                 setTransactionType("618")
-//                setTerminalType("2")
-//                setCard2NNumber(request.destinationAccount)
-//                setFinancialTransactionIndicator("1")
             }
         }
     }

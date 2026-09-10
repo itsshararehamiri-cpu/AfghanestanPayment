@@ -25,8 +25,7 @@ class HpDeviceWorkflow @Inject constructor(
         request: InitRequest,
         terminalKey: ByteArray,
     ): List<PspKeyLoadStep> {
-        val tmkIndex =
-            device.INDEX_TMK + 1
+        val tmkIndex = device.INDEX_TMK + 1
 
         return listOf(
             PspKeyLoadStep.WriteMasterKey(
@@ -36,11 +35,9 @@ class HpDeviceWorkflow @Inject constructor(
         )
     }
 
-    override fun logonCompletionSteps(workingKeys: PspLogonWorkingKeys): List<PspKeyLoadStep> {
-
-        return listOf( PspKeyLoadStep.WriteMasterKey(
-            key = HpKeyMaterial.masterKeyBytes()
-        ),
+    override fun logonCompletionSteps(workingKeys: PspLogonWorkingKeys): List<PspKeyLoadStep> =
+        listOf(
+            PspKeyLoadStep.WriteMasterKey(key = HpKeyMaterial.masterKeyBytes()),
             PspKeyLoadStep.LoadTmkEncryptedMacKey(
                 encryptedKey = workingKeys.encryptedMacKey,
                 index = device.INDEX_MAC,
@@ -48,20 +45,12 @@ class HpDeviceWorkflow @Inject constructor(
             PspKeyLoadStep.LoadTmkEncryptedPinKey(
                 encryptedKey = workingKeys.encryptedPinKey,
             ),
-//            PspKeyLoadStep.LoadTmkEncryptedDataKey(
-//                encryptedKey = workingKeys.encryptedDataKey,
-//            ),
-
-
         )
-    }
 
-    fun hardcodedWorkingKeys(): PspLogonWorkingKeys {
-
-        return PspLogonWorkingKeys(
+    fun hardcodedWorkingKeys(): PspLogonWorkingKeys =
+        PspLogonWorkingKeys(
             encryptedMacKey = HpKeyMaterial.encryptedMacKeyBytes(),
             encryptedPinKey = HpKeyMaterial.encryptedPinKeyBytes(),
-            encryptedDataKey = ByteArray(0),// masterKey = HpKeyMaterial.masterKeyBytes(),
+            encryptedDataKey = ByteArray(0),
         )
-    }
 }
