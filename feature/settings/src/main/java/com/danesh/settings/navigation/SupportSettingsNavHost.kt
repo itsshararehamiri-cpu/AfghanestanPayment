@@ -30,6 +30,7 @@ import com.danesh.settings.presentation.TerminalConfigViewModel
 import com.danesh.support.SupportScreen
 import com.danesh.support.presentation.SupportViewModel
 import com.danesh.settings.ui.ConfigurationScreen
+import com.danesh.settings.ui.HpTerminalProvisioningScreen
 import com.danesh.settings.ui.KeyLoadingScreen
 import com.danesh.settings.ui.SadadKeyCardLoadingScreen
 import com.danesh.settings.ui.TerminalSetupScreen
@@ -254,7 +255,7 @@ fun SupportSettingsNavHost(
                 },
                 onKeyLoadingClick = {
                     if (usesTerminalConfigFlow) {
-                        navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
+                        navController.navigate(SupportSettingsRoutes.TERMINAL_CONFIG)
                     } else {
                         navController.navigate(SupportSettingsRoutes.KEY_LOADING)
                     }
@@ -273,22 +274,11 @@ fun SupportSettingsNavHost(
             val viewModel: TerminalConfigViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-            TerminalSetupScreen(
+            HpTerminalProvisioningScreen(
                 uiState = uiState,
-                title = stringResource(R.string.settings_support_configuration),
                 onBackClick = { navController.popBackStack() },
-                onFirstBallotTicketChange = {},
-                onSecondBallotTicketChange = {},
-                onScanFirstBallotTicket = {},
-                onScanSecondBallotTicket = {},
-                onConfirmClick = viewModel::confirm,
-                onCancelClick = { navController.popBackStack() },
-                onSummaryConfirm = {
-                    viewModel.dismissSummary()
-                    navController.popBackStack(SupportSettingsRoutes.CONFIGURATION, inclusive = false)
-                },
-                onPrintClick = {},
-                onExecuteClick = {},
+                onKeyLoadingClick = viewModel::confirmKeyLoading,
+                onFetchTerminalInfoClick = viewModel::confirmTerminalInfo,
             )
         }
 

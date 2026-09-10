@@ -145,6 +145,7 @@
     <string name="settings_kcv_pin_key">PIN Key:</string>
     <string name="settings_key_loading">Receive key</string>
     <string name="settings_key_provisioning">Key provisioning</string>
+    <string name="settings_terminal_info_fetch">Fetch terminal information</string>
 <!--    <string name="settings_key_loading_section_title">Enter tickets</string>-->
 <!--    <string name="settings_key_loading_description">Enter the unique first and second ticket codes from the switch. On confirm, an Initialize transaction is sent to receive the terminal master key.</string>-->
     <string name="settings_key_loading_success">Key received successfully</string>

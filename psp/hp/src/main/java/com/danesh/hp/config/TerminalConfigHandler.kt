@@ -5,6 +5,7 @@ import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.PspDeviceOperations
+import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
@@ -23,6 +24,7 @@ class TerminalConfigHandler @Inject constructor(
     private val configurationStore: DeviceConfigurationStore,
     private val deviceOperations: PspDeviceOperations,
     private val terminalConfigStore: HpTerminalConfigStore,
+    private val contextProvider: TransactionContextProvider,
 ) : HandlerTransaction<HpTerminalConfigRequest, HpTerminalConfigResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -73,6 +75,7 @@ class TerminalConfigHandler @Inject constructor(
         return try {
             configurationStore.markConfigured()
             terminalConfigStore.markActivated()
+            response?.let(::persistTerminalConfig)
             HpTerminalConfigResult(
                 detail = transport.map(
                     transactionType = TransactionType.INIT,
@@ -143,4 +146,24 @@ class TerminalConfigHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): HpTerminalConfigResult = receiveFailure(request, sentMessage, e)
+
+    /**
+     * طبق بخش 9.3 مستند پروتکل: به‌روزرسانی کامل هویت پایانه از DE41/DE42/DE43 پاسخ 1314
+     * به دست می‌آید. مقادیر خالی، مقدار فعلاً ذخیره‌شده را حفظ می‌کنند تا در جاهای دیگر
+     * پروژه (ساخت پیام‌های تراکنشی و صفحه پیکربندی پایانه) از آخرین اطلاعات معتبر استفاده شود.
+     */
+    private fun persistTerminalConfig(response: IsoMessage) {
+        val current = contextProvider.getTerminalConfig()
+        val terminalId = response.terminalId.trim().ifBlank { current.terminalId }
+        val merchantId = response.merchantId.trim().ifBlank { current.merchantId }
+        val merchantNameLocation = response.getIsoMessage().getString(43)?.trim().orEmpty()
+        val updated = current.copy(
+            terminalId = terminalId,
+            merchantId = merchantId,
+            merchantName = merchantNameLocation.ifBlank { current.merchantName },
+        )
+        if (updated != current) {
+            contextProvider.saveTerminalConfig(updated)
+        }
+    }
 }

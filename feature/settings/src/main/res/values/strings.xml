@@ -146,6 +146,7 @@
     <string name="settings_kcv_pin_key">PIN Key:</string>
     <string name="settings_key_loading">دریافت کلید</string>
     <string name="settings_key_provisioning">کلیدگذاری</string>
+    <string name="settings_terminal_info_fetch">دریافت اطلاعات پایانه</string>
 <!--    <string name="settings_key_loading_section_title">ورود بلیط‌ها</string>-->
 <!--    <string name="settings_key_loading_description">کدهای یکتای بلیط اول و دوم تولیدشده توسط سوئیچ را وارد کنید. با تأیید، تراکنش Initialize برای دریافت کلید اصلی پایانه ارسال می‌شود.</string>-->
     <string name="settings_key_loading_success">دریافت کلید با موفقیت انجام شد</string>
