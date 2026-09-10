@@ -233,6 +233,11 @@ init {
         }
     }
 
+    /** همراه‌پی: بستن نتیجه «کلیدگذاری» که به‌صورت inline روی صفحه پیکربندی نمایش داده شده. */
+    fun clearKeyingResult() {
+        _uiState.update { it.copy(summary = null, resultMessage = null) }
+    }
+
     fun selectExecute() {
         _uiState.update {
             it.copy(

@@ -30,7 +30,6 @@ class HpTransactionStore @Inject constructor(
 ) : TransactionStore<IsoMessage> {
 
     override suspend fun registerSaf(message: IsoMessage) {
-        //queueDao.deleteAll()
         insertQueueItem(
             message = message,
             response = null,
@@ -41,7 +40,7 @@ class HpTransactionStore @Inject constructor(
     override suspend fun confirmTxn(request: IsoMessage, response: IsoMessage?) {
         // همراه‌پی Advice ندارد — پس از موفقیت، رکورد SAF حذف می‌شود.
         clearSaf(request)
-    }// TODO:
+    }
 
     override suspend fun clearSaf(message: IsoMessage) {
         withContext(Dispatchers.IO) {
@@ -97,13 +96,13 @@ class HpTransactionStore @Inject constructor(
 
     override suspend fun delete(date: String, time: String) {
         withContext(Dispatchers.IO) {
-           queueDao.deleteByDateTime(date, time)
+            queueDao.deleteByDateTime(date, time)
         }
     }
 
     override suspend fun clearQueue(date: String, time: String) {
         withContext(Dispatchers.IO) {
-          queueDao.deleteByDateTime(date, time)
+            queueDao.deleteByDateTime(date, time)
         }
     }
 

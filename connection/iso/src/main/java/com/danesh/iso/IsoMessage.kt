@@ -45,6 +45,15 @@ interface IsoMessage : RawMessage {
     var f72: String
     var transportData: String
 
+    /**
+     * DE43 — نام/مکان پذیرنده. فقط در پاسخ پیکربندی اختیاری پایانه (مثلاً 1314 همراه‌پی) دریافت
+     * می‌شود و هرگز نباید در درخواست خروجی ارسال شود. پیاده‌سازی پیش‌فرض no-op است؛ فقط
+     * PSPهایی که این فیلد را در پروتکل خود دارند (همراه‌پی) آن را override می‌کنند.
+     */
+    var merchantNameLocation: String
+        get() = ""
+        set(_) {}
+
 
 
 

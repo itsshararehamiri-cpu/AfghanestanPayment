@@ -1,15 +1,11 @@
 package com.danesh.hp.signon
 
-
-import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
-import com.danesh.api.IsoResponseCodes
 import com.danesh.api.PspDeviceOperations
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
 import com.danesh.hp.key.HpKeyConfig
-import com.danesh.hp.key.HpKeyMaterial
 import com.danesh.hp.util.HpIsoHandlerSupport
 import com.danesh.hp.util.HpTransactionMessages
 import com.danesh.iso.IsoMessage
@@ -31,10 +27,8 @@ class SignOnHandler @Inject constructor(
     override val needReport: Boolean = false
     override val skipQueueFlush: Boolean = true
 
-    override fun buildMessage(request: HpSignOnRequest): IsoMessage {
-        Log.d("TAG", "buildMessage: dddddddddrt")
-       return signOnMessageBuilder.build()
-    }
+    override fun buildMessage(request: HpSignOnRequest): IsoMessage =
+        signOnMessageBuilder.build()
     override fun queueFailure(request: HpSignOnRequest): HpSignOnResult {
         val message = buildMessage(request)
         return HpSignOnResult(

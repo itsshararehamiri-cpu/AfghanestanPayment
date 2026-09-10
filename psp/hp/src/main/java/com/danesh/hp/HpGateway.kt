@@ -1,6 +1,5 @@
 package com.danesh.hp
 
-import android.util.Log
 import com.danesh.api.BalanceInput
 import com.danesh.api.BalanceOutput
 import com.danesh.api.BalanceUserInput
@@ -100,7 +99,7 @@ class HpGateway @Inject constructor(
     private val logonHandler: LogonHandler,
     private val initHandler: InitHandler,
     private val signOnHandler: SignOnHandler,
-    private val  terminalConfigHandler: TerminalConfigHandler,
+    private val terminalConfigHandler: TerminalConfigHandler,
     private val deviceOperations: PspDeviceOperations,
     private val menuFlavorFeatures: MenuFlavorFeatures,
     private val menuFeaturePreferences: MenuFeaturePreferences,
@@ -196,7 +195,7 @@ class HpGateway @Inject constructor(
         }
     }
     override suspend fun support(input: SupportInput): SupportOutput {
-        return com.danesh.api.TransactionResultDetail(
+        return TransactionResultDetail(
             isSuccess = false,
             responseCode = "40",
             responseMessage = "Support transaction is not available for this PSP",
@@ -205,7 +204,6 @@ class HpGateway @Inject constructor(
     }
 
     override suspend fun logon(masterKey: String): LogonOutput {
-        Log.d("TAG", "logon: dddhhddddddddddddddddddddd")
         deviceOperations.prepareLogon()
         return withContext(Dispatchers.IO) {
             executor.execute(
@@ -292,10 +290,9 @@ class HpGateway @Inject constructor(
     }
     override suspend fun init(input: InitInput): InitOutput {
         return withContext(Dispatchers.IO) {
-            Log.d("TAG", "init: ddddddddddddddrr")
             executor.execute(
                 request = InitRequest(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            firstBallotTicket = input.firstBallotTicket,
+                    firstBallotTicket = input.firstBallotTicket,
                     secondBallotTicket = input.secondBallotTicket,
                 ),
                 handler = initHandler,
@@ -304,7 +301,7 @@ class HpGateway @Inject constructor(
     }
 
     private fun BalanceInput.toUserInput(): HpBalanceRequest =
-        BalanceUserInput(pinBlock = pinBlock, track2 = track2,pan=pan)
+        BalanceUserInput(pinBlock = pinBlock, track2 = track2, pan = pan)
 
     private fun PurchaseInput.toUserInput(): HpPurchaseRequest =
         PurchaseUserInput(
@@ -327,26 +324,31 @@ class HpGateway @Inject constructor(
                 handler = signOnHandler,
             ).detail
         }
-      //  return SignOnOutput()
     }
+
     private fun SignOnInput.toUserInput(): HpSignOnRequest =
         SignOnUserInput(
             pinBlock = "",
             track2 = "",
             pan = "",
         )
+
     private fun CashDepositInput.toUserInput(): HpCashDepositRequest =
         CashDepositUserInput(
             pinBlock = pinBlock,
             track2 = track2,
-            amount = amount.toString(), destinationAccount = destinationAccount, pan = ""
+            amount = amount.toString(),
+            destinationAccount = destinationAccount,
+            pan = "",
         )
 
     private fun CashOutInput.toUserInput(): HpCashOutRequest =
         CashOutUserInput(
             pinBlock = pinBlock,
             track2 = track2,
-            amount = amount.toString(), destinationAccount = destinationAccount, pan = ""
+            amount = amount.toString(),
+            destinationAccount = destinationAccount,
+            pan = "",
         )
 
     private fun CardToCardInput.toUserInput(): HpCardToCardRequest =

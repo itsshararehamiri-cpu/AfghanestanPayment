@@ -24,13 +24,21 @@ class HpTerminalConfigStore @Inject constructor(
         prefs.edit().putInt(KEY_VERSION, next).apply()
     }
 
+    /** MCC (DE26) دریافتی از پاسخ 1314 — پیش‌فرض هنگام نبود مقدار ذخیره‌شده [HpKeyConfig.MERCHANT_TYPE] است. */
+    fun saveMcc(mcc: String) {
+        prefs.edit().putString(KEY_MCC, mcc).apply()
+    }
+
+    fun mcc(): String = prefs.getString(KEY_MCC, "").orEmpty()
+
     fun clear() {
-        prefs.edit().remove(KEY_VERSION).apply()
+        prefs.edit().remove(KEY_VERSION).remove(KEY_MCC).apply()
     }
 
     companion object {
         private const val PREFS_NAME = "hp_terminal_config_prefs"
         private const val KEY_VERSION = "hp_active_config_version"
+        private const val KEY_MCC = "hp_active_mcc"
         private const val DEFAULT_VERSION = 0
     }
 }
