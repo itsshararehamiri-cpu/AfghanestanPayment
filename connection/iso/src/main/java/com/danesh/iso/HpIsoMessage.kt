@@ -77,6 +77,11 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
         set(value) = isoMsg.set(42, value)
         get() = isoMsg.getString(42) ?: ""
 
+    /** DE43 — فقط در پاسخ 1314 پیکربندی پایانه دریافت می‌شود، هرگز در خروجی ارسال نمی‌شود. */
+    override var merchantNameLocation: String
+        set(value) = isoMsg.set(43, value)
+        get() = isoMsg.getString(43) ?: ""
+
     override val rrn: String?
         get() = isoMsg.getString(37)
 

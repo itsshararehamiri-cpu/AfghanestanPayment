@@ -5,6 +5,8 @@ import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.PspDeviceOperations
+import com.danesh.api.TerminalConfig
+import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
@@ -23,6 +25,7 @@ class TerminalConfigHandler @Inject constructor(
     private val configurationStore: DeviceConfigurationStore,
     private val deviceOperations: PspDeviceOperations,
     private val terminalConfigStore: HpTerminalConfigStore,
+    private val contextProvider: TransactionContextProvider,
 ) : HandlerTransaction<HpTerminalConfigRequest, HpTerminalConfigResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -71,6 +74,7 @@ class TerminalConfigHandler @Inject constructor(
         response: IsoMessage?,
     ): HpTerminalConfigResult {
         return try {
+            persistTerminalProfile(response)
             configurationStore.markConfigured()
             terminalConfigStore.markActivated()
             HpTerminalConfigResult(
@@ -143,4 +147,34 @@ class TerminalConfigHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): HpTerminalConfigResult = receiveFailure(request, sentMessage, e)
+
+    /**
+     * پاسخ موفق 1314 — طبق سند پروتکل DE41 (شماره پایانه)، DE42 (شماره پذیرنده) و DE43
+     * (نام/مکان پذیرنده، فقط جهت نمایش/رسید) و DE26 (MCC) ممکن است برگردند؛ این مقادیر
+     * روی پروفایل محلی ذخیره می‌شوند تا تراکنش‌های بعدی از آن‌ها استفاده کنند. DE43 هرگز
+     * در درخواست خروجی echo نمی‌شود.
+     */
+    private fun persistTerminalProfile(response: IsoMessage?) {
+        if (response == null) return
+
+        val current = contextProvider.getTerminalConfig()
+        val terminalId = response.terminalId.trim().ifBlank { current.terminalId }
+        val merchantId = response.merchantId.trim().ifBlank { current.merchantId }
+        val merchantNameLocation = response.merchantNameLocation.trim()
+        val merchantName = merchantNameLocation.ifBlank { current.merchantName }
+
+        val updated: TerminalConfig = current.copy(
+            terminalId = terminalId,
+            merchantId = merchantId,
+            merchantName = merchantName,
+        )
+        if (updated != current) {
+            contextProvider.saveTerminalConfig(updated)
+        }
+
+        val mcc = response.mcc.trim()
+        if (mcc.isNotBlank()) {
+            terminalConfigStore.saveMcc(mcc)
+        }
+    }
 }

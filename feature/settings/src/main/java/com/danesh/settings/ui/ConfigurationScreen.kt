@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +29,9 @@ fun ConfigurationScreen(
     onInitialConfigurationClick: () -> Unit,
     keyLoadingLabel: String = stringResource(R.string.settings_key_loading),
     initialConfigurationLabel: String = stringResource(R.string.settings_initial_configuration),
+    keyingIsLoading: Boolean = false,
+    keyingResultMessage: String? = null,
+    onDismissKeyingResult: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -49,8 +58,14 @@ fun ConfigurationScreen(
                 label = keyLoadingLabel,
                 icon = R.drawable.ic_unlock,
                 iconContentDescription = keyLoadingLabel,
+                isLoading = keyingIsLoading,
                 onClick = onKeyLoadingClick,
             )
+
+            if (keyingIsLoading) {
+                Spacer(modifier = Modifier.height(10.dp))
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -61,6 +76,26 @@ fun ConfigurationScreen(
                 onClick = onInitialConfigurationClick,
             )
         }
+    }
+
+    if (keyingResultMessage != null) {
+        AlertDialog(
+            onDismissRequest = onDismissKeyingResult,
+            text = {
+                Text(
+                    text = keyingResultMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissKeyingResult) {
+                    Text(
+                        text = stringResource(R.string.settings_support_confirm),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+        )
     }
 }
 

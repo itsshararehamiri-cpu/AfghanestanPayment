@@ -240,33 +240,37 @@ fun SupportSettingsNavHost(
             val configurationViewModel: ConfigurationViewModel = hiltViewModel()
             val usesTerminalConfigFlow = configurationViewModel.usesTerminalConfigFlow
 
-            ConfigurationScreen(
-                onBackClick = { navController.popBackStack() },
-                keyLoadingLabel = if (usesTerminalConfigFlow) {
-                    stringResource(R.string.settings_key_provisioning)
-                } else {
-                    stringResource(R.string.settings_key_loading)
-                },
-                initialConfigurationLabel = if (usesTerminalConfigFlow) {
-                    stringResource(R.string.settings_support_configuration)
-                } else {
-                    stringResource(R.string.settings_initial_configuration)
-                },
-                onKeyLoadingClick = {
-                    if (usesTerminalConfigFlow) {
-                        navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
-                    } else {
-                        navController.navigate(SupportSettingsRoutes.KEY_LOADING)
-                    }
-                },
-                onInitialConfigurationClick = {
-                    if (usesTerminalConfigFlow) {
+            if (usesTerminalConfigFlow) {
+                // همراه‌پی: «کلیدگذاری» بدون رفتن به صفحه بعد، همین‌جا اجرا و نتیجه‌اش نمایش داده می‌شود.
+                val keyingViewModel: InitialConfigurationViewModel = hiltViewModel()
+                val keyingUiState by keyingViewModel.uiState.collectAsStateWithLifecycle()
+
+                ConfigurationScreen(
+                    onBackClick = { navController.popBackStack() },
+                    keyLoadingLabel = stringResource(R.string.settings_key_provisioning),
+                    initialConfigurationLabel = stringResource(R.string.settings_support_configuration),
+                    onKeyLoadingClick = keyingViewModel::confirm,
+                    onInitialConfigurationClick = {
                         navController.navigate(SupportSettingsRoutes.TERMINAL_CONFIG)
-                    } else {
+                    },
+                    keyingIsLoading = keyingUiState.isLoading,
+                    keyingResultMessage = keyingUiState.resultMessage
+                        ?: keyingUiState.summary?.let {
+                            stringResource(R.string.settings_key_provisioning_success)
+                        },
+                    onDismissKeyingResult = keyingViewModel::clearKeyingResult,
+                )
+            } else {
+                ConfigurationScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onKeyLoadingClick = {
+                        navController.navigate(SupportSettingsRoutes.KEY_LOADING)
+                    },
+                    onInitialConfigurationClick = {
                         navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
 
         composable(SupportSettingsRoutes.TERMINAL_CONFIG) {
