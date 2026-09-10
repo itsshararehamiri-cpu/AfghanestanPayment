@@ -5,19 +5,25 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.danesh.api.DeviceConfigurationStore
+import com.danesh.api.InitialConfigurationPolicy
 import com.danesh.api.PspGateway
 import com.danesh.api.TerminalConfigInput
 import com.danesh.api.TransactionContextProvider
 import com.danesh.common.app.AppVersionProvider
 import com.danesh.common.locale.LocalePreferences
 import com.danesh.common.locale.ReceiptNowFormatter
+import com.danesh.common.receipt.ReceiptPspBrandProvider
 import com.danesh.common.receipt.paper.PaperReceiptTypefaceResolver
 import com.danesh.core.Device
+import com.danesh.core.KCV
 import com.danesh.settings.R
+import com.danesh.settings.domain.toDeviceConfigurationSummary
+import com.danesh.settings.model.HpTerminalProvisioningUiState
 import com.danesh.settings.model.InitialConfigurationSummary
-import com.danesh.settings.model.InitialConfigurationUiState
-import com.danesh.settings.model.TerminalSetupPhase
+import com.danesh.settings.model.KeyLoadingKcvSummary
 import com.danesh.settings.receipt.InitialConfigurationReceiptBitmapFactory
+import com.danesh.settings.receipt.KcvReceiptBitmapFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -33,31 +39,94 @@ import kotlin.coroutines.resume
 private const val TAG = "HpTerminalConfig"
 
 /**
- * همراه‌پی: ردیف «پیکربندی پایانه» در صفحه پیکربندی — به‌جای inject کلید،
- * pspGateway.terminalConfig را صدا می‌زند و مشابه رسید راه‌اندازی به‌پرداخت،
- * موفق/ناموفق بودن و مشخصات پایانه (سریال، شماره پایانه/پذیرنده، نسخه برنامه) را
- * نمایش و چاپ می‌کند.
+ * همراه‌پی: صفحه «پیکربندی پایانه» در منوی پیکربندی — هم «کلیدگذاری» (inject مستقیم
+ * کلید) و هم «دریافت اطلاعات پایانه» (pspGateway.terminalConfig) در همین صفحه انجام
+ * می‌شوند؛ بدون جابه‌جایی به صفحه دیگر، نتیجه/KCV/مشخصات پایانه درون همان بخش نمایش
+ * داده و — مشابه رسید راه‌اندازی به‌پرداخت — چاپ می‌شوند.
  */
 @HiltViewModel
 class TerminalConfigViewModel @Inject constructor(
     private val pspGateway: PspGateway,
+    private val initialConfigurationPolicy: InitialConfigurationPolicy,
     private val device: Device,
+    private val configurationStore: DeviceConfigurationStore,
     private val contextProvider: TransactionContextProvider,
     private val appVersionProvider: AppVersionProvider,
     private val paperReceiptTypefaceResolver: PaperReceiptTypefaceResolver,
+    private val receiptPspBrandProvider: ReceiptPspBrandProvider,
     private val localePreferences: LocalePreferences,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        InitialConfigurationUiState(phase = TerminalSetupPhase.EXECUTE_FORM),
-    )
-    val uiState: StateFlow<InitialConfigurationUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(HpTerminalProvisioningUiState())
+    val uiState: StateFlow<HpTerminalProvisioningUiState> = _uiState.asStateFlow()
 
-    fun confirm() {
-        if (_uiState.value.isLoading) return
+    fun confirmKeyLoading() {
+        if (_uiState.value.keyLoading.isLoading) return
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, resultMessage = null) }
+            _uiState.update {
+                it.copy(
+                    keyLoading = it.keyLoading.copy(
+                        isLoading = true,
+                        resultMessage = null,
+                        isSuccess = false,
+                        kcvSummary = null,
+                    ),
+                )
+            }
+            Log.i(TAG, "UI | شروع inject مستقیم کلید (HP)")
+
+            val injectResult = runCatching { initialConfigurationPolicy.injectKeys() }
+                .getOrElse { Result.failure(it) }
+
+            injectResult.fold(
+                onSuccess = {
+                    Log.i(TAG, "UI | inject کلید موفق — چاپ رسید و KCV")
+                    val summary = buildConfigurationSummary()
+                    configurationStore.saveConfigurationSummary(summary.toDeviceConfigurationSummary())
+                    printConfigurationReceipt(summary)
+                    val kcvSummary = printKcvReceiptAndBuildSummary()
+                    _uiState.update {
+                        it.copy(
+                            keyLoading = it.keyLoading.copy(
+                                isLoading = false,
+                                isSuccess = true,
+                                kcvSummary = kcvSummary,
+                                resultMessage = appContext.getString(R.string.settings_key_loading_success),
+                            ),
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    Log.e(TAG, "UI | خطا در inject کلید", error)
+                    _uiState.update {
+                        it.copy(
+                            keyLoading = it.keyLoading.copy(
+                                isLoading = false,
+                                isSuccess = false,
+                                resultMessage = error.message.orEmpty().ifBlank {
+                                    appContext.getString(R.string.settings_initial_configuration_error_key_inject)
+                                },
+                            ),
+                        )
+                    }
+                },
+            )
+        }
+    }
+
+    fun confirmTerminalInfo() {
+        if (_uiState.value.terminalInfo.isLoading) return
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    terminalInfo = it.terminalInfo.copy(
+                        isLoading = true,
+                        resultMessage = null,
+                        isSuccess = false,
+                    ),
+                )
+            }
             Log.i(TAG, "UI | شروع پیکربندی پایانه (terminalConfig)")
 
             val result = runCatching { pspGateway.terminalConfig(TerminalConfigInput("")) }
@@ -65,10 +134,12 @@ class TerminalConfigViewModel @Inject constructor(
                     Log.e(TAG, "UI | خطا در پیکربندی پایانه", throwable)
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
-                            resultMessage = throwable.message.orEmpty().ifBlank {
-                                appContext.getString(R.string.settings_initial_configuration_error_generic)
-                            },
+                            terminalInfo = it.terminalInfo.copy(
+                                isLoading = false,
+                                resultMessage = throwable.message.orEmpty().ifBlank {
+                                    appContext.getString(R.string.settings_initial_configuration_error_generic)
+                                },
+                            ),
                         )
                     }
                     return@launch
@@ -80,28 +151,34 @@ class TerminalConfigViewModel @Inject constructor(
                 printConfigurationReceipt(summary)
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        summary = summary,
-                        resultMessage = appContext.getString(R.string.settings_terminal_setup_success),
+                        terminalInfo = it.terminalInfo.copy(
+                            isLoading = false,
+                            isSuccess = true,
+                            summary = summary,
+                            resultMessage = appContext.getString(R.string.settings_terminal_setup_success),
+                        ),
                     )
                 }
             } else {
                 _uiState.update {
                     it.copy(
-                        isLoading = false,
-                        resultMessage = result.responseMessage.ifBlank {
-                            appContext.getString(R.string.settings_initial_configuration_error_failed)
-                        },
+                        terminalInfo = it.terminalInfo.copy(
+                            isLoading = false,
+                            isSuccess = false,
+                            resultMessage = result.responseMessage.ifBlank {
+                                appContext.getString(R.string.settings_initial_configuration_error_failed)
+                            },
+                        ),
                     )
                 }
             }
         }
     }
 
-    fun dismissSummary() {
-        _uiState.update { it.copy(summary = null, resultMessage = null) }
-    }
-
+    /** پس از دریافت موفق اطلاعات پایانه، مقادیر تازه (DE41/DE42/DE43) نزد [contextProvider]
+     * ذخیره شده‌اند (رجوع کنید به TerminalConfigHandler) — این تابع همان مقادیر ذخیره‌شده
+     * را برای نمایش/چاپ می‌خواند.
+     */
     private fun buildConfigurationSummary(): InitialConfigurationSummary {
         val serial = runCatching { device.getSerial() }.getOrElse { "" }
         val terminalConfig = contextProvider.getTerminalConfig()
@@ -140,6 +217,36 @@ class TerminalConfigViewModel @Inject constructor(
         printBitmap(
             bitmap,
             appContext.getString(R.string.settings_initial_configuration_receipt_print_label),
+        )
+    }
+
+    private suspend fun printKcvReceiptAndBuildSummary(): KeyLoadingKcvSummary {
+        val kcv = runCatching { device.getKCv() }.getOrElse { KCV("", "", "", "") }
+        val bitmap = KcvReceiptBitmapFactory.create(
+            context = appContext,
+            title = appContext.getString(R.string.settings_kcv_receipt_title),
+            macKeyLabel = appContext.getString(R.string.settings_kcv_mac_key),
+            macKeyValue = kcv.mac.ifBlank { "-" },
+            dataKeyLabel = appContext.getString(R.string.settings_kcv_data_key),
+            dataKeyValue = kcv.data.ifBlank { "-" },
+            pinKeyLabel = appContext.getString(R.string.settings_kcv_pin_key),
+            pinKeyValue = kcv.pin.ifBlank { "-" },
+            fonts = paperReceiptTypefaceResolver.bitmapFonts(
+                context = appContext,
+                width = InitialConfigurationReceiptBitmapFactory.WIDTH,
+                horizontalPadding = InitialConfigurationReceiptBitmapFactory.HORIZONTAL_PADDING,
+            ),
+            pspBrand = receiptPspBrandProvider.current(),
+        )
+        printBitmap(
+            bitmap,
+            appContext.getString(R.string.settings_initial_configuration_kcv_receipt_print_label),
+        )
+        return KeyLoadingKcvSummary(
+            master = kcv.master.ifBlank { "-" },
+            mac = kcv.mac.ifBlank { "-" },
+            pin = kcv.pin.ifBlank { "-" },
+            data = kcv.data.ifBlank { "-" },
         )
     }
 
