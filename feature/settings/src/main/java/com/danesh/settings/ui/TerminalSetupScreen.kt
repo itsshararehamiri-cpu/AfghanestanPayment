@@ -33,6 +33,7 @@ import com.danesh.ui.toolbar.Toolbar
 fun TerminalSetupScreen(
     uiState: InitialConfigurationUiState,
     onBackClick: () -> Unit,
+    title: String = stringResource(R.string.settings_terminal_setup),
     onFirstBallotTicketChange: (String) -> Unit,
     onSecondBallotTicketChange: (String) -> Unit,
     onScanFirstBallotTicket: () -> Unit,
@@ -51,7 +52,7 @@ fun TerminalSetupScreen(
             .appScreenBackground(),
     ) {
         Toolbar(
-            title = stringResource(R.string.settings_terminal_setup),
+            title = title,
             onBackClick = {
                 when {
                     uiState.summary != null -> onSummaryConfirm()

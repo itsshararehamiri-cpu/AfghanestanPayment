@@ -42,8 +42,7 @@ class HpBillInquiryMessageBuilder @Inject constructor(
 //                setCard2NNumber(request.destinationAccount)
 //                setFinancialTransactionIndicator("1")
 //            }
-            terminalId="12345678"//06493050
-            merchantId="HPA000400300200"//"44236789"
+            messageSupport.run { applyHpAcceptorIds() }
             setField48 {
                 setTransactionType(FUNCTION_CODE) // 002
                 setTerminalType(TERMINAL_TYPE_POS) // 012

@@ -230,6 +230,7 @@ class SupportSettingsViewModel @Inject constructor(
             showFeeEnabled = merchantDisplayPreferences.isShowFeeEnabled(),
             showMicroPaymentIndex = menuVisibility.showSupportMicroPaymentIndex,
             microPaymentIndexAmount = MicroPaymentIndexRules.formatDisplay(microPaymentAmount),
+            usesSimplifiedSupportSettings = menuVisibility.usesSimplifiedSupportSettings,
         )
     }
 }

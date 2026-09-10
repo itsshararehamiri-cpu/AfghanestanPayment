@@ -125,8 +125,7 @@ class HpNameInquiryMessageBuilder @Inject constructor(
             dateTime = session.dateTime
             // messageSupport.run { applyHpStandardTerminalFields() }
             //   messageSupport.run { applyHpFunctionCode(profile) }
-            terminalId="12345678"//06493050
-            merchantId="HPA000400300200"//"44236789"
+            messageSupport.run { applyHpAcceptorIds() }
             mcc="2609"
             mac = profile.emptyMac
             // setRrn(session.dateTime)

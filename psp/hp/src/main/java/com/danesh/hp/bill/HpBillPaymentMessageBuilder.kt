@@ -40,8 +40,7 @@ class HpBillPaymentMessageBuilder @Inject constructor(
             currency = session.currency
             tt51 = HpKeyConfig.CARDHOLDER_BILLING_CURRENCY
             track2 = messageSupport.normalizeTrack2(request.track2)
-            terminalId="12345678"
-            merchantId="HPA000400300200"//"44236789"
+            messageSupport.run { applyHpAcceptorIds() }
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
             setField48 {

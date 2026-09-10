@@ -16,6 +16,7 @@ class HpInitialConfigurationPolicy @Inject constructor(
 ) : InitialConfigurationPolicy {
 
     override val requiresBallotTickets: Boolean = false
+    override val usesTerminalConfigFlow: Boolean = true
 
     override suspend fun injectKeys(): Result<Unit> = runCatching {
         Log.d("TAG", "injectKeys: kkkkkd")
