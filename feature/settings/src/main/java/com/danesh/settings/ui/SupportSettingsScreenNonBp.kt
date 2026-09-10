@@ -1,14 +1,21 @@
 package com.danesh.settings.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -17,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -56,6 +64,12 @@ fun SupportSettingsScreenNonBp(
     terminalReplacementSuccess: Boolean = false,
     onDismissTerminalReplacementSuccess: () -> Unit = {},
     onDismissServiceUnavailableMessage: () -> Unit = {},
+    onKeyLoadingClick: () -> Unit = {},
+    onDismissKeyLoadingResult: () -> Unit = {},
+    onDismissKeyLoadingError: () -> Unit = {},
+    onFetchTerminalInfoClick: () -> Unit = {},
+    onDismissTerminalInfoResult: () -> Unit = {},
+    onDismissTerminalInfoError: () -> Unit = {},
 ) {
     var showResetPasswordDialog by rememberSaveable { mutableStateOf(false) }
     var showTerminalReplacementDialog by rememberSaveable { mutableStateOf(false) }
@@ -111,13 +125,30 @@ fun SupportSettingsScreenNonBp(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            if (uiState.usesTerminalConfigFlow) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_key_provisioning),
+                    icon = R.drawable.ic_unlock,
+                    iconContentDescription = stringResource(R.string.settings_key_provisioning),
+                    onClick = { if (!uiState.isKeyLoadingInProgress) onKeyLoadingClick() },
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
             SettingsNavigationRow(
                 label = stringResource(R.string.settings_support_configuration),
                 icon = R.drawable.ic_configuration,
                 iconContentDescription = stringResource(R.string.settings_support_configuration),
                 value = uiState.configuration,
                 valueColor = SettingsColors.TextPrimary,
-                onClick = onConfigurationClick,
+                onClick = {
+                    if (uiState.usesTerminalConfigFlow) {
+                        if (!uiState.isTerminalInfoInProgress) onFetchTerminalInfoClick()
+                    } else {
+                        onConfigurationClick()
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -313,6 +344,101 @@ fun SupportSettingsScreenNonBp(
             isServerConnected = uiState.isServerConnected,
             onDismiss = onDismissConnectionStatusDialog,
         )
+    }
+
+    uiState.keyLoadingErrorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = onDismissKeyLoadingError,
+            text = {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissKeyLoadingError) {
+                    Text(
+                        text = stringResource(R.string.settings_support_confirm),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+        )
+    }
+
+    uiState.keyLoadingKcvSummary?.let { kcvSummary ->
+        AlertDialog(
+            onDismissRequest = onDismissKeyLoadingResult,
+            title = {
+                DialogTitleWithCloseButton(
+                    title = stringResource(R.string.settings_key_loading_kcv_title),
+                    onCloseClick = onDismissKeyLoadingResult,
+                )
+            },
+            text = {
+                KeyLoadingKcvTable(kcvSummary = kcvSummary)
+            },
+            confirmButton = {},
+        )
+    }
+
+    uiState.terminalInfoErrorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = onDismissTerminalInfoError,
+            text = {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissTerminalInfoError) {
+                    Text(
+                        text = stringResource(R.string.settings_support_confirm),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+        )
+    }
+
+    uiState.terminalInfoSummary?.let { summary ->
+        AlertDialog(
+            onDismissRequest = onDismissTerminalInfoResult,
+            title = {
+                DialogTitleWithCloseButton(
+                    title = stringResource(R.string.settings_initial_configuration_summary_title),
+                    onCloseClick = onDismissTerminalInfoResult,
+                )
+            },
+            text = {
+                ConfigurationSummaryTable(summary = summary)
+            },
+            confirmButton = {},
+        )
+    }
+}
+
+@Composable
+private fun DialogTitleWithCloseButton(
+    title: String,
+    onCloseClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+        )
+        IconButton(onClick = onCloseClick) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(R.string.settings_close),
+            )
+        }
     }
 }
 

@@ -58,5 +58,11 @@ fun SupportSettingsRouteNonBp(
         terminalReplacementSuccess = uiState.terminalReplacementSuccess,
         onDismissTerminalReplacementSuccess = viewModel::clearTerminalReplacementSuccess,
         onDismissServiceUnavailableMessage = viewModel::clearServiceUnavailableMessage,
+        onKeyLoadingClick = viewModel::confirmKeyLoading,
+        onDismissKeyLoadingResult = viewModel::dismissKeyLoadingResult,
+        onDismissKeyLoadingError = viewModel::dismissKeyLoadingError,
+        onFetchTerminalInfoClick = viewModel::confirmTerminalInfo,
+        onDismissTerminalInfoResult = viewModel::dismissTerminalInfoResult,
+        onDismissTerminalInfoError = viewModel::dismissTerminalInfoError,
     )
 }
