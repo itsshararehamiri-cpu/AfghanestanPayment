@@ -23,6 +23,7 @@ class PspSettingsMenuVisibility @Inject constructor(
             showMerchantShowFee = isBehpardakht,
             showMerchantMicroPaymentIndex = isBehpardakht,
             showSupportMicroPaymentIndex = isBehpardakht,
+            usesSimplifiedSupportSettings = !isBehpardakht,
         )
     }
 }

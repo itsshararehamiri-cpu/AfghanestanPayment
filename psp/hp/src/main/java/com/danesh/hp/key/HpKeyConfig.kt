@@ -16,8 +16,16 @@ object HpKeyConfig {
     /** MAK رمزشده زیر TMK (16 بایت). */
     const val ENCRYPTED_MAC_KEY_HEX = "F7C6D4AFD6C3832AA16C07D1BA9F62DD"
 
-    const val DEFAULT_TERMINAL_ID = "12345678"//
-    const val DEFAULT_MERCHANT_ID = "44236789"//
+    const val DEFAULT_TERMINAL_ID = "12345678"
+    const val DEFAULT_MERCHANT_ID = "HPA000400300200"
+
+    /**
+     * مقدار پیش‌فرض عمومی merchantId در [com.danesh.api.TransactionContextProvider] (مشترک بین همه PSPها).
+     * وقتی SharedPreferences هنوز برای همراه‌پی سفارشی نشده، خواندن از prefs همین مقدار را برمی‌گرداند؛
+     * در آن حالت [applyHpAcceptorIds][com.danesh.hp.iso.HpIsoMessageSupport.applyHpAcceptorIds]
+     * به‌جای آن از [DEFAULT_MERCHANT_ID] استفاده می‌کند.
+     */
+    const val ENGINE_DEFAULT_MERCHANT_ID = "44236789"
 
     /** درخواست مالی هسته — 1.1 */
     const val FINANCIAL_MTI = "1100"

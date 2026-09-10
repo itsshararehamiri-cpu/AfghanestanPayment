@@ -23,6 +23,7 @@ class PspSettingsMenuVisibilityTest {
         assertTrue(visibility.showMerchantShowFee)
         assertTrue(visibility.showMerchantMicroPaymentIndex)
         assertTrue(visibility.showSupportMicroPaymentIndex)
+        assertFalse(visibility.usesSimplifiedSupportSettings)
     }
 
     @Test
@@ -41,6 +42,7 @@ class PspSettingsMenuVisibilityTest {
         assertFalse(visibility.showMerchantShowFee)
         assertFalse(visibility.showMerchantMicroPaymentIndex)
         assertFalse(visibility.showSupportMicroPaymentIndex)
+        assertTrue(visibility.usesSimplifiedSupportSettings)
     }
 
     @Test

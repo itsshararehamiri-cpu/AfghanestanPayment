@@ -21,6 +21,14 @@ interface InitialConfigurationPolicy {
     val usesKeyCardLoading: Boolean
         get() = false
 
+    /**
+     * همراه‌پی: به‌جای «دریافت کلید»/«راه‌اندازی ترمینال»، صفحه‌ی پیکربندی «کلیدگذاری»
+     * (inject مستقیم کلید — همان [injectKeys]) و «پیکربندی پایانه» (فراخوانی
+     * `pspGateway.terminalConfig`) را نمایش می‌دهد.
+     */
+    val usesTerminalConfigFlow: Boolean
+        get() = false
+
     /** inject کلیدهای کاری روی PED — فقط برای PSPهایی که [requiresBallotTickets]=false */
     suspend fun injectKeys(): Result<Unit> = Result.failure(
         UnsupportedOperationException("Direct key injection is not supported"),

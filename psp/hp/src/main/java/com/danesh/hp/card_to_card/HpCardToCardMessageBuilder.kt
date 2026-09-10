@@ -122,8 +122,7 @@ class HpCardToCardMessageBuilder @Inject constructor(
             //  setRrn(rrn)
             //  messageSupport.run { applyHpTransferAcquirerFields(track2) }
             val holderName = request.holderName.trim()
-            terminalId="12345678"//06493050
-            merchantId="HPA000400300200"//"44236789"
+            messageSupport.run { applyHpAcceptorIds() }
             setField48 {
                 setTransactionType(FUNCTION_CODE)
                 setCard2NNumber("9004230100000016")

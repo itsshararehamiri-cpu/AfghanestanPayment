@@ -21,6 +21,8 @@ fun ConfigurationScreen(
     onBackClick: () -> Unit,
     onKeyLoadingClick: () -> Unit = {},
     onInitialConfigurationClick: () -> Unit,
+    keyLoadingLabel: String = stringResource(R.string.settings_key_loading),
+    initialConfigurationLabel: String = stringResource(R.string.settings_initial_configuration),
 ) {
     Column(
         modifier = Modifier
@@ -44,18 +46,18 @@ fun ConfigurationScreen(
 //            )
 
             SettingsNavigationRow(
-                label = stringResource(R.string.settings_key_loading),
+                label = keyLoadingLabel,
                 icon = R.drawable.ic_unlock,
-                iconContentDescription = stringResource(R.string.settings_key_loading),
+                iconContentDescription = keyLoadingLabel,
                 onClick = onKeyLoadingClick,
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             SettingsNavigationRow(
-                label = stringResource(R.string.settings_initial_configuration),
+                label = initialConfigurationLabel,
                 icon = R.drawable.ic_configuration,
-                iconContentDescription = stringResource(R.string.settings_initial_configuration),
+                iconContentDescription = initialConfigurationLabel,
                 onClick = onInitialConfigurationClick,
             )
         }

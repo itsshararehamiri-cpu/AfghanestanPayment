@@ -19,11 +19,14 @@ import com.danesh.common.presentation.viewmodel.SwipeCardViewModel
 import com.danesh.settings.R
 import com.danesh.settings.model.AppRole
 import com.danesh.settings.model.MerchantSupportLaunchRequest
+import com.danesh.settings.presentation.ConfigurationViewModel
 import com.danesh.settings.presentation.InitialConfigurationViewModel
 import com.danesh.settings.presentation.KeyLoadingViewModel
 import com.danesh.settings.presentation.MerchantExitPasswordViewModel
 import com.danesh.settings.presentation.SadadKeyCardLoadingViewModel
 import com.danesh.settings.presentation.SupportServicesFlowViewModel
+import com.danesh.settings.presentation.SupportSettingsViewModel
+import com.danesh.settings.presentation.TerminalConfigViewModel
 import com.danesh.support.SupportScreen
 import com.danesh.support.presentation.SupportViewModel
 import com.danesh.settings.ui.ConfigurationScreen
@@ -35,6 +38,7 @@ import com.danesh.settings.ui.DefaultIdSettingsRoute
 import com.danesh.settings.ui.MainServerSettingsRoute
 import com.danesh.settings.ui.MenuFeatureSettingsRoute
 import com.danesh.settings.ui.SupportSettingsRoute
+import com.danesh.settings.ui.SupportSettingsRouteNonBp
 import com.danesh.settings.ui.MicroPaymentIndexSettingsRoute
 import com.danesh.settings.ui.VatPercentageSettingsRoute
 import com.danesh.settings.ui.WifiSelectionRoute
@@ -44,6 +48,7 @@ private object SupportSettingsRoutes {
     const val CONFIGURATION = "support_settings_configuration"
     const val KEY_LOADING = "support_settings_key_loading"
     const val INITIAL_CONFIGURATION = "support_settings_initial_configuration"
+    const val TERMINAL_CONFIG = "support_settings_terminal_config"
     const val MENU_FEATURES = "support_settings_menu_features"
     const val SUPPORT_SERVICES_FLOW = "support_settings_services_flow"
     const val VAT_PERCENTAGE = "support_settings_vat_percentage"
@@ -73,37 +78,60 @@ fun SupportSettingsNavHost(
         startDestination = SupportSettingsRoutes.MAIN,
     ) {
         composable(SupportSettingsRoutes.MAIN) {
-            SupportSettingsRoute(
-                onBackClick = onFlowComplete,
-                onMainServerClick = {
-                    navController.navigate(SupportSettingsRoutes.MAIN_SERVER)
-                },
-                onDefaultIdClick = {
-                    navController.navigate(SupportSettingsRoutes.DEFAULT_ID)
-                },
-                onBackupPlatformClick = {
-                    navController.navigate(SupportSettingsRoutes.BACKUP_PLATFORM)
-                },
-                onConfigurationClick = {
-                    navController.navigate(SupportSettingsRoutes.CONFIGURATION)
-                },
-                onMenuFeaturesClick = {
-                    navController.navigate(SupportSettingsRoutes.MENU_FEATURES)
-                },
-                onSupportServicesClick = {
-                    navController.navigate(SupportSettingsRoutes.SUPPORT_SERVICES_FLOW)
-                },
-                onVatPercentageClick = {
-                    navController.navigate(SupportSettingsRoutes.VAT_PERCENTAGE)
-                },
-                onMicroPaymentIndexClick = {
-                    navController.navigate(SupportSettingsRoutes.MICRO_PAYMENT_INDEX)
-                },
-                onExitClick = {
-                    navController.navigate(SupportSettingsRoutes.EXIT_PASSWORD)
-                },
-                onLaunchSupportService = onLaunchSupportService,
-            )
+            val supportSettingsViewModel: SupportSettingsViewModel = hiltViewModel()
+            val mainUiState by supportSettingsViewModel.uiState.collectAsStateWithLifecycle()
+
+            if (mainUiState.usesSimplifiedSupportSettings) {
+                SupportSettingsRouteNonBp(
+                    viewModel = supportSettingsViewModel,
+                    onBackClick = onFlowComplete,
+                    onMainServerClick = {
+                        navController.navigate(SupportSettingsRoutes.MAIN_SERVER)
+                    },
+                    onConfigurationClick = {
+                        navController.navigate(SupportSettingsRoutes.CONFIGURATION)
+                    },
+                    onMenuFeaturesClick = {
+                        navController.navigate(SupportSettingsRoutes.MENU_FEATURES)
+                    },
+                    onExitClick = {
+                        navController.navigate(SupportSettingsRoutes.EXIT_PASSWORD)
+                    },
+                )
+            } else {
+                SupportSettingsRoute(
+                    viewModel = supportSettingsViewModel,
+                    onBackClick = onFlowComplete,
+                    onMainServerClick = {
+                        navController.navigate(SupportSettingsRoutes.MAIN_SERVER)
+                    },
+                    onDefaultIdClick = {
+                        navController.navigate(SupportSettingsRoutes.DEFAULT_ID)
+                    },
+                    onBackupPlatformClick = {
+                        navController.navigate(SupportSettingsRoutes.BACKUP_PLATFORM)
+                    },
+                    onConfigurationClick = {
+                        navController.navigate(SupportSettingsRoutes.CONFIGURATION)
+                    },
+                    onMenuFeaturesClick = {
+                        navController.navigate(SupportSettingsRoutes.MENU_FEATURES)
+                    },
+                    onSupportServicesClick = {
+                        navController.navigate(SupportSettingsRoutes.SUPPORT_SERVICES_FLOW)
+                    },
+                    onVatPercentageClick = {
+                        navController.navigate(SupportSettingsRoutes.VAT_PERCENTAGE)
+                    },
+                    onMicroPaymentIndexClick = {
+                        navController.navigate(SupportSettingsRoutes.MICRO_PAYMENT_INDEX)
+                    },
+                    onExitClick = {
+                        navController.navigate(SupportSettingsRoutes.EXIT_PASSWORD)
+                    },
+                    onLaunchSupportService = onLaunchSupportService,
+                )
+            }
         }
 
         navigation(
@@ -209,14 +237,58 @@ fun SupportSettingsNavHost(
         }
 
         composable(SupportSettingsRoutes.CONFIGURATION) {
+            val configurationViewModel: ConfigurationViewModel = hiltViewModel()
+            val usesTerminalConfigFlow = configurationViewModel.usesTerminalConfigFlow
+
             ConfigurationScreen(
                 onBackClick = { navController.popBackStack() },
+                keyLoadingLabel = if (usesTerminalConfigFlow) {
+                    stringResource(R.string.settings_key_provisioning)
+                } else {
+                    stringResource(R.string.settings_key_loading)
+                },
+                initialConfigurationLabel = if (usesTerminalConfigFlow) {
+                    stringResource(R.string.settings_support_configuration)
+                } else {
+                    stringResource(R.string.settings_initial_configuration)
+                },
                 onKeyLoadingClick = {
-                    navController.navigate(SupportSettingsRoutes.KEY_LOADING)
+                    if (usesTerminalConfigFlow) {
+                        navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
+                    } else {
+                        navController.navigate(SupportSettingsRoutes.KEY_LOADING)
+                    }
                 },
                 onInitialConfigurationClick = {
-                    navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
+                    if (usesTerminalConfigFlow) {
+                        navController.navigate(SupportSettingsRoutes.TERMINAL_CONFIG)
+                    } else {
+                        navController.navigate(SupportSettingsRoutes.INITIAL_CONFIGURATION)
+                    }
                 },
+            )
+        }
+
+        composable(SupportSettingsRoutes.TERMINAL_CONFIG) {
+            val viewModel: TerminalConfigViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            TerminalSetupScreen(
+                uiState = uiState,
+                title = stringResource(R.string.settings_support_configuration),
+                onBackClick = { navController.popBackStack() },
+                onFirstBallotTicketChange = {},
+                onSecondBallotTicketChange = {},
+                onScanFirstBallotTicket = {},
+                onScanSecondBallotTicket = {},
+                onConfirmClick = viewModel::confirm,
+                onCancelClick = { navController.popBackStack() },
+                onSummaryConfirm = {
+                    viewModel.dismissSummary()
+                    navController.popBackStack(SupportSettingsRoutes.CONFIGURATION, inclusive = false)
+                },
+                onPrintClick = {},
+                onExecuteClick = {},
             )
         }
 
@@ -258,9 +330,16 @@ fun SupportSettingsNavHost(
         composable(SupportSettingsRoutes.INITIAL_CONFIGURATION) {
             val viewModel: InitialConfigurationViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val configurationViewModel: ConfigurationViewModel = hiltViewModel()
+            val initialConfigTitle = if (configurationViewModel.usesTerminalConfigFlow) {
+                stringResource(R.string.settings_key_provisioning)
+            } else {
+                stringResource(R.string.settings_terminal_setup)
+            }
 
             TerminalSetupScreen(
                 uiState = uiState,
+                title = initialConfigTitle,
                 onBackClick = {
                     if (viewModel.onBackFromSetup()) {
                         navController.popBackStack()

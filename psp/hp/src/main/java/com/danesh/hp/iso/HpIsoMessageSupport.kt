@@ -60,10 +60,22 @@ class HpIsoMessageSupport @Inject constructor(
         nii = functionCode
     }
 
-    /** DE41 / DE42 — مالی، استعلام و reverse */
+    /**
+     * DE41 / DE42 — مالی، استعلام و reverse.
+     * terminalId/merchantId از SharedPreferences (از طریق [TransactionContextProvider]) خوانده
+     * می‌شوند؛ اگر هنوز برای همراه‌پی سفارشی نشده باشند (خالی یا برابر پیش‌فرض عمومی موتور
+     * تراکنش)، مقادیر ثابت همراه‌پی در [HpKeyConfig] به‌عنوان دیفالت به‌کار می‌روند.
+     */
     fun IsoMessage.applyHpAcceptorIds(
-        terminalIdValue: String = HpKeyConfig.DEFAULT_TERMINAL_ID,
-        merchantIdValue: String = HpKeyConfig.DEFAULT_MERCHANT_ID,
+        terminalIdValue: String = contextProvider.getTerminalConfig().terminalId
+            .ifBlank { HpKeyConfig.DEFAULT_TERMINAL_ID },
+        merchantIdValue: String = contextProvider.getTerminalConfig().merchantId.let {
+            if (it.isBlank() || it == HpKeyConfig.ENGINE_DEFAULT_MERCHANT_ID) {
+                HpKeyConfig.DEFAULT_MERCHANT_ID
+            } else {
+                it
+            }
+        },
     ) {
         terminalId = terminalIdValue
         merchantId = merchantIdValue

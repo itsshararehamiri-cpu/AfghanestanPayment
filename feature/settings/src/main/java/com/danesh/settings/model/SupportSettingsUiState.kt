@@ -27,4 +27,5 @@ data class SupportSettingsUiState(
     val showFeeEnabled: Boolean = false,
     val showMicroPaymentIndex: Boolean = false,
     val microPaymentIndexAmount: String = "",
+    val usesSimplifiedSupportSettings: Boolean = false,
 )
