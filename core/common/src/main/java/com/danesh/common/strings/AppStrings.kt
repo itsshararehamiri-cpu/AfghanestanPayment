@@ -20,6 +20,7 @@ class AppStrings @Inject constructor(
     fun txSendFailed(): String = context.getString(R.string.tx_message_send_failed)
     fun txReceiveFailed(): String = context.getString(R.string.tx_message_receive_failed)
     fun txNetworkFailed(): String = context.getString(R.string.tx_message_network_failed)
+    fun txNotProvisioned(): String = context.getString(R.string.tx_message_not_provisioned)
 
     fun transportMessageFor(code: String): String = when (TransactionTransportCodes.normalizeCode(code)) {
         TransactionTransportCodes.QUEUE_BLOCKED -> txQueueFailed()

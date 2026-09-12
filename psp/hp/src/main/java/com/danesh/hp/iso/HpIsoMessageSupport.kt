@@ -81,9 +81,14 @@ class HpIsoMessageSupport @Inject constructor(
         merchantId = merchantIdValue
     }
 
-    /** DE26 — مالی، استعلام و reverse؛ DE18 مجاز نیست */
+    /**
+     * DE26 — مالی، استعلام و reverse؛ DE18 مجاز نیست.
+     * اگر پیکربندی ترمینال (پاسخ 1314 همراه‌پی — بخش 9.3 مستند KAREN) مقدار MCC را
+     * فراهم کرده باشد از همان استفاده می‌شود؛ در غیر این صورت مقدار ثابت پیش‌فرض.
+     */
     fun IsoMessage.applyHpMerchantCategory() {
-        getIsoMessage().set(26, HpKeyConfig.MERCHANT_TYPE)
+        val mcc = contextProvider.getTerminalConfig().mcc.ifBlank { HpKeyConfig.MERCHANT_TYPE }
+        getIsoMessage().set(26, mcc)
     }
 
     /** DE22 — فقط درخواست مالی کارت‌به‌کارت و کارت‌به‌کیف */

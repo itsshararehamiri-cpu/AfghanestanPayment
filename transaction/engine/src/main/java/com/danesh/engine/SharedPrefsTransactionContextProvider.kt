@@ -39,6 +39,8 @@ class SharedPrefsTransactionContextProvider @Inject constructor(
             currency = currencyDefaults.currencyCode,
             functionCode = prefs.getString(KEY_FUNCTION_CODE, DEFAULT_FUNCTION_CODE).orEmpty(),
             deviceSerial = prefs.getString(KEY_DEVICE_SERIAL, DEFAULT_DEVICE_SERIAL).orEmpty(),
+            mcc = prefs.getString(KEY_MCC, DEFAULT_MCC).orEmpty(),
+            configPayload = prefs.getString(KEY_CONFIG_PAYLOAD, DEFAULT_CONFIG_PAYLOAD).orEmpty(),
         )
         return v
     }
@@ -57,6 +59,8 @@ class SharedPrefsTransactionContextProvider @Inject constructor(
             .putString(KEY_CURRENCY, config.currency)
             .putString(KEY_FUNCTION_CODE, config.functionCode)
             .putString(KEY_DEVICE_SERIAL, config.deviceSerial)
+            .putString(KEY_MCC, config.mcc)
+            .putString(KEY_CONFIG_PAYLOAD, config.configPayload)
             .apply()
     }
 
@@ -124,6 +128,8 @@ class SharedPrefsTransactionContextProvider @Inject constructor(
         private const val KEY_CURRENCY = "currency"
         private const val KEY_FUNCTION_CODE = "function_code"
         private const val KEY_DEVICE_SERIAL = "device_serial"
+        private const val KEY_MCC = "mcc"
+        private const val KEY_CONFIG_PAYLOAD = "hp_config_payload"
         private const val KEY_STAN = "stan_counter"
         private const val KEY_LAST_SUCCESS_STAN = "last_success_stan"
         private const val KEY_LAST_SUCCESS_RRN = "last_success_rrn"
@@ -150,6 +156,8 @@ class SharedPrefsTransactionContextProvider @Inject constructor(
         private const val DEFAULT_POS_ENTRY_MODE = ""
         private const val DEFAULT_FUNCTION_CODE = ""
         private const val DEFAULT_DEVICE_SERIAL = ""
+        private const val DEFAULT_MCC = ""
+        private const val DEFAULT_CONFIG_PAYLOAD = ""
 
 
     }

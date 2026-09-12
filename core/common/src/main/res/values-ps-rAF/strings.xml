@@ -10,6 +10,7 @@
     <string name="tx_message_send_failed">د پیغام لېږل ناکام شول</string>
     <string name="tx_message_receive_failed">د ځواب ترلاسه کول ناکام شول</string>
     <string name="tx_message_network_failed">د شبکې تېروتنه</string>
+    <string name="tx_message_not_provisioned">ترمینال لا تر اوسه د سویچ سره نه دی ثبت شوی</string>
 
     <string name="error_invalid_card_number">د کارت شمیره ناسمه ده</string>
     <string name="error_wrong_password">پټ نوم غلط دی</string>

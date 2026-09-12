@@ -11,6 +11,7 @@
     <string name="tx_message_send_failed">ارسال پیام ناموفق بود</string>
     <string name="tx_message_receive_failed">دریافت پاسخ ناموفق بود</string>
     <string name="tx_message_network_failed">خطای شبکه</string>
+    <string name="tx_message_not_provisioned">پایانه هنوز نزد سوییچ ثبت/پیکربندی نشده است</string>
 
     <string name="error_invalid_card_number">شماره کارت نامعتبر است</string>
     <string name="error_wrong_password">رمز اشتباه است</string>

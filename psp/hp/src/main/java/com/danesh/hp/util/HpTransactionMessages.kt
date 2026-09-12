@@ -19,4 +19,7 @@ class HpTransactionMessages @Inject constructor(
     fun failed(): String = appStrings.txFailed()
 
     fun success(): String = appStrings.txSuccess()
+
+    /** DE39=302 در پاسخ 1314 — بخش 9.3 مستند: پایانه نزد کارن پیکربندی نشده است. */
+    fun notProvisioned(): String = appStrings.txNotProvisioned()
 }
