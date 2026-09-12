@@ -1,40 +1,30 @@
 package com.danesh.hp.util
 
-/**
- * توصیف کوتاه کدهای پاسخ استاندارد ISO 8583 (DE39) برای نمایش کنار کد پاسخ در رسید/نتیجهٔ
- * ناموفق تراکنش‌های همراه‌پی. اگر مستند رسمی KAREN برای کدی متفاوت تعریف کرده باشد، همین‌جا
- * override شود؛ کدهای ناشناخته توصیف نمی‌شوند و پیام عمومی پیشین حفظ می‌شود.
- */
-object HpResponseCodeText {
-    fun describe(code: String): String? {
-        val normalized = code.trim().trimStart('0').ifEmpty { "0" }
-        return DESCRIPTIONS[normalized]
-    }
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-    private val DESCRIPTIONS = mapOf(
-        "1" to "ارجاع به صادرکننده کارت",
-        "3" to "پذیرنده نامعتبر",
-        "4" to "کارت نگهداری شود",
-        "5" to "تراکنش تأیید نشد",
-        "12" to "تراکنش نامعتبر",
-        "13" to "مبلغ نامعتبر",
-        "14" to "شماره کارت نامعتبر",
-        "15" to "صادرکننده نامعتبر",
-        "30" to "خطای فرمت پیام",
-        "41" to "کارت مسدود (گزارش مفقودی)",
-        "43" to "کارت مسدود (گزارش سرقت)",
-        "51" to "موجودی کافی نیست",
-        "54" to "کارت منقضی شده است",
-        "55" to "رمز نادرست است",
-        "57" to "این تراکنش برای دارنده کارت مجاز نیست",
-        "58" to "این تراکنش برای این پایانه مجاز نیست",
-        "61" to "بیش از سقف مجاز برداشت",
-        "62" to "کارت محدودشده",
-        "63" to "نقض قوانین امنیتی",
-        "65" to "بیش از تعداد مجاز تراکنش در روز",
-        "75" to "تعداد تلاش‌های ناموفق رمز بیش از حد",
-        "91" to "صادرکننده کارت در دسترس نیست",
-        "96" to "خرابی سامانه سوییچ",
-        "302" to "پایانه نزد کارن پیکربندی نشده است",
-    )
+/**
+ * توصیف کدهای پاسخ DE39 همراه‌پی (کارن) برای نمایش کنار کد پاسخ در رسید/نتیجهٔ ناموفق —
+ * هماهنگ با response-codes-2.md. هر زبان اپ رشتهٔ خودش را دارد (`hp_de39_<code>` در
+ * res/values*/strings.xml این ماژول)؛ کدهای ناشناخته توصیف نمی‌شوند و پیام عمومی «تراکنش
+ * ناموفق» (که خودش هم چندزبانه است) در محل مصرف حفظ می‌شود.
+ */
+@Singleton
+class HpResponseCodeText @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
+    fun describe(code: String): String? {
+        val digits = code.trim().filter { it.isDigit() }
+        if (digits.isEmpty()) return null
+        val padded = digits.padStart(3, '0')
+        val resId = context.resources.getIdentifier(
+            "hp_de39_$padded",
+            "string",
+            context.packageName,
+        )
+        if (resId == 0) return null
+        return context.getString(resId)
+    }
 }

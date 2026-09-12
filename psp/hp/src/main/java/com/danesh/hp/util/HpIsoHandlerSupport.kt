@@ -18,6 +18,7 @@ class HpIsoHandlerSupport @Inject constructor(
     private val messages: HpTransactionMessages,
     private val resultMapper: IsoTransactionResultMapper,
     private val diagnosticLog: HpDiagnosticLogRecorder,
+    private val responseCodeText: HpResponseCodeText,
 ) {
     fun map(
         transactionType: TransactionType,
@@ -53,7 +54,7 @@ class HpIsoHandlerSupport @Inject constructor(
     private fun mappedFailureMessage(detail: TransactionResultDetail): String {
         if (detail.isSuccess) return detail.responseMessage
         if (TransactionTransportCodes.isTransportCode(detail.responseCode)) return detail.responseMessage
-        return HpResponseCodeText.describe(detail.responseCode) ?: detail.responseMessage
+        return responseCodeText.describe(detail.responseCode) ?: detail.responseMessage
     }
 
     /** فقط جهت پیام، MTI، STAN/RRN، نتیجهٔ انتقال و DE39 — هرگز PAN/Track2/PIN. */
