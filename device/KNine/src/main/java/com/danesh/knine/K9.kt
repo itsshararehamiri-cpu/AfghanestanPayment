@@ -436,27 +436,26 @@ class K9 @Inject constructor(
         }
         val mPrinter = deviceManager!!.printDevice
         val bundle = Bundle()
-     //   mPrinter.printSync(bundle)
+        mPrinter.printSync(bundle)
         try {
             val stream = ByteArrayOutputStream()
-           // bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-         //   mPrinter.addBitmapPrintItem(stream.toByteArray())
-            onSuccess()
-//            mPrinter.print(bundle, object : IPrinterResultListener.Stub() {
-//                override fun onPrintFinish() {
-//                    DeviceTrace.step(SDK, "print onPrintFinish")
-//                    onSuccess()
-//                }
-//
-//                override fun onPrintError(code: Int, message: String?) {
-//                    DeviceTrace.warn(SDK, "print onPrintError code=$code message=$message")
-//                    onFailed(
-//                        resolveKnownDeviceError(
-//                            context, code, R.string.error_printer, message
-//                        )
-//                    )
-//                }
-//            })
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+           mPrinter.addBitmapPrintItem(stream.toByteArray())
+            mPrinter.print(bundle, object : IPrinterResultListener.Stub() {
+                override fun onPrintFinish() {
+                    DeviceTrace.step(SDK, "print onPrintFinish")
+                    onSuccess()
+                }
+
+                override fun onPrintError(code: Int, message: String?) {
+                    DeviceTrace.warn(SDK, "print onPrintError code=$code message=$message")
+                    onFailed(
+                        resolveKnownDeviceError(
+                            context, code, R.string.error_printer, message
+                        )
+                    )
+                }
+            })
         } catch (e: Exception) {
             DeviceTrace.error(SDK, "print failed", throwable = e)
             onFailed(errorMessage(context, R.string.error_printer, exceptionDetail(e)))
