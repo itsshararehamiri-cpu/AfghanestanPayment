@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- HamrahPay (KAREN) DE39 response-code descriptions, synchronized with response-codes-2.md. -->
 <resources>
+    <string name="hp_feature_disabled">This transaction type is disabled for this terminal.</string>
+    <string name="hp_support_not_available">Support transaction is not available for this PSP.</string>
     <string name="hp_de39_000">Approved.</string>
     <string name="hp_de39_100">OTP generated.</string>
     <string name="hp_de39_101">OTP incorrect.</string>

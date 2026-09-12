@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- توصیف کدهای پاسخ DE39 همراه‌پی (کارن) — هماهنگ با response-codes-2.md. زبان پیش‌فرض: دری. -->
 <resources>
+    <string name="hp_feature_disabled">این نوع تراکنش برای این پایانه غیرفعال است</string>
+    <string name="hp_support_not_available">تراکنش پشتیبانی برای این PSP در دسترس نیست</string>
     <string name="hp_de39_000">تراکنش تأیید شد.</string>
     <string name="hp_de39_100">رمز یک‌بارمصرف ارسال شد.</string>
     <string name="hp_de39_101">رمز یک‌بارمصرف نادرست است.</string>

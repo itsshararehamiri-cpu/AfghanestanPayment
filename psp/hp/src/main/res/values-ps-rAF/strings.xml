@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- د همراه‌پی (کارن) د DE39 ځواب کوډونو تشریح — د response-codes-2.md سره همغږی. پښتو ژباړه. -->
 <resources>
+    <string name="hp_feature_disabled">دا ډول تادیه د دې پایانې لپاره غیرفعاله ده.</string>
+    <string name="hp_support_not_available">د دې PSP لپاره د ملاتړ تادیه شتون نه لري.</string>
     <string name="hp_de39_000">تادیه منظوره شوه.</string>
     <string name="hp_de39_100">د یو ځل کارونې پاسورد رالېږل شو.</string>
     <string name="hp_de39_101">د یو ځل کارونې پاسورد ناسم دئ.</string>

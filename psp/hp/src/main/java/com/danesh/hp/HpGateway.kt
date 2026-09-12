@@ -1,6 +1,8 @@
 package com.danesh.hp
 
+import android.content.Context
 import android.util.Log
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.danesh.api.BalanceInput
 import com.danesh.api.BalanceOutput
 import com.danesh.api.BalanceUserInput
@@ -104,6 +106,7 @@ class HpGateway @Inject constructor(
     private val deviceOperations: PspDeviceOperations,
     private val menuFlavorFeatures: MenuFlavorFeatures,
     private val menuFeaturePreferences: MenuFeaturePreferences,
+    @ApplicationContext private val context: Context,
 ) : PspGateway {
 
     /**
@@ -124,7 +127,7 @@ class HpGateway @Inject constructor(
             isSuccess = false,
             transactionType = type,
             responseCode = FEATURE_DISABLED_CODE,
-            responseMessage = FEATURE_DISABLED_MESSAGE,
+            responseMessage = context.getString(R.string.hp_feature_disabled),
         )
 
     override suspend fun bill(input: BillInput): BillOutput {
@@ -199,7 +202,7 @@ class HpGateway @Inject constructor(
         return com.danesh.api.TransactionResultDetail(
             isSuccess = false,
             responseCode = "40",
-            responseMessage = "Support transaction is not available for this PSP",
+            responseMessage = context.getString(R.string.hp_support_not_available),
             transactionType = TransactionType.SUPPORT,
         )
     }
@@ -406,6 +409,5 @@ class HpGateway @Inject constructor(
 
         /** کدهای محلی -1..-6 توسط TransactionTransportCodes استفاده شده‌اند؛ این کد صرفاً داخلی HamrahPay است. */
         private const val FEATURE_DISABLED_CODE = "-8"
-        private const val FEATURE_DISABLED_MESSAGE = "این نوع تراکنش برای این پایانه غیرفعال است"
     }
 }
