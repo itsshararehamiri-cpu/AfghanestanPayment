@@ -10,7 +10,7 @@
     <string name="card_to_card_card_label">شماره کارت</string>
     <string name="card_to_card_card_placeholder">شماره کارت مقصد را وارد کنید</string>
     <string name="card_to_card_wallet_label">کد کیف پول</string>
-    <string name="card_to_card_wallet_placeholder">کد ۸ رقمی کیف پول را وارد کنید</string>
+    <string name="card_to_card_wallet_placeholder">کد ۱۶ رقمی کیف پول را وارد کنید</string>
     <string name="card_to_card_dest_card">کارت</string>
     <string name="card_to_card_dest_wallet">کیف پول</string>
     <string name="card_to_card_amount_field_label">مبلغ (AFN)</string>

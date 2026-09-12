@@ -4,29 +4,40 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.danesh.cashdeposit.GetPinViewModel
+import com.danesh.cashdeposit.R
 import com.danesh.cashdeposit.SuccessCashDepositResultScreen
 import com.danesh.cashdeposit.UnSuccessCashDepositResultScreen
 import com.danesh.cashdeposit.UnSuccessCashDepositViewModel
 import com.danesh.cashdeposit.presentation.screens.TransactionInfoScreen
+import com.danesh.cashdeposit.presentation.viewmodel.CashDepositMerchantPasswordViewModel
+import com.danesh.cashdeposit.presentation.viewmodel.TransactionInfoViewModel
+import com.danesh.common.GetPasswordScreen
 import com.danesh.common.SwipeCardNavArgs
 import com.danesh.common.SwipeCardScreen
 import com.danesh.common.pin.GetPinScreen
 
 private object CashDepositRoutes {
     const val TRANSACTION_INFO = "cash_deposit_transaction_info"
+    const val MERCHANT_PASSWORD = "cash_deposit_merchant_password/{${CashDepositNavArgs.AMOUNT}}"
     const val SWIPE_CARD = "cash_deposit_swipe_card/{${CashDepositNavArgs.AMOUNT}}"
   //  const val GET_PIN = "cash_deposit_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${CashDepositNavArgs.AMOUNT}}"
     const val GET_PIN = "cash_deposit_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${CashDepositNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}"
 
     const val SUCCESS_RESULT = "cash_deposit_success_result/{${CashDepositNavArgs.RESPONSE}}"
     const val UNSUCCESS_RESULT = "cash_deposit_unsuccess_result/{${CashDepositNavArgs.RESPONSE}}"
+
+    fun merchantPassword(amount: String): String =
+        "cash_deposit_merchant_password/${Uri.encode(amount)}"
 
     fun swipeCard(amount: String): String =
         "cash_deposit_swipe_card/${Uri.encode(amount)}"
@@ -51,11 +62,43 @@ fun CashDepositNavHost(onFlowComplete: () -> Unit) {
         startDestination = CashDepositRoutes.TRANSACTION_INFO,
     ) {
         composable(CashDepositRoutes.TRANSACTION_INFO) {
+            val viewModel = hiltViewModel<TransactionInfoViewModel>()
             TransactionInfoScreen(
-                viewModel = hiltViewModel(),
+                viewModel = viewModel,
                 onBackClick = onFlowComplete,
                 onPayWithCard = { amount ->
-                    navController.navigate(CashDepositRoutes.swipeCard(amount))
+                    if (viewModel.requiresMerchantPassword) {
+                        navController.navigate(CashDepositRoutes.merchantPassword(amount))
+                    } else {
+                        navController.navigate(CashDepositRoutes.swipeCard(amount))
+                    }
+                },
+            )
+        }
+        composable(
+            route = CashDepositRoutes.MERCHANT_PASSWORD,
+            arguments = listOf(
+                navArgument(CashDepositNavArgs.AMOUNT) { type = NavType.StringType },
+            ),
+        ) { backStackEntry ->
+            val amount = backStackEntry.arguments?.getString(CashDepositNavArgs.AMOUNT).orEmpty()
+            val passwordViewModel = hiltViewModel<CashDepositMerchantPasswordViewModel>()
+            val passwordState by passwordViewModel.uiState.collectAsStateWithLifecycle()
+            GetPasswordScreen(
+                pinValue = passwordState.pinValue,
+                title = stringResource(R.string.cash_deposit_merchant_password_title),
+                instruction = stringResource(R.string.cash_deposit_merchant_password_hint),
+                hintText = passwordState.errorMessage,
+                hintColor = Color(0xFFFF8A80),
+                showRetryHint = passwordState.errorMessage != null,
+                onBackClick = onFlowComplete,
+                onPinValueChange = passwordViewModel::onPinChange,
+                onPinComplete = {
+                    passwordViewModel.submitPassword(
+                        onSuccess = {
+                            navController.navigate(CashDepositRoutes.swipeCard(amount))
+                        },
+                    )
                 },
             )
         }

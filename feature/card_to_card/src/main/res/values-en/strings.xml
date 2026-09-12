@@ -10,7 +10,7 @@
     <string name="card_to_card_card_label">Card Number</string>
     <string name="card_to_card_card_placeholder">Enter destination card number</string>
     <string name="card_to_card_wallet_label">Wallet Code</string>
-    <string name="card_to_card_wallet_placeholder">Enter 8-digit wallet code</string>
+    <string name="card_to_card_wallet_placeholder">Enter 16-digit wallet code</string>
     <string name="card_to_card_dest_card">Card</string>
     <string name="card_to_card_dest_wallet">Wallet</string>
     <string name="card_to_card_amount_field_label">Amount (AFN)</string>

@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.android.gson)
     implementation(project(":core:ui"))
     implementation(project(":feature:common"))
+    implementation(project(":feature:settings"))
     implementation(project(":transaction:api"))
     implementation(project(":device:core"))
     implementation(project(":device:KNine"))

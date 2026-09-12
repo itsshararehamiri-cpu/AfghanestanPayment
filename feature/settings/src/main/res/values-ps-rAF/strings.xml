@@ -166,6 +166,8 @@
     <string name="settings_kcv_mac_key">MAC Key:</string>
     <string name="settings_kcv_data_key">Data Key:</string>
     <string name="settings_kcv_pin_key">PIN Key:</string>
+    <string name="settings_kcv_value_not_set">نه دی ټاکل شوی</string>
+    <string name="settings_key_loading_result_success">کلیدګذاري په بریالیتوب سره ترسره شوه</string>
 
     <string name="settings_key_loading_success">کلید په بریالیتوب سره ترلاسه شو</string>
     <string name="settings_key_loading_first_ballot_required">لومړی ټکټ کوډ ولیکئ</string>

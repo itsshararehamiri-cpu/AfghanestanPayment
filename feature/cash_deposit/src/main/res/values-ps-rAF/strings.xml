@@ -9,4 +9,6 @@
     <string name="invalid_amount_entered">داخل شوی مبلغ ناسم دی</string>
     <string name="cash_deposit_success">نغدي زیرمه په بریالیتوب سره ترسره شوه.</string>
     <string name="cash_deposit_failed">نغدي زیرمه ناکامه شوه.</string>
+    <string name="cash_deposit_merchant_password_title">د پذیرونکي پټنوم</string>
+    <string name="cash_deposit_merchant_password_hint">مهرباني وکړئ د پذیرونکي پټنوم ولیکئ</string>
 </resources>

@@ -8,4 +8,6 @@
     <string name="invalid_amount_entered">The entered amount is not valid</string>
     <string name="cash_deposit_success">Cash deposit completed successfully.</string>
     <string name="cash_deposit_failed">Cash deposit failed.</string>
+    <string name="cash_deposit_merchant_password_title">Merchant password</string>
+    <string name="cash_deposit_merchant_password_hint">Please enter the merchant password</string>
 </resources>

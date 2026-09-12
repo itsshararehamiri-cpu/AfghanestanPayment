@@ -2,6 +2,8 @@ package com.danesh.cashdeposit.presentation.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.danesh.common.receipt.ReceiptPspBrand
+import com.danesh.common.receipt.ReceiptPspBrandProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +12,13 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class TransactionInfoViewModel @Inject constructor() : ViewModel() {
+class TransactionInfoViewModel @Inject constructor(
+    private val pspBrandProvider: ReceiptPspBrandProvider,
+) : ViewModel() {
+
+    /** همراه‌پی: پیش از کارت‌خوانی، رمز پذیرنده گرفته می‌شود. */
+    val requiresMerchantPassword: Boolean
+        get() = pspBrandProvider.current() == ReceiptPspBrand.HP
 
     private val _uiState = MutableStateFlow(TransactionInfoUiState())
     val uiState: StateFlow<TransactionInfoUiState> = _uiState.asStateFlow()

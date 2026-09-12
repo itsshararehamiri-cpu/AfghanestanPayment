@@ -10,7 +10,7 @@
     <string name="card_to_card_card_label">د کارت شمیره</string>
     <string name="card_to_card_card_placeholder">د مقصد کارت شمیره دننه کړئ</string>
     <string name="card_to_card_wallet_label">د والټ کوډ</string>
-    <string name="card_to_card_wallet_placeholder">۸ ګڼیز والټ کوډ دننه کړئ</string>
+    <string name="card_to_card_wallet_placeholder">۱۶ ګڼیز والټ کوډ دننه کړئ</string>
     <string name="card_to_card_dest_card">کارت</string>
     <string name="card_to_card_dest_wallet">والټ</string>
     <string name="card_to_card_amount_field_label">اندازه (AFN)</string>

@@ -404,15 +404,16 @@ class SupportSettingsViewModel @Inject constructor(
 
     private suspend fun printKcvReceiptAndBuildSummary(): KeyLoadingKcvSummary {
         val kcv = runCatching { device.getKCv() }.getOrElse { KCV("", "", "", "") }
+        val notSet = appContext.getString(R.string.settings_kcv_value_not_set)
         val bitmap = KcvReceiptBitmapFactory.create(
             context = appContext,
             title = appContext.getString(R.string.settings_kcv_receipt_title),
             macKeyLabel = appContext.getString(R.string.settings_kcv_mac_key),
-            macKeyValue = kcv.mac.ifBlank { "-" },
+            macKeyValue = kcv.mac.ifBlank { notSet },
             dataKeyLabel = appContext.getString(R.string.settings_kcv_data_key),
-            dataKeyValue = kcv.data.ifBlank { "-" },
+            dataKeyValue = kcv.data.ifBlank { notSet },
             pinKeyLabel = appContext.getString(R.string.settings_kcv_pin_key),
-            pinKeyValue = kcv.pin.ifBlank { "-" },
+            pinKeyValue = kcv.pin.ifBlank { notSet },
             fonts = paperReceiptTypefaceResolver.bitmapFonts(
                 context = appContext,
                 width = InitialConfigurationReceiptBitmapFactory.WIDTH,
@@ -425,10 +426,10 @@ class SupportSettingsViewModel @Inject constructor(
             appContext.getString(R.string.settings_initial_configuration_kcv_receipt_print_label),
         )
         return KeyLoadingKcvSummary(
-            master = kcv.master.ifBlank { "-" },
-            mac = kcv.mac.ifBlank { "-" },
-            pin = kcv.pin.ifBlank { "-" },
-            data = kcv.data.ifBlank { "-" },
+            master = kcv.master.ifBlank { notSet },
+            mac = kcv.mac.ifBlank { notSet },
+            pin = kcv.pin.ifBlank { notSet },
+            data = kcv.data.ifBlank { notSet },
         )
     }
 

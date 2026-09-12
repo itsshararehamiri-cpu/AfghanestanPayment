@@ -355,6 +355,12 @@ fun SupportSettingsScreenNonBp(
     uiState.keyLoadingErrorMessage?.let { message ->
         AlertDialog(
             onDismissRequest = onDismissKeyLoadingError,
+            title = {
+                DialogTitleWithCloseButton(
+                    title = stringResource(R.string.settings_key_provisioning),
+                    onCloseClick = onDismissKeyLoadingError,
+                )
+            },
             text = {
                 Text(
                     text = message,
@@ -377,7 +383,7 @@ fun SupportSettingsScreenNonBp(
             onDismissRequest = onDismissKeyLoadingResult,
             title = {
                 DialogTitleWithCloseButton(
-                    title = stringResource(R.string.settings_key_loading_kcv_title),
+                    title = stringResource(R.string.settings_key_loading_result_success),
                     onCloseClick = onDismissKeyLoadingResult,
                 )
             },

@@ -8,4 +8,6 @@
     <string name="invalid_amount_entered">مبلغ وارد شده معتبر نیست</string>
     <string name="cash_deposit_success">واریز نقدی با موفقیت انجام شد.</string>
     <string name="cash_deposit_failed">واریز نقدی ناموفق شد.</string>
+    <string name="cash_deposit_merchant_password_title">رمز پذیرنده</string>
+    <string name="cash_deposit_merchant_password_hint">لطفا رمز پذیرنده را وارد کنید</string>
 </resources>
