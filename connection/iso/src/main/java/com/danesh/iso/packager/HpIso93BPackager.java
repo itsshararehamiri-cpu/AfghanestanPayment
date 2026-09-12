@@ -21,7 +21,7 @@ public class HpIso93BPackager extends ISOBasePackager {
     private static final boolean pad = false;
     protected ISOFieldPackager fld[] = {
             /*000*/ new IFB_NUMERIC(4, "Message Type Indicator", pad),
-            /*001*/ new IFB_BITMAP(8, "Bitmap"),
+            /*001*/ new IFB_BITMAP(16, "Bitmap"),
             /*002*/ new IFB_LLNUM(19, "Primary Account number", pad),
             /*003*/ new IFB_NUMERIC(6, "Processing Code", pad),
             /*004*/ new IFB_NUMERIC(12, "Amount, Transaction", pad),
