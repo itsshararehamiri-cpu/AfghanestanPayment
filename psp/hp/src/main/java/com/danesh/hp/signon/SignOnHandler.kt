@@ -73,7 +73,6 @@ class SignOnHandler @Inject constructor(
         response: IsoMessage?,
     ): HpSignOnResult {
         return try {
-            configurationStore.markConfigured()
             HpSignOnResult(
                 detail = transport.map(
                     transactionType = TransactionType.INIT,

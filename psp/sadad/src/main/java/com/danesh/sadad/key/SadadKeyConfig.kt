@@ -9,8 +9,8 @@ object SadadKeyConfig {
     const val ENCRYPTED_PIN_KEY_HEX = "5C8A22317AD2DC5A03F674BACDB2BC37"
     const val ENCRYPTED_MAC_KEY_HEX = "F7C6D4AFD6C3832AA16C07D1BA9F62DD"
 
-    const val DEFAULT_TERMINAL_ID = "12345678"//
-    const val DEFAULT_MERCHANT_ID = "44236789"//
+    const val DEFAULT_TERMINAL_ID = ""//
+    const val DEFAULT_MERCHANT_ID = ""//
     const val TERMINAL_ID_LENGTH = 8
     const val MERCHANT_ID_LENGTH = 15
 

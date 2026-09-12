@@ -142,15 +142,15 @@ class SharedPrefsTransactionContextProvider @Inject constructor(
         const val DEFAULT_LAST_SUCCESS_STAN = "000000"
         const val DEFAULT_LAST_SUCCESS_RRN = "000000000000"
 
-        private const val DEFAULT_TERMINAL_ID = "12345678"//
-        private const val DEFAULT_MERCHANT_ID = "44236789"//
+        private const val DEFAULT_TERMINAL_ID = ""//
+        private const val DEFAULT_MERCHANT_ID = ""//
 
         // TODO:
-        private const val DEFAULT_MERCHANT_NAME = "تست"//تست
-        private const val DEFAULT_MERCHANT_PHONE = "0214232733"//
-        private const val DEFAULT_ENGLISH_MERCHANT_NAME = "Test"//
-        private const val DEFAULT_MERCHANT_ADDRESS = "هرات"//
-        private const val DEFAULT_MERCHANT_POSTAL_CODE = "1234567890"//
+        private const val DEFAULT_MERCHANT_NAME = ""//تست
+        private const val DEFAULT_MERCHANT_PHONE = ""//
+        private const val DEFAULT_ENGLISH_MERCHANT_NAME = ""//
+        private const val DEFAULT_MERCHANT_ADDRESS = ""//
+        private const val DEFAULT_MERCHANT_POSTAL_CODE = ""//
 
         private const val DEFAULT_NII = ""
         private const val DEFAULT_POS_ENTRY_MODE = ""

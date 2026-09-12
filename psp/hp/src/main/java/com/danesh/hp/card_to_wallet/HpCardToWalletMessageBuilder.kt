@@ -44,6 +44,8 @@ class HpCardToWalletMessageBuilder @Inject constructor(
             if (track2.isNotBlank()) {
                 this.track2 = track2
             }
+            messageSupport.run { applyHpAcceptorIds() }
+
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
             tt51=session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }

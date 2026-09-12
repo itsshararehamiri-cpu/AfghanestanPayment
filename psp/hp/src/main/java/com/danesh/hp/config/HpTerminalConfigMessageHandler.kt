@@ -62,9 +62,9 @@ class HpTerminalConfigMessageHandler @Inject constructor(
         val appVersion = appVersionProvider.versionName()
         val activeHash = computeActiveHash(config, configVersion, serial, model, appVersion)
 
-        val stan = contextProvider.nextStan()
-        val dateTime = "${clock.date.drop(2)}${clock.time}"
-        val transmissionDateTime = "${clock.date.drop(4)}${clock.time}"
+        val stanTemp = contextProvider.nextStan()
+        val dateTimeTemp = "${clock.date.drop(2)}${clock.time}"
+        val transmissionDateTimeTemp = "${clock.date.drop(4)}${clock.time}"
         val f72 = HpField48Tlv().apply {
             addNode(TAG_RECORD_TYPE, RECORD_TYPE)
             addNode(TAG_SCHEMA_VERSION, SCHEMA_VERSION)
@@ -80,18 +80,19 @@ class HpTerminalConfigMessageHandler @Inject constructor(
 
         configStore.savePendingRequest(
             HpTerminalConfigStore.PendingConfigRequest(
-                stan = stan,
-                dateTime = dateTime,
-                transmissionDateTime = transmissionDateTime,
+                stan = stanTemp,
+                dateTime = dateTimeTemp,
+                transmissionDateTime = transmissionDateTimeTemp,
                 f72 = f72,
             ),
         )
 
         return messageProvider.create().apply {
             mti = TransactionIsoProfile.TERMINAL_CONFIG.mti
-            transmissionDateTime = transmissionDateTime
-            stan = stan
-            dateTime = dateTime
+            transmissionDateTime = transmissionDateTimeTemp
+
+            stan = stanTemp
+            dateTime = dateTimeTemp
             nii = TransactionIsoProfile.TERMINAL_CONFIG.messageNii
                 ?: error("HP Function Code (DE24) is missing for TERMINAL_CONFIG")
             applyAcceptorIdsIfActiveProfile(config)
@@ -124,9 +125,17 @@ class HpTerminalConfigMessageHandler @Inject constructor(
         }
     }
 
-    private fun hasActiveProfile(config: TerminalConfig): Boolean =
-        configurationStore.isConfigured() ||
-            (config.terminalId.isNotBlank() && config.merchantId.isNotBlank())
+    private fun hasActiveProfile(config: TerminalConfig): Boolean {
+        Log.d("TAG", "hasActiveProfile: jhjjj${configurationStore.isConfigured()}")
+        Log.d("TAG", "hasActiveProfile: dd${config.terminalId}")
+        Log.d("TAG", "hasActiveProfile: dd${config.merchantId}")
+        Log.d("TAG", "hasActiveProfile: dd${ configurationStore.isConfigured() ||
+                (config.terminalId.isNotBlank() && config.merchantId.isNotBlank())}")
+
+
+        return  configurationStore.isConfigured() ||
+                (config.terminalId.isNotBlank() && config.merchantId.isNotBlank())
+    }
 
     private fun deviceSerial(config: TerminalConfig): String =
         config.deviceSerial
