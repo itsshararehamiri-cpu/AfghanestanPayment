@@ -33,9 +33,13 @@ class TerminalConfigHandler @Inject constructor(
 
     override fun buildMessage(request: HpTerminalConfigRequest): IsoMessage {
         Log.d("TAG", "buildMessage: dddddddddrt")
+        Log.d("TAG", "buildMessage: dddddddddddddnooor")
         return terminalConfigMessageMessageBuilder.build()
     }
+
     override fun queueFailure(request: HpTerminalConfigRequest): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooora")
+
         val message = buildMessage(request)
         return HpTerminalConfigResult(
             detail = transport.map(
@@ -49,29 +53,39 @@ class TerminalConfigHandler @Inject constructor(
         )
     }
 
-    override fun isFailure(response: IsoMessage?): Boolean =(response?.responseCode!="300")
-       // IsoResponseCodes.isFailure(response?.responseCode)
+    override fun isFailure(response: IsoMessage?): Boolean {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorb")
+        response?.getIsoMessage()?.dump(System.out, "oooo")
+        return (response?.responseCode != "300")
+    }
+    // IsoResponseCodes.isFailure(response?.responseCode)
 
     override fun failure(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): HpTerminalConfigResult = HpTerminalConfigResult(
-        detail = transport.map(
-            transactionType = TransactionType.TERMINAL_CONFIG,
-            request = sentMessage,
-            response = response,
-            isSuccess = false,
-            responseMessage = messages.failed(),
-            masterKey = "",
-        ),
-    )
+    ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooord")
+
+        return HpTerminalConfigResult(
+            detail = transport.map(
+                transactionType = TransactionType.TERMINAL_CONFIG,
+                request = sentMessage,
+                response = response,
+                isSuccess = false,
+                responseMessage = messages.failed(),
+                masterKey = "",
+            ),
+        )
+    }
 
     override fun success(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
     ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorg")
+
         return try {
             configurationStore.markConfigured()
             terminalConfigStore.markActivated()
@@ -103,49 +117,65 @@ class TerminalConfigHandler @Inject constructor(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): HpTerminalConfigResult = HpTerminalConfigResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.INIT,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.CONNECT_FAILED,
-            responseMessage = transport.connectFailedMessage(error),
-        ),
-    )
+    ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorv")
+
+        return HpTerminalConfigResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.INIT,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.CONNECT_FAILED,
+                responseMessage = transport.connectFailedMessage(error),
+            ),
+        )
+    }
 
     override fun sendFailure(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): HpTerminalConfigResult = HpTerminalConfigResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.TERMINAL_CONFIG,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.SEND_FAILED,
-            responseMessage = transport.sendFailedMessage(error),
-        ),
-    )
+    ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorm")
+
+        return HpTerminalConfigResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.TERMINAL_CONFIG,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.SEND_FAILED,
+                responseMessage = transport.sendFailedMessage(error),
+            ),
+        )
+    }
 
     override fun receiveFailure(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): HpTerminalConfigResult = HpTerminalConfigResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.INIT,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.RECEIVE_FAILED,
-            responseMessage = transport.receiveFailedMessage(error),
-        ),
-    )
+    ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorq")
+
+        return HpTerminalConfigResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.INIT,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.RECEIVE_FAILED,
+                responseMessage = transport.receiveFailedMessage(error),
+            ),
+        )
+    }
 
     override fun networkError(
         request: HpTerminalConfigRequest,
         sentMessage: IsoMessage,
         e: Exception,
-    ): HpTerminalConfigResult = receiveFailure(request, sentMessage, e)
+    ): HpTerminalConfigResult {
+        Log.d("TAG", "buildMessage: dddddddddddddnooorm")
+
+        return receiveFailure(request, sentMessage, e)
+    }
 
     /**
      * طبق بخش 9.3 مستند پروتکل: به‌روزرسانی کامل هویت پایانه از DE41/DE42/DE43 پاسخ 1314

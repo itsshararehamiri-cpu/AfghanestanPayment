@@ -1,5 +1,6 @@
 package com.danesh.settings.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -144,8 +145,13 @@ fun SupportSettingsScreenNonBp(
                 valueColor = SettingsColors.TextPrimary,
                 onClick = {
                     if (uiState.usesTerminalConfigFlow) {
-                        if (!uiState.isTerminalInfoInProgress) onFetchTerminalInfoClick()
+                        if (!uiState.isTerminalInfoInProgress) {
+                            Log.d("TAG", "SupportSettingsScreenNonBp: fffffffff")
+                            onFetchTerminalInfoClick()
+                        }
                     } else {
+                        Log.d("TAG", "SupportSettingsScreenNonBp: ffffffffff")
+
                         onConfigurationClick()
                     }
                 },

@@ -100,12 +100,12 @@ class HpCardToCardMessageBuilder @Inject constructor(
         val destinationPan = request.destinationPan.filter { it.isDigit() }.take(16)
         val track2 = messageSupport.normalizeTrack2(request.track2)
         val rrn = request.rrn.trim().ifBlank { session.dateTime }
-
+        Log.d("TAG", "buifld: ffffffffffffffgtg$request")
         return messageProvider.create().apply {
             mti = profile.mti
             processingCode = profile.processingCode
             stan = messageSupport.nextStan()
-            pan ="9004230100000027"//" messageSupport.resolvePan(request.pan, request.track2)
+            pan = messageSupport.resolvePan(request.pan, request.track2)
             amount = request.amount
             dateTime = session.dateTime
             //   messageSupport.run { applyHpStandardTerminalFields() }
@@ -125,7 +125,7 @@ class HpCardToCardMessageBuilder @Inject constructor(
             messageSupport.run { applyHpAcceptorIds() }
             setField48 {
                 setTransactionType(FUNCTION_CODE)
-                setCard2NNumber("9004230100000016")
+                setCard2NNumber(request.destinationPan)
                 if (holderName.isNotBlank()) {
                     setField48Tag(HOLDER_NAME_TAG, holderName)
                 }

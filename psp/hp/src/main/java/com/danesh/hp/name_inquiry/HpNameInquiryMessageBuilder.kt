@@ -103,6 +103,7 @@ class HpNameInquiryMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
     fun build(request: NameInquiryRequest): IsoMessage {
+        Log.d("TAG", "buidddld: $request")
         val session = messageSupport.beginSession()
         val profile = TransactionIsoProfile.NAME_INQUIRY
         val destination = request.destination.filter { it.isDigit() }
@@ -114,7 +115,11 @@ class HpNameInquiryMessageBuilder @Inject constructor(
             Log.d("TAG", "build: dddddddddd${request}")
 
             stan = messageSupport.nextStan()
-            pan = "9004236218492037"//destination//request.sourceWallet.filter { it.isDigit() }.take(16)//
+            pan = request.destination.filter { it.isDigit() }
+            /*
+            if(request.forWallet) request.sourceWallet.filter { it.isDigit() }.take(16)
+            else
+             */
             /*destination.take(16)
             when {
             request.forWalletToWallet -> request.sourceWallet.filter { it.isDigit() }.take(16)

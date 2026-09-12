@@ -1,5 +1,6 @@
 package com.danesh.hp.card_to_wallet
 
+import android.util.Log
 import com.danesh.api.CardToWalletUserInput
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.hp.iso.HpIsoMessageSupport
@@ -23,11 +24,11 @@ class HpCardToWalletMessageBuilder @Inject constructor(
     fun build(request: CardToWalletUserInput): IsoMessage {
         val session = messageSupport.beginSession()
         val profile = TransactionIsoProfile.CARD_TO_WALLET
-        val walletCode = request.walletCode.filter { it.isDigit() }.take(8)
+        val walletCode = request.walletCode.filter { it.isDigit() }.take(16)
         val track2 = messageSupport.normalizeTrack2(request.track2)
         val rrn = request.rrn.trim().ifBlank { session.dateTime }
         val holderName = request.holderName.trim()
-
+        Log.d("TAG", "build: jkkjjjjjjjjjjjjjrrr$request")
         return messageProvider.create().apply {
             mti = profile.mti
             processingCode = profile.processingCode
@@ -45,11 +46,14 @@ class HpCardToWalletMessageBuilder @Inject constructor(
             }
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = profile.emptyMac
+            tt51=session.currency.ifBlank { HpKeyConfig.CARDHOLDER_BILLING_CURRENCY }
            //setRrn(rrn)
        //     messageSupport.run { applyHpTransferAcquirerFields(track2) }
             setField48 {
                setTransactionType(FUNCTION_CODE)
                 setField48Tag(WALLET_TAG, walletCode)
+//                setField48Tag("021", walletCode)
+
                 if (holderName.isNotBlank()) {
                     setField48Tag(HOLDER_NAME_TAG, holderName)
                 }
@@ -59,7 +63,7 @@ class HpCardToWalletMessageBuilder @Inject constructor(
 
     companion object {
         private const val FUNCTION_CODE = "781"
-        private const val WALLET_TAG = "045"
+        private const val WALLET_TAG = "021"//045
         private const val HOLDER_NAME_TAG = "049"
     }
 }

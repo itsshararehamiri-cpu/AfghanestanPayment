@@ -5,6 +5,7 @@ import com.danesh.common.connection.ConnectionEndpointResolver
 import com.danesh.common.connection.ConnectionPreferences
 import com.danesh.core.Connection
 import com.danesh.iso.packager.HpIso93BPackager
+import com.danesh.iso.packager.HpTerminalConfigResponsePackager
 import kotlinx.coroutines.delay
 import org.jpos.iso.ISOPackager
 import org.jpos.util.Logger
@@ -12,6 +13,8 @@ import org.jpos.util.SimpleLogListener
 import javax.inject.Inject
 
 private const val TAG = "HpJposConnection"
+private const val TERMINAL_CONFIG_MTI = "1304"
+private const val TERMINAL_CONFIG_FUNCTION_CODE = "305"
 
 class HpJposConnection @Inject constructor(
     private val connectionPreferences: ConnectionPreferences,
@@ -23,6 +26,11 @@ class HpJposConnection @Inject constructor(
     private var port: Int = -1
     private lateinit var channel: NACChannel2
     private val packager: ISOPackager = HpIso93BPackager()
+    private val terminalConfigResponsePackager: ISOPackager = HpTerminalConfigResponsePackager()
+
+    /** packager پاسخِ آخرین پیام ارسال‌شده؛ موتور تراکنش [send] و [receive] را جدا صدا می‌زند. */
+    @Volatile
+    private var pendingResponsePackager: ISOPackager = packager
 
     override suspend fun connect() {
         val nii = connectionPreferences.getNii()
@@ -44,6 +52,7 @@ class HpJposConnection @Inject constructor(
     override suspend fun request(message: IsoMessage, isEcho: Boolean): IsoMessage? {
         try {
             channel.timeout = if (isEcho) 10000 else 60000
+            pendingResponsePackager = responsePackagerFor(message)
             channel.send(message.getIsoMessage())
         } catch (e: Exception) {
             Log.e(TAG, "Error during request: ${e.message}")
@@ -51,10 +60,26 @@ class HpJposConnection @Inject constructor(
             throw Exception("Start channel failed", e)
         }
 
-        val received = channel.receive()
+        val received = channel.receive(takePendingResponsePackager())
         val response = messageProvider.create()
         response.toIsoMessage(received)
         return response
+    }
+
+    /**
+     * پاسخ 1314 پیکربندی ترمینال (درخواست 1304 با DE24=305) DE43 را با طول LLL می‌فرستد؛
+     * فقط برای همین تراکنش packager اختصاصی به‌کار می‌رود و بقیه با packager پیش‌فرض unpack می‌شوند.
+     */
+    private fun responsePackagerFor(message: IsoMessage): ISOPackager {
+        val isTerminalConfig = message.mti == TERMINAL_CONFIG_MTI &&
+            message.nii.trim() == TERMINAL_CONFIG_FUNCTION_CODE
+        return if (isTerminalConfig) terminalConfigResponsePackager else packager
+    }
+
+    private fun takePendingResponsePackager(): ISOPackager {
+        val responsePackager = pendingResponsePackager
+        pendingResponsePackager = packager
+        return responsePackager
     }
 
     override fun stop() {
@@ -86,6 +111,7 @@ class HpJposConnection @Inject constructor(
 
     override suspend fun send(message: IsoMessage) {
         try {
+            pendingResponsePackager = responsePackagerFor(message)
             channel.send(message.getIsoMessage())
         } catch (e: Exception) {
             Log.e(TAG, "send failed: ${e.message}")
@@ -95,7 +121,7 @@ class HpJposConnection @Inject constructor(
 
     override suspend fun receive(): IsoMessage? {
         return try {
-            val received = channel.receive()
+            val received = channel.receive(takePendingResponsePackager())
             messageProvider.create().also { it.toIsoMessage(received) }
         } catch (e: Exception) {
             Log.e(TAG, "receive failed: ${e.message}", e)

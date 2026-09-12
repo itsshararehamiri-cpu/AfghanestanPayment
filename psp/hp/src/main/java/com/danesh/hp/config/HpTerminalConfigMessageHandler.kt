@@ -45,23 +45,26 @@ class HpTerminalConfigMessageHandler @Inject constructor(
         val model = Build.MODEL.orEmpty()
         val appVersion = appVersionProvider.versionName()
         val activeHash = computeActiveHash(config, configVersion, serial, model, appVersion)
+        Log.d("TAG", "build: terminalConfig hash=f")
 
         Log.d("TAG", "build: terminalConfig hash=$activeHash version=$configVersion")
 
         return messageProvider.create().apply {
             mti = TransactionIsoProfile.TERMINAL_CONFIG.mti
-            transmissionDateTime = "${clock.date.drop(4)}${clock.time}"
+           // transmissionDateTime = "${clock.date.drop(4)}${clock.time}"
+            transmissionDateTime="${clock.date.drop(4)}${clock.time}"
+
             stan = contextProvider.nextStan()
             dateTime = "${clock.date.drop(2)}${clock.time}"
             nii = TransactionIsoProfile.TERMINAL_CONFIG.messageNii
                 ?: error("HP Function Code (DE24) is missing for TERMINAL_CONFIG")
+            Log.d("TAG", "build: fff${TransactionIsoProfile.TERMINAL_CONFIG.messageNii}")
 
-
-            if (hasActiveProfile(config)) {
-                terminalId = config.terminalId
-                merchantId = config.merchantId
-            }
-
+//            if (hasActiveProfile(config)) {
+//                terminalId = config.terminalId
+//                merchantId = config.merchantId
+//            }
+nii="305"
             f72 = HpField48Tlv().apply {
                 addNode(TAG_RECORD_TYPE, RECORD_TYPE)
                 addNode(TAG_SCHEMA_VERSION, SCHEMA_VERSION)

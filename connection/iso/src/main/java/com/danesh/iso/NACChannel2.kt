@@ -127,7 +127,11 @@ open class NACChannel2 : BaseChannel {
     }
 
     @Throws(IOException::class, ISOException::class)
-    override fun receive(): ISOMsg {
+    override fun receive(): ISOMsg = receive(packager)
+
+    /** دریافت پاسخ با packager دلخواه (برای پاسخ‌هایی که قالب فیلدشان با packager پیش‌فرض کانال فرق دارد). */
+    @Throws(IOException::class, ISOException::class)
+    fun receive(responsePackager: ISOPackager): ISOMsg {
         val m = createMsg()
 
         synchronized(serverInLock){ // TODO:
@@ -136,7 +140,7 @@ open class NACChannel2 : BaseChannel {
             getMessage(data, 0, len)
             Log.d("TAG", "receive: dddddfdddddd${ISOUtil.hexString(data)}")
 
-            m.setPackager(packager)
+            m.setPackager(responsePackager)
             Log.d("TAG", "receive: dddddfddddd${ISOUtil.hexString(data)}")
             m.unpack(data)
 
