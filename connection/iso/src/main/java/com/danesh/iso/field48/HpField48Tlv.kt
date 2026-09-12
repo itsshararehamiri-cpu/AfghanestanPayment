@@ -15,6 +15,9 @@ class HpField48Tlv : Field48Tlv {
     override fun getNode(key: String): String? =
         map[formatTag(key)]
 
+    /** فقط برای لاگ تشخیصی — فهرست تگ‌های موجود، بدون مقادیر. */
+    fun keys(): Set<String> = map.keys.toSet()
+
     override fun packText(): String {
         val sb = StringBuilder()
 

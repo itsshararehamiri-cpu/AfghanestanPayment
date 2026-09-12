@@ -116,12 +116,12 @@ fun TransactionResultDetailsCard(
             val actual = result.actualBalance?.takeIf { it.isNotBlank() }
             val available = result.availableBalance?.takeIf { it.isNotBlank() }
             if (actual != null) {
-                ElectronicReceiptBalanceRow(actual.formatAmount())
+                ElectronicReceiptBalanceRow(receiptAmountText(actual))
             }
             if (available != null && available != actual) {
-                ElectronicReceiptAvailableBalanceRow(available.formatAmount())
+                ElectronicReceiptAvailableBalanceRow(receiptAmountText(available))
             } else if (actual == null && available != null) {
-                ElectronicReceiptAvailableBalanceRow(available.formatAmount())
+                ElectronicReceiptAvailableBalanceRow(receiptAmountText(available))
             }
             val balanceFee = balanceTransactionFee()
             if (balanceFee.isNotBlank()) {

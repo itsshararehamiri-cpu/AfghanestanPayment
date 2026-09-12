@@ -141,7 +141,19 @@ data class TransactionResultDetail(
     val reprintReportDateTime: String? = null,
 
     @SerializedName("voucherMethod")
-    val voucherMethod: String? = null
+    val voucherMethod: String? = null,
+
+    /**
+     * تگ 030 پیکربندی فعال (DE72 پاسخ 1314 همراه‌پی) — طبق رفتار رسید، بعد از لوگو چاپ می‌شود.
+     */
+    @SerializedName("receiptHeaderText")
+    val receiptHeaderText: String = "",
+
+    /**
+     * تگ 031 پیکربندی فعال (DE72 پاسخ 1314 همراه‌پی) — طبق رفتار رسید، در انتهای رسید چاپ می‌شود.
+     */
+    @SerializedName("receiptFooterText")
+    val receiptFooterText: String = "",
 )
 
 fun Int.toTransactionType(): TransactionType = when (this) {

@@ -532,4 +532,25 @@ private fun ColumnScope.PaperReceiptFooter(
             isPaperReceipt = true,
         )
     }
+    // تگ 030 پیکربندی فعال — بعد از لوگو چاپ می‌شود.
+    result.receiptHeaderText.takeIf { it.isNotBlank() }?.let { headerText ->
+        ReceiptConfigText(headerText, firstColor)
+    }
+    // تگ 031 پیکربندی فعال — در انتهای رسید چاپ می‌شود.
+    result.receiptFooterText.takeIf { it.isNotBlank() }?.let { footerText ->
+        ReceiptConfigText(footerText, firstColor)
+    }
+}
+
+@Composable
+private fun ReceiptConfigText(text: String, textColor: Color) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        color = textColor,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 2.dp),
+    )
 }

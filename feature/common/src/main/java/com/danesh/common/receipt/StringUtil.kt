@@ -9,6 +9,14 @@ fun String.formatAmount(): String {
     return String.format("%,d", t.toEnglishNumber().toLong())
 }
 
+/** طبق الزام رسید همراه‌پی: مبلغ همیشه دقیقاً با دو رقم اعشار نمایش داده شود. */
+fun String.formatAmountTwoDecimals(): String {
+    if (this.isEmpty()) return this
+    val normalized = this.toEnglishNumber().replace(",", "")
+    val value = normalized.toDoubleOrNull() ?: return this.formatAmount()
+    return String.format(Locale.US, "%,.2f", value)
+}
+
 fun String?.mask(): String = orEmpty().maskPanForReceipt()
 
 

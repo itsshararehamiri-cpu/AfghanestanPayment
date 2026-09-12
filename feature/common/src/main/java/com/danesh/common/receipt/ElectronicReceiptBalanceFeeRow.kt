@@ -9,7 +9,7 @@ import com.danesh.common.currency.amountWithCurrency
 fun ElectronicReceiptBalanceFeeRow(fee: String) {
     ElectronicReceiptDetailRow(
         label = stringResource(R.string.balance_transaction_fee),
-        value = amountWithCurrency(fee.formatAmount()),
+        value = amountWithCurrency(receiptAmountText(fee)),
         icon = com.danesh.ui.R.drawable.ic_money_send,
     )
 }

@@ -2,6 +2,7 @@ package com.danesh.hp.di
 
 import com.danesh.common.startup.AppStartupTask
 import com.danesh.engine.SafQueueScheduler
+import com.danesh.hp.diagnostics.HpDiagnosticLogRotationTask
 import com.danesh.iso.IsoMessage
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,10 @@ object HpStartupModule {
     fun provideSafQueueScheduler(
         scheduler: SafQueueScheduler<IsoMessage>,
     ): AppStartupTask = scheduler
+
+    @Provides
+    @IntoSet
+    fun provideDiagnosticLogRotationTask(
+        task: HpDiagnosticLogRotationTask,
+    ): AppStartupTask = task
 }

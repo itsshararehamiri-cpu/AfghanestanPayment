@@ -96,7 +96,7 @@ open class NACChannel2 : BaseChannel {
             m.setDirection(ISOMsg.OUTGOING) // filter may have dropped this info
             m.setPackager(p) // and could have dropped packager as well
             val b = m.pack()
-            Log.d("TAG", "send: ddddddddd${ISOUtil.hexString(b)}")
+            // Never dump the raw packed frame: it can carry PAN/Track2/PIN block bytes in clear.
             synchronized(serverOutLock) {
                 sendMessageLength(b.size + getHeaderLength(m))
                 sendMessageHeader(m, b.size)
@@ -138,10 +138,9 @@ open class NACChannel2 : BaseChannel {
             val len = getMessageLength()
             val data = ByteArray(len)
             getMessage(data, 0, len)
-            Log.d("TAG", "receive: dddddfdddddd${ISOUtil.hexString(data)}")
+            // Never dump the raw received frame: it can carry PAN/Track2 bytes in clear.
 
             m.setPackager(responsePackager)
-            Log.d("TAG", "receive: dddddfddddd${ISOUtil.hexString(data)}")
             m.unpack(data)
 
         }

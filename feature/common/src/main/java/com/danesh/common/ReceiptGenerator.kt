@@ -39,6 +39,7 @@ import com.danesh.common.Dimensions.PSP_LOGO_hEIGHT_RECEPINT
 import com.danesh.common.receipt.ReceiptType
 import com.danesh.common.receipt.truncateMerchantNameForReceipt
 import com.danesh.common.receipt.formatAmount
+import com.danesh.common.receipt.receiptAmountText
 import com.danesh.common.receipt.voucherChargeMethodLabel
 import com.danesh.common.currency.amountWithCurrency
 import com.danesh.ui.theme.withAppFont
@@ -552,7 +553,7 @@ fun AddAmount(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = amountWithCurrency(amount.formatAmount()),
+            text = amountWithCurrency(receiptAmountText(amount)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(start = if (isPaperReceipt) 0.dp else PADDING_SIDE_ROW_RECEIPT)
@@ -633,7 +634,7 @@ fun AddBalance(
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = amountWithCurrency(balance.formatAmount()),
+            text = amountWithCurrency(receiptAmountText(balance)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(start =  0.dp )
@@ -664,7 +665,7 @@ fun AddFee(
     CenterRowReceipt(
         modifier = modifier,
         first = stringResource(feeLabelRes),
-        second = amountWithCurrency(fee.formatAmount()),
+        second = amountWithCurrency(receiptAmountText(fee)),
         textColor = textColor,
         isPaperReceipt = isPaperReceipt,
     )

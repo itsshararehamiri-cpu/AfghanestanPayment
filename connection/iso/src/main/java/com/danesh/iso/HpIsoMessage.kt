@@ -271,11 +271,19 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
     private fun formatFieldLogValue(field: Int): String {
         // DE52 (PIN block) is always in ALWAYS_REDACTED_FIELDS, so its binary bytes never reach here.
         if (field in ALWAYS_REDACTED_FIELDS) return REDACTED_VALUE
+        // DE48 can carry a destination PAN/wallet number (tag 021) in the raw TLV blob;
+        // summarize by tag instead of dumping the packed text so it is never logged in clear.
+        if (field == 48) return formatField48LogValue()
         return isoMsg.getString(field)?.takeIf { it.isNotEmpty() }
             ?: isoMsg.getBytes(field)?.let { bytes ->
                 bytes.joinToString(separator = "") { byte -> "%02X".format(byte.toInt() and 0xFF) }
             }.orEmpty()
     }
+
+    private fun formatField48LogValue(): String =
+        field48.keys().sorted().joinToString(separator = ",") { tag ->
+            if (tag in ALWAYS_REDACTED_FIELD48_TAGS) "$tag=$REDACTED_VALUE" else "$tag=${field48.getNode(tag)}"
+        }
 
     override fun getFieldByTag(tag: String): String {
         return  getField48Tag(tag)?:""
@@ -293,5 +301,8 @@ class HpIsoMessage @Inject constructor() : IsoMessage {
 
         /** PAN (DE2), Track 2 (DE35) و PIN block (DE52) — هرگز در لاگ درج نمی‌شوند. */
         private val ALWAYS_REDACTED_FIELDS = intArrayOf(2, 35, 52)
+
+        /** تگ‌های فیلد ۴۸ که PAN/شماره کیف مقصد حمل می‌کنند — هرگز در لاگ درج نمی‌شوند. */
+        private val ALWAYS_REDACTED_FIELD48_TAGS = setOf("021")
     }
 }
