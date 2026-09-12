@@ -228,6 +228,10 @@ class TerminalConfigHandler @Inject constructor(
         val current = contextProvider.getTerminalConfig()
         val terminalId = response.terminalId.trim().ifBlank { current.terminalId }
         val merchantId = response.merchantId.trim().ifBlank { current.merchantId }
+        // DE43 (Card Acceptor Name/Location): طبق مستند پروتکل یک مقدار واحد و ترکیبی
+        // «نام/محل» است — بدون زیرفیلد یا جداکننده‌ی مستند برای تفکیک نام از محل، پس
+        // عیناً و بدون شکستن نگه‌داری می‌شود. فقط از پاسخ 1314 دریافت و برای نمایش روی
+        // رسید در پروفایل فعال ذخیره می‌شود؛ در هیچ پیام خروجی هرگز echo/ارسال نمی‌شود.
         val merchantNameLocation = response.getIsoMessage().getString(43)?.trim().orEmpty()
         // DE26 — بخش 3 مستند: پروفایل فعال باید MCC را برای سایر تراکنش‌های مالی فراهم کند.
         val mcc = response.getIsoMessage().getString(26)?.trim().orEmpty()

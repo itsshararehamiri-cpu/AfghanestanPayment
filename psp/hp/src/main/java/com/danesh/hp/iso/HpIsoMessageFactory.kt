@@ -12,6 +12,11 @@ class HpIsoMessageFactory @Inject constructor(
 ) {
     fun terminalMerchantId(): String = contextProvider.getTerminalConfig().merchantId
 
+    /**
+     * نام/محل پذیرنده (DE43 پاسخ 1314) — تنها برای نمایش روی رسید از پروفایل فعال
+     * خوانده می‌شود؛ طبق مستند پروتکل هرگز در پیام خروجی به‌عنوان DE43 ارسال نمی‌شود
+     * (نگاه کنید به builderهای تراکنشی HP — هیچ‌کدام فیلد 43 را ست نمی‌کنند).
+     */
     fun terminalMerchantName(): String = contextProvider.getTerminalConfig().merchantName
 
     fun merchantPhone(): String = contextProvider.getTerminalConfig().merchantPhone
