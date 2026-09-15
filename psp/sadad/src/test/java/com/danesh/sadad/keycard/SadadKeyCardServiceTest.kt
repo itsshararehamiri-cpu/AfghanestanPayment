@@ -103,9 +103,9 @@ class SadadKeyCardServiceTest {
     }
 
     private fun rsaEncrypt(publicKey: RSAPublicKey, plain: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        val cipher = Cipher.getInstance("RSA/ECB/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, publicKey)
-        return cipher.doFinal(plain)
+        return cipher.doFinal(toFixedLength(plain, 128))
     }
 
     @Test

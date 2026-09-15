@@ -77,15 +77,6 @@ fun SadadKeyCardLoadingScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(R.string.settings_key_card_step1_description),
-                color = SettingsColors.TextPrimary.copy(alpha = 0.8f),
-                fontSize = 13.sp,
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
                 text = if (uiState.hasStoredCardAPair) {
                     stringResource(R.string.settings_key_card_step1_stored)
                 } else {
@@ -118,15 +109,6 @@ fun SadadKeyCardLoadingScreen(
             Spacer(modifier = Modifier.height(28.dp))
             SettingsSectionTitle(title = stringResource(R.string.settings_key_card_step2_title))
             Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = stringResource(R.string.settings_key_card_step2_description),
-                color = SettingsColors.TextPrimary.copy(alpha = 0.8f),
-                fontSize = 13.sp,
-                style = MaterialTheme.typography.bodySmall,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 CardTypeOption(

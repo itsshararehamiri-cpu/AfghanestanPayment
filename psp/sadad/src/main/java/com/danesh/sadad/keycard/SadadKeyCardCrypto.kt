@@ -10,11 +10,12 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * رمزگشایی RSA و محاسبه KCV مطابق بخش 3.3/3.4 و جدول کدهای خطای بخش 5 مستند.
  *
- * توجه مهم: مستند نوع padding مورد استفاده برای رمزنگاری کلید مستر با RSA را صریحاً مشخص
- * نکرده است. پیاده‌سازی فعلی از PKCS#1 v1.5 (رایج‌ترین روش انتقال کلید متقارن با RSA در
- * این نوع HSM/کارت‌های پرداخت) استفاده می‌کند. این فرض باید پیش از استفاده عملیاتی با یک
- * کارت واقعی سداد (یا پشتیبانی فنی سداد) تایید شود؛ در صورت نیاز [decryptTransportedKey]
- * تنها نقطه‌ای است که باید تغییر کند.
+ * padding: مستند صریحاً نوع padding را ذکر نکرده، اما با رمزگشایی دستی سناریوی تست بخش
+ * 4 (جفت کلید واقعی کارت A + شش کلید رمزشده واقعی کارت C) تایید شد که رمزنگاری کارت،
+ * RSA خام (بدون padding، یعنی «تدارک صفر» ساده تا طول Modulus) است — بلوک رمزگشایی‌شده
+ * ساختار PKCS#1 v1.5 (۰۰۰۲ + بایت‌های تصادفی غیرصفر + ۰۰) ندارد، فقط با بایت‌های صفر در
+ * سمت چپ پر شده و کلید واقعی در انتهای آن قرار دارد. بنابراین [decryptTransportedKey] از
+ * "RSA/ECB/NoPadding" استفاده کرده و بایت‌های صفر ابتدایی را حذف می‌کند.
  */
 internal object SadadKeyCardCrypto {
 
@@ -27,9 +28,10 @@ internal object SadadKeyCardCrypto {
     }
 
     fun decryptTransportedKey(privateKey: RSAPrivateKey, encrypted: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        val cipher = Cipher.getInstance("RSA/ECB/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, privateKey)
-        return cipher.doFinal(encrypted)
+        val raw = cipher.doFinal(encrypted)
+        return raw.dropWhile { it == 0.toByte() }.toByteArray()
     }
 
     /**
