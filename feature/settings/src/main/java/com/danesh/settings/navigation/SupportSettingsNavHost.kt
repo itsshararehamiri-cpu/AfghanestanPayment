@@ -239,10 +239,11 @@ fun SupportSettingsNavHost(
         composable(SupportSettingsRoutes.CONFIGURATION) {
             val configurationViewModel: ConfigurationViewModel = hiltViewModel()
             val usesTerminalConfigFlow = configurationViewModel.usesTerminalConfigFlow
+            val usesKeyCardLoading = configurationViewModel.usesKeyCardLoading
 
             ConfigurationScreen(
                 onBackClick = { navController.popBackStack() },
-                keyLoadingLabel = if (usesTerminalConfigFlow) {
+                keyLoadingLabel = if (usesTerminalConfigFlow || usesKeyCardLoading) {
                     stringResource(R.string.settings_key_provisioning)
                 } else {
                     stringResource(R.string.settings_key_loading)

@@ -10,4 +10,5 @@ class ConfigurationViewModel @Inject constructor(
     initialConfigurationPolicy: InitialConfigurationPolicy,
 ) : ViewModel() {
     val usesTerminalConfigFlow: Boolean = initialConfigurationPolicy.usesTerminalConfigFlow
+    val usesKeyCardLoading: Boolean = initialConfigurationPolicy.usesKeyCardLoading
 }
