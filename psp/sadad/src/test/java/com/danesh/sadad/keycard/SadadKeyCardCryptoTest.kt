@@ -100,6 +100,33 @@ class SadadKeyCardCryptoTest {
         }
     }
 
+    /**
+     * اگر بایت اول کلید واقعی (۱۶ بایت انتهایی بلوک ۱۲۸ بایتی) خودش صفر باشد، حذف ساده‌ی
+     * صفرهای ابتدایی (روش قبلی) اشتباهاً وارد کلید واقعی می‌شود و آن را کوتاه می‌کند. این تست
+     * تایید می‌کند [decryptTransportedKey] با آفست ثابت ۱۱۲ (نه حذف صفر) این حالت را درست
+     * مدیریت می‌کند، حتی اگر Cipher خروجی را با صفرهای ابتدایی حذف‌شده برگرداند.
+     */
+    @Test
+    fun decryptTransportedKey_keyStartingWithZeroByte_isNotTruncated() {
+        val generator = KeyPairGenerator.getInstance("RSA")
+        generator.initialize(1024)
+        val keyPair = generator.generateKeyPair()
+        val publicKey = keyPair.public as RSAPublicKey
+        val referencePrivate = keyPair.private as RSAPrivateKey
+
+        val modulus = toFixedLengthBytes(referencePrivate.modulus.toByteArray(), 128)
+        val exponent = toFixedLengthBytes(referencePrivate.privateExponent.toByteArray(), 128)
+        val rebuiltPrivateKey = SadadKeyCardCrypto.buildPrivateKey(modulus, exponent)
+
+        val plaintext = SadadHex.decode("00AA112233445566778899AABBCCDDEE")
+        val cipher = Cipher.getInstance("RSA/ECB/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey)
+        val encrypted = cipher.doFinal(toFixedLengthBytes(plaintext, 128))
+
+        val decrypted = SadadKeyCardCrypto.decryptTransportedKey(rebuiltPrivateKey, encrypted)
+        assertArrayEquals(plaintext, decrypted)
+    }
+
     @Test
     fun kcvHex_doubleLengthKey_isThreeBytesHex() {
         val key = SadadHex.decode("3132333435363738393A3B3C3D3E3F20")

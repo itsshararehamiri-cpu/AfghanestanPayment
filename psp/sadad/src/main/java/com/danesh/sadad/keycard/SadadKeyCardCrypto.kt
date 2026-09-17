@@ -14,10 +14,17 @@ import javax.crypto.spec.SecretKeySpec
  * 4 (جفت کلید واقعی کارت A + شش کلید رمزشده واقعی کارت C) تایید شد که رمزنگاری کارت،
  * RSA خام (بدون padding، یعنی «تدارک صفر» ساده تا طول Modulus) است — بلوک رمزگشایی‌شده
  * ساختار PKCS#1 v1.5 (۰۰۰۲ + بایت‌های تصادفی غیرصفر + ۰۰) ندارد، فقط با بایت‌های صفر در
- * سمت چپ پر شده و کلید واقعی در انتهای آن قرار دارد. بنابراین [decryptTransportedKey] از
- * "RSA/ECB/NoPadding" استفاده کرده و بایت‌های صفر ابتدایی را حذف می‌کند.
+ * سمت چپ پر شده و کلید واقعی (۱۶ بایت) در انتهای بلوک ۱۲۸ بایتی (آفست ۱۱۲) قرار دارد —
+ * دقیقاً همان قراردادی که در پیاده‌سازی مرجع دستگاه دیگر (خواندن با RSA_private_decrypt و
+ * برداشتن buf+7*16) دیده می‌شود. [decryptTransportedKey] این پدینگ چپ را خودش تا ۱۲۸ بایت
+ * بازسازی می‌کند (چون طول آرایه‌ی خروجی Cipher با NoPadding به Provider وابسته است و ممکن
+ * است صفرهای ابتدایی را از قبل حذف کرده باشد) و سپس ۱۶ بایت آخر را برمی‌دارد؛ این روش برخلاف
+ * حذف ساده‌ی صفرهای ابتدایی، حتی وقتی بایت اول خودِ کلید واقعی صفر باشد هم درست کار می‌کند.
  */
 internal object SadadKeyCardCrypto {
+
+    private const val RSA_BLOCK_LEN = 128 // اندازه Modulus کارت (RSA 1024-bit)، مطابق بخش 3.3/3.4 مستند
+    private const val TRANSPORTED_KEY_LEN = 16 // طول هر کلید کاری منتقل‌شده در بلوک (کلید DES دوطول)
 
     fun buildPrivateKey(modulus: ByteArray, privateExponent: ByteArray): RSAPrivateKey {
         val n = BigInteger(1, modulus)
@@ -31,7 +38,12 @@ internal object SadadKeyCardCrypto {
         val cipher = Cipher.getInstance("RSA/ECB/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, privateKey)
         val raw = cipher.doFinal(encrypted)
-        return raw.dropWhile { it == 0.toByte() }.toByteArray()
+
+        val padded = when {
+            raw.size >= RSA_BLOCK_LEN -> raw.copyOfRange(raw.size - RSA_BLOCK_LEN, raw.size)
+            else -> ByteArray(RSA_BLOCK_LEN - raw.size) + raw
+        }
+        return padded.copyOfRange(RSA_BLOCK_LEN - TRANSPORTED_KEY_LEN, RSA_BLOCK_LEN)
     }
 
     /**
