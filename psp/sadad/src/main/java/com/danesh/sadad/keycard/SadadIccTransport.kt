@@ -1,5 +1,6 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
 import com.danesh.core.Device
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,11 +21,18 @@ class SadadDeviceIccTransport @Inject constructor(
     private val device: Device,
 ) : SadadIccTransport {
 
-    override fun powerOn(): Boolean = device.powerOnIcCard()
+    override fun powerOn(): Boolean {
+        Log.d("TAG", "powerOn: ")
+        return device.powerOnIcCard()
+    }
 
-    override fun powerOff() = device.powerOffIcCard()
+    override fun powerOff() {
+        return device.powerOffIcCard()
+    }
 
-    override fun isCardPresent(): Boolean = device.isIcCardDetect()
+    override fun isCardPresent(): Boolean {
+        return device.isIcCardDetect()
+    }
 
     override suspend fun exchange(command: ByteArray): ByteArray {
         var errorMessage: String? = null

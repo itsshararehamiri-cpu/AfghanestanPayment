@@ -1,5 +1,6 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -53,7 +54,13 @@ class SadadKeyCardReader @Inject constructor(
         return SadadKeyCardApdu.requireSuccess(response, "Read encrypted ${keyNumber.name}")
     }
 
-    fun powerOn(): Boolean = transport.powerOn()
+    fun powerOn(): Boolean {
+        Log.d("TAG", "powerOn: ")
+        return transport.powerOn()
+    }
 
-    fun powerOff() = transport.powerOff()
+    fun powerOff(){
+        Log.d("TAG", "powerOff: ")
+        return transport.powerOff()
+    }
 }

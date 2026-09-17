@@ -558,6 +558,8 @@ class K9 @Inject constructor(
         }
         val icCardDevice = manager.icDevice
         val atr = icCardDevice.reset()
+        Log.d("TAG", "powerOnIcCardatr: $atr")
+
         if (atr == null) {
             DeviceTrace.warn(SDK, "powerOnIcCard reset failed")
             mIcCardDevice = null
@@ -569,23 +571,35 @@ class K9 @Inject constructor(
     }
 
     override fun powerOffIcCard() {
-        mIcCardDevice?.halt()
-        DeviceTrace.step(SDK, "powerOffIcCard halted")
-        mIcCardDevice = null
+        try {
+            mIcCardDevice?.halt()
+            DeviceTrace.step(SDK, "powerOffIcCard halted")
+            mIcCardDevice = null
+        }
+        catch (e: Exception){
+            Log.d("TAG", "powerOffIcCard:ss ${e.cause}")
+            Log.d("TAG", "powerOffIcCard:ss ${e.message}")
+        }
     }
 
     override fun isIcCardDetect(): Boolean {
         val icCardDevice = mIcCardDevice ?: deviceManager?.icDevice ?: return false
-        return runCatching { icCardDevice.exists() }.getOrDefault(false)
+
+        return runCatching {val v= icCardDevice.exists()
+            Log.d("TAG", "isIcCardDetect:ss ${v}")
+        v}.getOrDefault(false)
     }
 
     override suspend fun sendApdu(byteArray: ByteArray, onError: (String) -> Unit): ByteArray? {
+        Log.d("TAG", "sendApdu: ddddddyt->${HexUtils.bytesToHexString(byteArray)}")
         val icCardDevice = mIcCardDevice
         if (deviceManager == null || icCardDevice == null) {
+            Log.d("TAG", "sendApdu:sendApdu==nu ")
             onError(errorMessage(context, R.string.error_icc_device, "deviceManager=null"))
             return null
         }
         if (!icCardDevice.exists()) {
+            Log.d("TAG", "sendApdu:sendApdu==un")
             onError(
                 errorMessage(
                     context, R.string.error_icc_card_not_found, "iccCard.exists=false"
