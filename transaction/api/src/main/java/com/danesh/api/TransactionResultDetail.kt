@@ -186,6 +186,14 @@ data class TransactionResultDetail(
     @SerializedName("couponTrackingNumber")
     val couponTrackingNumber: String = "",
 
+    /** موجودی اعتبار کالابرگ (تگ 1F پاسخ استعلام کالابرگ). */
+    @SerializedName("couponCreditBalance")
+    val couponCreditBalance: String = "",
+
+    /** اعتبار مصرف‌شده/مورد نیاز کالابرگ (تگ 20 پاسخ استعلام کالابرگ). */
+    @SerializedName("couponCreditRequired")
+    val couponCreditRequired: String = "",
+
 )
 
 fun Int.toTransactionType(): TransactionType = when (this) {

@@ -49,7 +49,7 @@ class BpTransactionResultMapper @Inject constructor(
             ?.let { BpField54Parser.parse(it.additionalAmounts) }
         val actualBalance = field54Balances?.actual?.toDisplayAmount()
         val availableFrom54 = field54Balances?.available?.toDisplayAmount()
-        val availableFrom48 = response?.getField48Tag(BpField48Tags.CREDIT_BALANCE)
+        val availableFrom48 = response?.getField48Tag(BpField48Tags.COUPON_CREDIT_BALANCE_TAG)
             ?.takeIf { it.isNotBlank() }
         val availableBalance = availableFrom54
             ?: availableFrom48
@@ -96,6 +96,12 @@ class BpTransactionResultMapper @Inject constructor(
         val couponTrackingNumber = response
             ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
             ?.additionalResponseData.orEmpty()
+        val couponCreditBalance = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getField48Tag(BpField48Tags.COUPON_CREDIT_BALANCE_TAG).orEmpty()
+        val couponCreditRequired = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getField48Tag(BpField48Tags.COUPON_CREDIT_REQUIRED_TAG).orEmpty()
 
        return TransactionResultDetail(
             isSuccess = resolvedSuccess,
@@ -135,6 +141,8 @@ class BpTransactionResultMapper @Inject constructor(
             couponCashAmount = couponCashAmount,
             couponAssignedCredits = couponAssignedCredits,
             couponTrackingNumber = couponTrackingNumber,
+            couponCreditBalance = couponCreditBalance,
+            couponCreditRequired = couponCreditRequired,
         )
 
     }
