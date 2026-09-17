@@ -49,7 +49,7 @@ class BpTransactionResultMapper @Inject constructor(
             ?.let { BpField54Parser.parse(it.additionalAmounts) }
         val actualBalance = field54Balances?.actual?.toDisplayAmount()
         val availableFrom54 = field54Balances?.available?.toDisplayAmount()
-        val availableFrom48 = response?.getField48Tag(BpField48Tags.CREDIT_BALANCE)
+        val availableFrom48 = response?.getField48Tag(BpField48Tags.COUPON_CREDIT_BALANCE_TAG)
             ?.takeIf { it.isNotBlank() }
         val availableBalance = availableFrom54
             ?: availableFrom48
@@ -87,6 +87,22 @@ class BpTransactionResultMapper @Inject constructor(
             ?: request.getField48Tag(BpField48Tags.MOBILE_OPERATOR).orEmpty().trim()
         val payId = request.getField48Tag(BpField48Tags.PAYMENT_ID).orEmpty().trim()
 
+        val couponCashAmount = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getIsoMessage()?.getString(6).orEmpty()
+        val couponAssignedCredits = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getIsoMessage()?.getString(47).orEmpty()
+        val couponTrackingNumber = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.additionalResponseData.orEmpty()
+        val couponCreditBalance = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getField48Tag(BpField48Tags.COUPON_CREDIT_BALANCE_TAG).orEmpty()
+        val couponCreditRequired = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getField48Tag(BpField48Tags.COUPON_CREDIT_REQUIRED_TAG).orEmpty()
+
        return TransactionResultDetail(
             isSuccess = resolvedSuccess,
             transactionType = transactionType,
@@ -122,6 +138,11 @@ class BpTransactionResultMapper @Inject constructor(
             mobileNumber = mobileNumber,
             voucherMethod =response?.getField48Tag(BpField48Tags.SERVICE_CODE)?:"",
             payId = payId,
+            couponCashAmount = couponCashAmount,
+            couponAssignedCredits = couponAssignedCredits,
+            couponTrackingNumber = couponTrackingNumber,
+            couponCreditBalance = couponCreditBalance,
+            couponCreditRequired = couponCreditRequired,
         )
 
     }

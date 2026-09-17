@@ -23,6 +23,9 @@
     <string name="tx_type_logon">لاگون</string>
     <string name="tx_type_init">اینیت</string>
     <string name="tx_type_voucher">خرید شارژ</string>
+    <string name="tx_type_coupon_list">لیست کوپون</string>
+    <string name="tx_type_coupon_inquiry">استعلام کوپون</string>
+    <string name="tx_type_coupon_purchase">خرید کوپون</string>
     <string name="merchant_receipt_optional_dialog_title">چاپ رسید پذیرنده</string>
     <string name="merchant_receipt_optional_dialog_message">آیا رسید پذیرنده چاپ شود؟</string>
     <string name="merchant_receipt_mandatory_dialog_title">چاپ رسید پذیرنده</string>

@@ -186,6 +186,9 @@
     <string name="tx_type_logon">لاګون</string>
     <string name="tx_type_init">پیل کول</string>
     <string name="tx_type_voucher">د کارت چارج اخیستل</string>
+    <string name="tx_type_coupon_list">د کوپن لیست</string>
+    <string name="tx_type_coupon_inquiry">د کوپن استعلام</string>
+    <string name="tx_type_coupon_purchase">د کوپن اخیستل</string>
     <string name="language_english">English</string>
     <string name="merchant_receipt_optional_dialog_title">د سوداګر رسید چاپ</string>
     <string name="merchant_receipt_optional_dialog_message">ایا د سوداګر رسید چاپ شي؟</string>

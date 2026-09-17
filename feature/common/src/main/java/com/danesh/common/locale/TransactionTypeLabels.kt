@@ -26,8 +26,9 @@ fun TransactionType.titleRes(): Int = when (this) {
     TransactionType.TOPUP -> R.string.tx_type_topup
     TransactionType.SIGNON -> R.string.tx_type_init
     TransactionType.TERMINAL_CONFIG -> R.string.tx_type_init
-    TransactionType.COUPON_LIST -> R.string.tx_type_init
-    TransactionType.COUPON_INQUIRY ->  R.string.tx_type_init
+    TransactionType.COUPON_LIST -> R.string.tx_type_coupon_list
+    TransactionType.COUPON_INQUIRY -> R.string.tx_type_coupon_inquiry
+    TransactionType.COUPON_PURCHASE -> R.string.tx_type_coupon_purchase
 }
 
 @Composable

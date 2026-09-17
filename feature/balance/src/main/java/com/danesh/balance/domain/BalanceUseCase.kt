@@ -4,8 +4,6 @@ package com.danesh.balance.domain
 import android.util.Log
 import com.danesh.api.BalanceInput
 import com.danesh.api.BalanceOutput
-import com.danesh.api.CouponListInput
-import com.danesh.api.CouponListUserInput
 import com.danesh.api.PspGateway
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,12 +15,6 @@ class BalanceUseCase @Inject constructor(
     suspend operator fun invoke(pinBlock: String, track2: String, pan: String): BalanceOutput {
         Log.d("BalanceFlow", "BalanceUseCase | invoke | panLen=${pan.length}")
         return withContext(Dispatchers.IO) {
-            pspGateway.getCouponList(
-                CouponListInput(
-                    track2 = "",
-                    pinBlock = "",
-                )
-            )
             val result = pspGateway.balance(
                 BalanceInput(
                     track2 = track2,

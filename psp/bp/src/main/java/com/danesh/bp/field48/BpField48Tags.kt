@@ -31,13 +31,20 @@ object BpField48Tags {
     const val SERVICE_CODE = "1B"
     const val SERVICE_HELP_TEXT = "1C"
     const val COUPON_REQUEST_INDEX_TAG  = "1D"
+    /** شماره آخرین اندیس (Index) لیست کالابرگ — پاسخ Coupon List */
+    const val COUPON_LAST_INDEX_TAG = "1E"
+    /** مقدار موجودی اعتبار کالابرگ — پاسخ Coupon Inquiry */
+    const val COUPON_CREDIT_BALANCE_TAG = "1F"
+    /** مقدار اعتبار مصرف‌شده/مورد نیاز کالابرگ — پاسخ Coupon Inquiry */
+    const val COUPON_CREDIT_REQUIRED_TAG = "20"
     const val KEY_INDEX = "1E"
     const val LAST_KEY_INDEX = "1F"
     const val CREDIT_BALANCE = "20"
-    const val CREDIT_USED_OR_REQUIRED = "21"
-    const val CANCEL_REASON = "22"
+    const val CREDIT_USED_OR_REQUIRED = "20"
+    /** دلیل لغو تراکنش — تگ 21 طبق جدول راهنمای TAG های TLV (نه 22). */
+    const val CANCEL_REASON = "21"
+    const val REFUND_AMOUNT = "22"
     const val SUPPORT_TITLES_AMOUNTS = "23"
-    const val REFUND_AMOUNT = SUPPORT_TITLES_AMOUNTS
     const val SUPPORT_MENU_ITEMS = "24"
     const val VAT_PERCENT = "25"
 

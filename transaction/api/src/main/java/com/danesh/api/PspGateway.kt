@@ -85,9 +85,31 @@ data class CashDepositInput(
 data class CouponListInput(
     val track2: String,
     val pinBlock: String,
+    val pan: String = "",
 )
+
+data class CouponInquiryInput(
+    val track2: String,
+    val pinBlock: String,
+    val pan: String,
+    val items: List<CouponOrderItem>,
+)
+
+data class CouponPurchaseInput(
+    val track2: String,
+    val pinBlock: String,
+    val pan: String,
+    val amount: Long = 0,
+    /** فیلد 37 (RRN) پاسخ استعلام کالابرگ */
+    val inquiryRrn: String,
+    /** فیلد 44 (شماره پیگیری کالابرگ) پاسخ استعلام کالابرگ */
+    val couponTrackingNumber: String,
+)
+
 typealias CashDepositOutput = TransactionResultDetail
 typealias CouponListOutput = TransactionResultDetail
+typealias CouponInquiryOutput = TransactionResultDetail
+typealias CouponPurchaseOutput = TransactionResultDetail
 
 
 data class CashOutInput(
@@ -190,7 +212,7 @@ enum class TransactionType {
     SUPPORT,
     CARD_TO_WALLET,
     WALLET_TO_WALLET,
-    SIGNON,TERMINAL_CONFIG,COUPON_LIST,COUPON_INQUIRY
+    SIGNON,TERMINAL_CONFIG,COUPON_LIST,COUPON_INQUIRY,COUPON_PURCHASE
 }
 
 typealias LogonOutput = TransactionResultDetail
@@ -224,6 +246,8 @@ interface PspGateway {
     suspend fun terminalConfig(input:TerminalConfigInput): TerminalConfigOutput
 
     suspend fun getCouponList(input: CouponListInput): CouponListOutput
+    suspend fun couponInquiry(input: CouponInquiryInput): CouponInquiryOutput
+    suspend fun couponPurchase(input: CouponPurchaseInput): CouponPurchaseOutput
 
 
 }

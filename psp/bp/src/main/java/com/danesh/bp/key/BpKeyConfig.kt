@@ -106,6 +106,23 @@ object BpKeyConfig {
     const val COUPON_INQUIRY_MTI="0100"
     const val COUPON_INQUIRY_PROCESSING_CODE = "810000"
 
+    const val COUPON_PURCHASE_MTI = "0200"
+    const val COUPON_PURCHASE_PROCESSING_CODE = "800000"
+    const val COUPON_PURCHASE_CURRENCY = "364"
+
+    /** ارسال تگ 04 یا 05 الزامی است — در تمام تراکنش‌های کالابرگ از تگ 04 (آخرین STAN موفق) استفاده می‌شود. */
+    const val COUPON_FIELD48_TAG_LAST_SUCCESS = BpField48Tags.LAST_SUCCESS_STAN
+    const val COUPON_LAST_INDEX_TAG = BpField48Tags.COUPON_LAST_INDEX_TAG
+    const val COUPON_CREDIT_BALANCE_TAG = BpField48Tags.COUPON_CREDIT_BALANCE_TAG
+    const val COUPON_CREDIT_REQUIRED_TAG = BpField48Tags.COUPON_CREDIT_REQUIRED_TAG
+
+    /**
+     * مقدار قراردادی [com.danesh.api.QueueItem.reverseDestTag] برای علامت‌گذاری اینکه
+     * [com.danesh.api.QueueItem.reverseDestValue] باید در فیلد 44 پیام Reverse/Advice
+     * (نه DE48) قرار گیرد — برای حفظ «شماره پیگیری کالابرگ» در Reverse/Confirm خرید کالابرگ.
+     */
+    const val QUEUE_FIELD44_DEST_TAG = "044"
+
 
     const val INIT_MTI = "0800"
     const val INIT_PROCESSING_CODE = "900000"

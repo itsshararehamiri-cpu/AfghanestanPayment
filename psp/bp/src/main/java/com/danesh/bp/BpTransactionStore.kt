@@ -132,6 +132,10 @@ class BpTransactionStore @Inject constructor(
         withContext(Dispatchers.IO) {
             val (date, time) = resolveDateTime(message)
             val dateTime = "$date$time"
+            // خرید کالابرگ فیلد 44 (شماره پیگیری کالابرگ) را در درخواست 0200 درج می‌کند؛
+            // برای اینکه Reverse/Advice بعدی هم همان مقدار را حمل کنند، از ستون‌های عمومی
+            // reverseDestTag/reverseDestValue (بدون نیاز به migration) استفاده می‌شود.
+            val field44 = message.additionalResponseData.takeIf { it.isNotBlank() }
             queueDao.insert(
                 StoreForwardQueueEntity(
                     dateTime = dateTime,
@@ -153,6 +157,8 @@ class BpTransactionStore @Inject constructor(
                     posConditionCode = message.pointOfServiceEntryMode,
                     currency = message.currency,
                     queueOperation = QueueOperations.fromSafStatus(status),
+                    reverseDestTag = field44?.let { BpKeyConfig.QUEUE_FIELD44_DEST_TAG },
+                    reverseDestValue = field44,
                 ),
             )
         }
@@ -173,6 +179,9 @@ class BpTransactionStore @Inject constructor(
         "170000" -> TransactionType.BILL.ordinal
         "230000" -> TransactionType.TOPUP.ordinal
         "100000" -> TransactionType.SUPPORT.ordinal
+        "820000" -> TransactionType.COUPON_LIST.ordinal
+        "810000" -> TransactionType.COUPON_INQUIRY.ordinal
+        "800000" -> TransactionType.COUPON_PURCHASE.ordinal
         else -> TransactionType.BALANCE.ordinal
     }
 

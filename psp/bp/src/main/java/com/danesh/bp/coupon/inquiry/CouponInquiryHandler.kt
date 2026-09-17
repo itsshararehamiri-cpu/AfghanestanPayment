@@ -18,7 +18,11 @@ class CouponInquiryHandler @Inject constructor(
     private val transport: BpIsoHandlerSupport,
 ) : HandlerTransaction<BpCouponInquiryRequest, BpCouponInquiryResult ,IsoMessage>() {
 
-    override val isReversible: Boolean = false
+    /**
+     * طبق مستند: «در صورت عدم دریافت پاسخ یا دریافت پاسخ نامعتبر این تراکنش می‌بایست
+     * لغو گردد» — یعنی در صورت timeout/قطع ارتباط باید Reverse (0400) ارسال شود.
+     */
+    override val isReversible: Boolean = true
     override val needReport: Boolean = false
 
     override fun buildMessage(request: BpCouponInquiryRequest): IsoMessage {

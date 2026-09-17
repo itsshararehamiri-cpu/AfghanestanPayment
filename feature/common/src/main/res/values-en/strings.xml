@@ -123,6 +123,9 @@
     <string name="tx_type_logon">Logon</string>
     <string name="tx_type_init">Init</string>
     <string name="tx_type_voucher">Top-up purchase</string>
+    <string name="tx_type_coupon_list">Coupon list</string>
+    <string name="tx_type_coupon_inquiry">Coupon inquiry</string>
+    <string name="tx_type_coupon_purchase">Coupon purchase</string>
     <string name="tx_type_support">Support</string>
 
     <!-- Transaction messages -->

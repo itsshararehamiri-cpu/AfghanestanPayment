@@ -39,6 +39,12 @@ class BpReverseMessageBuilder @Inject constructor(
                     ?.takeIf { it.isNotBlank() }
                     ?.let { additionalResponseData = it }
             }
+            // Reverse خرید کالابرگ باید فیلد 44 (شماره پیگیری کالابرگ) را نیز حمل کند.
+            if (item.reverseDestTag == BpKeyConfig.QUEUE_FIELD44_DEST_TAG) {
+                item.reverseDestValue
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { additionalResponseData = it }
+            }
             securityControlInfo = BpKeyConfig.FIELD53
             privateUseField63 = metadataProvider.metadata().toBpField63()
             setField48 {

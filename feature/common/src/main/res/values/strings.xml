@@ -159,6 +159,9 @@
     <string name="tx_type_logon">لاگون</string>
     <string name="tx_type_init">اینیت</string>
     <string name="tx_type_voucher">خرید شارژ</string>
+    <string name="tx_type_coupon_list">لیست کالابرگ</string>
+    <string name="tx_type_coupon_inquiry">استعلام کالابرگ</string>
+    <string name="tx_type_coupon_purchase">خرید کالابرگ</string>
     <string name="language_english">English</string>
     <string name="merchant_receipt_optional_dialog_title">چاپ رسید پذیرنده</string>
     <string name="merchant_receipt_optional_dialog_message">آیا رسید پذیرنده چاپ شود؟</string>
