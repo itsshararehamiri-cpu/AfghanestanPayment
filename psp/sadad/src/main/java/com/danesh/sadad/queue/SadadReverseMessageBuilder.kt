@@ -55,7 +55,7 @@ class SadadReverseMessageBuilder @Inject constructor(
         TransactionType.CARD_TO_WALLET.ordinal -> "781"
         TransactionType.WALLET_TO_WALLET.ordinal -> "785"
         TransactionType.VOUCHER.ordinal -> SadadKeyConfig.VOUCHER_FUNCTION_CODE
-        TransactionType.TOPUP.ordinal -> SadadKeyConfig.TOPUP_FUNCTION_CODE
+        TransactionType.TOPUP.ordinal -> SadadKeyConfig.SADAD_NII
         TransactionType.SUPPORT.ordinal -> SadadKeyConfig.SUPPORT_FUNCTION_CODE
         else -> "774"
     }

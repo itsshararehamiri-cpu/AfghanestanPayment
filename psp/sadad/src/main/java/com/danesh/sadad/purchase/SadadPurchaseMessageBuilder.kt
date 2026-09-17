@@ -41,9 +41,9 @@ class SadadPurchaseMessageBuilder @Inject constructor(
             processingCode = SadadKeyConfig.PURCHASE_PROCESSING_CODE
             amount = messageSupport.formatIsoAmount(request.amount)
             stan = messageSupport.nextStan()
-            pointOfServiceEntryMode = SadadKeyConfig.PURCHASE_POS_ENTRY_MODE
-            nii = SadadKeyConfig.PURCHASE_NII
-            posConditionCode = SadadKeyConfig.PURCHASE_POS_CONDITION_CODE
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()

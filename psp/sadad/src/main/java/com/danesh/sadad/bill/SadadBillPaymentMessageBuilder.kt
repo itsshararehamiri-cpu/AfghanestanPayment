@@ -38,9 +38,9 @@ class SadadBillPaymentMessageBuilder @Inject constructor(
             processingCode = SadadKeyConfig.BILL_PROCESSING_CODE
             amount = messageSupport.formatIsoAmount(request.amount)
             stan = messageSupport.nextStan()
-            pointOfServiceEntryMode = SadadKeyConfig.BILL_POS_ENTRY_MODE
-            nii = SadadKeyConfig.BILL_NII
-            messageReasonCode = SadadKeyConfig.BILL_POS_CONDITION_CODE
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            messageReasonCode = SadadKeyConfig.POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()

@@ -30,7 +30,7 @@ object BpField48Tags {
     const val SERVICE = "1A"
     const val SERVICE_CODE = "1B"
     const val SERVICE_HELP_TEXT = "1C"
-    const val TERMINAL_SHAPARAK_ID = "1D"
+    const val COUPON_REQUEST_INDEX_TAG  = "1D"
     const val KEY_INDEX = "1E"
     const val LAST_KEY_INDEX = "1F"
     const val CREDIT_BALANCE = "20"

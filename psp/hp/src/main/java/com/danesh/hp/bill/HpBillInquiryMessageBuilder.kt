@@ -18,7 +18,7 @@ class HpBillInquiryMessageBuilder @Inject constructor(
         val session = messageSupport.beginSession()
         val profile = TransactionIsoProfile.BILL_INQUIRY
         val billNumber = request.billId.trim().take(7)
-        val serviceId = request.payId.trim().take(8)
+        val serviceId = "01000002"//,request.payId.trim().take(8)
         val serviceNumber = serviceId.padStart(8, '0').takeLast(8)
 
         return messageProvider.create().apply {
@@ -48,7 +48,7 @@ class HpBillInquiryMessageBuilder @Inject constructor(
                 setTerminalType(TERMINAL_TYPE_POS) // 012
                 setField48Tag("033",ASYCUDA ) // 033 Service Identifier
                 setFinancialTransactionIndicator(NON_FINANCIAL) // 040
-                setField48Tag("044", serviceNumber) // 044 Service Number
+                setField48Tag("044", serviceId) // 044 Service Number
                 setField48Tag("850", billNumber) // 850 Bill Number
                 setField48Tag("856", serviceId) // 856 Service ID
             }

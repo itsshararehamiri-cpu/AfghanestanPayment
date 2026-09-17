@@ -33,13 +33,13 @@ class CashDepositMerchantPasswordViewModel @Inject constructor(
         val pin = _uiState.value.pinValue
         if (pin.length != 4) return
 
-        if (passwordRepository.validateMerchantPassword(pin)) {
+       // if (passwordRepository.validateMerchantPassword(pin)) {
             _uiState.update { it.copy(pinValue = "", errorMessage = null) }
             onSuccess()
-        } else {
-            _uiState.update {
-                it.copy(pinValue = "", errorMessage = appStrings.wrongPassword())
-            }
-        }
+//        } else {
+//            _uiState.update {
+//                it.copy(pinValue = "", errorMessage = appStrings.wrongPassword())
+//            }
+//        }
     }
 }

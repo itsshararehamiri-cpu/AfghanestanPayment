@@ -1,6 +1,7 @@
 package com.danesh.bp.logon
 
 import android.R
+import android.content.Context
 import com.danesh.api.TerminalConfig
 import com.danesh.api.TransactionClock
 import com.danesh.api.TransactionContextProvider
@@ -87,7 +88,7 @@ class BpLogonResponseProcessorTest {
         override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) = Unit
         override suspend fun getMac(data: ByteArray, index: Int, keyType: MacKeyType) = ByteArray(8)
         override suspend fun readCard(context: android.content.Context, onSuccess: (String, String) -> Unit, onError: (String) -> Unit, onTimeOut: () -> Unit) = Unit
-        override suspend fun getPinBlock(context: android.content.Context, pan: String, onError: (String) -> Unit, onInput: (Int) -> Unit, onConfirm: (String) -> Unit, onCancel: () -> Unit, onTimeOut: () -> Unit) = Unit
+        override suspend fun getPinBlock(title:String,context: android.content.Context, pan: String, onError: (String) -> Unit, onInput: (Int) -> Unit, onConfirm: (String) -> Unit, onCancel: () -> Unit, onTimeOut: () -> Unit) = Unit
         override  fun getSerial() = "SERIAL"
         override suspend fun decryptData(data: ByteArray, onSuccess: (ByteArray) -> Unit, onError: (String) -> Unit) = Unit
         override suspend fun print(bitmap: android.graphics.Bitmap, context: android.content.Context, onSuccess: () -> Unit, onFailed: (String) -> Unit, reportErrorToUi: Boolean) = Unit
@@ -107,6 +108,9 @@ class BpLogonResponseProcessorTest {
         override suspend fun beep(context: android.content.Context, onSuccess: () -> Unit, onFailed: (String) -> Unit) = Unit
         override suspend fun ledOn(onError: (String) -> Unit) = Unit
         override suspend fun ledOff(onError: (String) -> Unit) = Unit
+        override suspend fun lockNavigationBottom(context: Context) {
+        }
+
         override fun getCheckValue(TT: String): ByteArray {
             return ByteArray(0)
         }

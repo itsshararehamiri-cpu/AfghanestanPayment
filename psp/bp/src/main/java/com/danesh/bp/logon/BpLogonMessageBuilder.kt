@@ -54,7 +54,7 @@ class BpLogonMessageBuilder @Inject constructor(
 
     suspend fun build(): IsoMessage {
 
-        val profile = TransactionIsoProfile.LOGON
+        val profile = BpKeyConfig.LOGON_MTI
 
         val transmissionTime = currentTransmissionDateTime()
 
@@ -62,9 +62,9 @@ class BpLogonMessageBuilder @Inject constructor(
 
         val message = messageProvider.create().apply {
 
-            mti = profile.mti
+            mti = BpKeyConfig.LOGON_MESSAGE_REASON
 
-            processingCode = profile.processingCode
+            processingCode = BpKeyConfig.LOGON_PROCESSING_CODE
 
             dateTime = transmissionTime
 

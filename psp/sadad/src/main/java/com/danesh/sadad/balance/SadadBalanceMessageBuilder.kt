@@ -35,9 +35,9 @@ class SadadBalanceMessageBuilder @Inject constructor(
             mti = SadadKeyConfig.BALANCE_MTI
             processingCode = SadadKeyConfig.BALANCE_PROCESSING_CODE
             stan = messageSupport.nextStan()
-            pointOfServiceEntryMode = SadadKeyConfig.BALANCE_POS_ENTRY_MODE
-            nii = SadadKeyConfig.BALANCE_NII
-            posConditionCode="14"// TODO:
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
 //            messageReasonCode = SadadKeyConfig.BALANCE_POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()

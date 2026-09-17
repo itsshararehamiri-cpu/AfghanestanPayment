@@ -70,6 +70,23 @@ data class CashOutUserInput(
 
 ) : UserTransactionInput
 
+data class CouponListUserInput(
+    override val pinBlock: String,
+    override val track2: String,    override val pan: String,
+
+    val requestedIndex: Int = 1
+
+
+) : UserTransactionInput
+
+
+
+data class CouponInquiryUserInput(
+    override val pinBlock: String,
+    override val track2: String,    override val pan: String,  val amount: String,
+    val requestedIndex: Int = 1
+) : UserTransactionInput
+
 data class VoucherUserInput(
     override val pinBlock: String,
     override val track2: String,
@@ -136,4 +153,5 @@ data class NameInquiryRequest(
     val pan: String = "",
     val sourceWallet: String = "",
     val track2: String = "",
+    val amount: String=""
 ) : TransactionRequest

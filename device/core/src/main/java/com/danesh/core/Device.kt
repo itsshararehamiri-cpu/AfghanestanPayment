@@ -50,7 +50,7 @@ interface Device {
     ) {
     }
     suspend fun readCard(context: Context, onSuccess: (String, String) -> Unit, onError: (String) -> Unit, onTimeOut: () -> Unit)
-    suspend fun getPinBlock(context: Context,
+    suspend fun getPinBlock(title:String="",context: Context,
                     pan: String, onError: (String) -> Unit,
                     onInput: (Int) -> Unit, onConfirm: (String) -> Unit,
                     onCancel: () -> Unit, onTimeOut: () -> Unit

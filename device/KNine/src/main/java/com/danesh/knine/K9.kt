@@ -100,6 +100,10 @@ class K9 @Inject constructor(
     override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) {
         // کلید پایانه نباید در لاگ نوشته شود؛ فقط تزریق به PED.
         keyManager.writeMasterKey(masterKey, index)
+        Log.d(
+            "TAG", "K9K9K9>-writeMasterKey${HexUtils.bytesToHexString(masterKey)},index=$index"
+        )
+        Log.d("TAG", "writeMasterKey: dddd${getCheckValue()}")
     }
 
     override suspend fun writeMacKey(
@@ -211,8 +215,8 @@ class K9 @Inject constructor(
             "TAG",
             "K9K9K9>-getMac,data=${HexUtils.bytesToHexString(data)},index=$index,ket=$keyType"
         )
-      //  return keyManager.getMac(data, index, keyType)
-        return ByteArray(8)
+       return keyManager.getMac(data, index, keyType)
+       // return ByteArray(8)
     }
 
     override suspend fun diagnoseMacMismatch(
@@ -291,7 +295,7 @@ class K9 @Inject constructor(
 
     }
 
-    override suspend fun getPinBlock(
+    override suspend fun getPinBlock(title:String,
         context: Context,
         pan: String,
         onError: (String) -> Unit,
@@ -326,7 +330,7 @@ class K9 @Inject constructor(
             .setUseRandomKeybord(false).setMinLength(4).setMaxLength(4)// TODO:  
             .setPinLengthFilter(byteArrayOf(4)).setBeep(true).setCancelable(true)
             .setEncrpyMode(PinPadInfo.EncrpyMode.MODE_ZERO).setShowMask(true)
-            .setExMessage(context.getString(R.string.password_hint)).build()
+            .setExMessage(if(title.isEmpty())context.getString(R.string.password_hint) else title).build()
         pinPad.getPin(pinPadInfo, object : IPinPadPinCallback.Stub() {
             override fun onReadingPin(length: Int, masked: String?) {
                 onInput(length)

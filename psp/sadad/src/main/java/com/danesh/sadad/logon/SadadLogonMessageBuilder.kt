@@ -5,6 +5,7 @@ import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.TransactionSessionClock
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.sadad.key.SadadKeyConfig
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,16 +20,15 @@ class SadadLogonMessageBuilder @Inject constructor(
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
         return messageProvider.create().apply {
-            mti ="0800" //TransactionIsoProfile.LOGON.mti
-            processingCode ="920000"// TransactionIsoProfile.LOGON.processingCode
+            mti = SadadKeyConfig.LOGON_MTI
+            processingCode = SadadKeyConfig.LOGON_PROCESSING_CODE
             stan = contextProvider.nextStan()
-           // dateTime = "${clock.date.drop(2)}${clock.time}"
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
+            nii = SadadKeyConfig.SADAD_NII
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
             terminalId = config.terminalId
             merchantId = config.merchantId
-            pointOfServiceEntryMode = config.pointOfServiceEntryMode
-            posConditionCode="14"
             currency = config.currency
-            nii ="007"// TransactionIsoProfile.LOGON.messageNii ?: config.nii
             transportData=""// TODO:
             mac = TransactionIsoProfile.LOGON.emptyMac
         }

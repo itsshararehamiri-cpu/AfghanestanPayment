@@ -43,6 +43,10 @@ abstract class BaseGetPinViewModel(
         savedStateHandle.get<String>(SwipeCardNavArgs.PAN).orEmpty()
         private set
 
+    protected var title: String =
+        savedStateHandle.get<String>(SwipeCardNavArgs.TITLE).orEmpty()
+        private set
+
     private val _uiState = MutableStateFlow(
         GetPinUiState(useDevicePinPad = !device.hasKeyboard),
     )
@@ -106,7 +110,7 @@ abstract class BaseGetPinViewModel(
 
         pinJob = viewModelScope.launch {
             DeviceTrace.step("UI", "getPinBlock started panLen=${pan.length}")
-            device.getPinBlock(
+            device.getPinBlock(title = title,
                 context = context,
                 pan = pan,
                 onError = { message ->

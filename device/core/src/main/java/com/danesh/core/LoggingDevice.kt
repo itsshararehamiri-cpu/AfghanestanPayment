@@ -145,7 +145,7 @@ class LoggingDevice(
         )
     }
 
-    override suspend fun getPinBlock(
+    override suspend fun getPinBlock(title:String,
         context: Context,
         pan: String,
         onError: (String) -> Unit,
@@ -155,7 +155,7 @@ class LoggingDevice(
         onTimeOut: () -> Unit,
     ) {
         DeviceTrace.step("getPinBlock", "started panLen=${pan.length}")
-        delegate.getPinBlock(
+        delegate.getPinBlock(title,
             context = context,
             pan = pan,
             onError = { message ->

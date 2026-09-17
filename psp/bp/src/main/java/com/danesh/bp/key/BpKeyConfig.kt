@@ -4,7 +4,7 @@ import com.danesh.bp.field48.BpField48Tags
 
 
 object BpKeyConfig {
-    const val PROJECT_CODE = "00001007"
+    const val PROJECT_CODE ="1007"// "00001007"
     const val INITIAL_MASTER_KEY_HEX = "32785F7FC3369FBE86ED16A9AA39EA54F7D070ED3FD7923E"
     const val INITIAL_MAC_KEY_HEX = INITIAL_MASTER_KEY_HEX
     const val INIT_STAN = "000320"
@@ -83,6 +83,9 @@ object BpKeyConfig {
     const val SUPPORT_FIELD48_VALUE_STAN = DEFAULT_LAST_SUCCESS_STAN
     const val SUPPORT_FIELD48_TAG_SERVICE = BpField48Tags.SUPPORT_MENU_ITEMS
 
+    const val COUPON_REQUEST_INDEX_TAG  = BpField48Tags.COUPON_REQUEST_INDEX_TAG
+
+
     const val CASH_DEPOSIT_MTI = "1100"
     const val CASH_DEPOSIT_PROCESSING_CODE = "210000"
     const val CASH_DEPOSIT_STAN = "000300"
@@ -96,4 +99,19 @@ object BpKeyConfig {
     const val CASH_OUT_MESSAGE_REASON = "10"
     const val CASH_OUT_CURRENCY = "364"
     const val CASH_OUT_NII = "700"
+    const val COUPON_MTI="0100"
+    const val COUPON_PROCESSING_CODE = "820000"
+
+
+    const val COUPON_INQUIRY_MTI="0100"
+    const val COUPON_INQUIRY_PROCESSING_CODE = "810000"
+
+
+    const val INIT_MTI = "0800"
+    const val INIT_PROCESSING_CODE = "900000"
+    const val LOGON_MTI = "0800"
+    const val  LOGON_PROCESSING_CODE = "920000"
+
+
+
 }

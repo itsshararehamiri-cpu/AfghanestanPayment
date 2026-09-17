@@ -46,11 +46,11 @@ class HpBillPaymentMessageBuilder @Inject constructor(
             setField48 {
                 setTransactionType("508")
                 setTerminalType("2")
-                setFinancialTransactionIndicator("0")
+                setFinancialTransactionIndicator("1")
                 setField48Tag("033", ASYCUDA)
-                setField48Tag("044", serviceNumber)
+                setField48Tag("044", ASYCUDA)
                 setField48Tag("850", billNumber)
-                setField48Tag("856", serviceId)
+                setField48Tag("856", ASYCUDA)
                 setField48Tag("857", billAmount.padStart(12, '0').takeLast(12))
                 if (request.requestId.isNotBlank()) {
                     setField48Tag("898", request.requestId.trim().take(12))

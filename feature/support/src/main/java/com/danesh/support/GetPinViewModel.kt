@@ -28,8 +28,8 @@ class GetPinViewModel @Inject constructor(
         savedStateHandle.get<String>(SupportNavArgs.AMOUNT).orEmpty()
     private val serviceId: String =
         savedStateHandle.get<String>(SupportNavArgs.SERVICE_ID).orEmpty()
-    private val title: String =
-        savedStateHandle.get<String>(SupportNavArgs.TITLE).orEmpty()
+//    private val title: String =
+//        savedStateHandle.get<String>(SupportNavArgs.TITLE).orEmpty()
 
     override suspend fun executeTransaction(
         pinBlock: String,

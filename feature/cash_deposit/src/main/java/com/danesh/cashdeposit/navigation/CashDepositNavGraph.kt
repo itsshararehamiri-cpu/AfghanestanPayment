@@ -69,7 +69,8 @@ fun CashDepositNavHost(onFlowComplete: () -> Unit) {
                 onBackClick = onFlowComplete,
                 onPayWithCard = { amount ->
                     if (viewModel.requiresMerchantPassword) {
-                        navController.navigate(CashDepositRoutes.merchantPassword(amount))
+                        navController.navigate(CashDepositRoutes.swipeCard(amount))
+                        //navController.navigate(CashDepositRoutes.merchantPassword(amount))
                     } else {
                         navController.navigate(CashDepositRoutes.swipeCard(amount))
                     }
@@ -97,7 +98,7 @@ fun CashDepositNavHost(onFlowComplete: () -> Unit) {
                 onPinComplete = {
                     passwordViewModel.submitPassword(
                         onSuccess = {
-                            navController.navigate(CashDepositRoutes.swipeCard(amount))
+                            //navController.navigate(CashDepositRoutes.swipeCard(amount))
                         },
                     )
                 },
@@ -120,17 +121,18 @@ fun CashDepositNavHost(onFlowComplete: () -> Unit) {
                 cancelReading = { onFlowComplete() },
             )
         }
-        composable(
+        composable(                                                                                                                                          
             route = CashDepositRoutes.GET_PIN,
             arguments = listOf(
                 navArgument(SwipeCardNavArgs.TRACK_2) { type = NavType.StringType },
                 navArgument(CashDepositNavArgs.AMOUNT) { type = NavType.StringType },
                 navArgument(SwipeCardNavArgs.PAN) { type = NavType.StringType },
-
-                ),
+                 navArgument(SwipeCardNavArgs.TITLE) { type = NavType.StringType },
+        ),
         ) { backStackEntry ->
             val track2 = backStackEntry.arguments?.getString(SwipeCardNavArgs.TRACK_2).orEmpty()
             val pan = backStackEntry.arguments?.getString(SwipeCardNavArgs.PAN).orEmpty()
+           // val titl = backStackEntry.arguments?.getString(SwipeCardNavArgs.PAN).orEmpty()
 
             GetPinScreen(
                 viewModel = hiltViewModel<GetPinViewModel>(),

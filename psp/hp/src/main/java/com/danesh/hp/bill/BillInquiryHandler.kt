@@ -177,13 +177,18 @@ class BillInquiryHandler @Inject constructor(
         val billAmount = (amountFromTag.ifBlank { amountFromDe4 })
             .trimStart('0')
             .ifBlank { "0" }
+        Log.d("TAG", "mapInquhhiry: ffffffff${ response?.getField48Tag("858")}")
+        Log.d("TAG", "mapInquhhiry: ffffffff${ response?.getField48Tag("860")}")
+
+        Log.d("TAG", "mapInquhhiry: ffffffff${ response?.getField48Tag("898")}")
 
         return BillInquiryOutput(
             isSuccess = isSuccess,
             responseCode = responseCode.ifBlank { response?.responseCode.orEmpty() },
             responseMessage = responseMessage,
             billId = response?.getField48Tag("850")?.ifBlank { request.billId } ?: request.billId,
-            amount = billAmount,
+            amount = billAmount, requestId =  response?.getField48Tag("898")?:""
+
 //            companyCode = response?.getField48Tag("858").orEmpty(),
 //            payerName = response?.getField48Tag("860").orEmpty(),
 //            requestId = response?.getField48Tag("898").orEmpty(),
@@ -202,7 +207,7 @@ class BillInquiryHandler @Inject constructor(
             isSuccess = false,
             responseCode = responseCode,
             responseMessage = responseMessage,
-            billId = request.billId,
+            billId = request.billId, requestId = ""
         )
         Log.d("TAG", "failureOutput: dmdmdmdmd$v")
         return v

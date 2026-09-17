@@ -27,6 +27,8 @@ import com.danesh.api.CashDepositUserInput
 import com.danesh.api.CashOutInput
 import com.danesh.api.CashOutOutput
 import com.danesh.api.CashOutUserInput
+import com.danesh.api.CouponListInput
+import com.danesh.api.CouponListOutput
 import com.danesh.api.InitOutput
 import com.danesh.api.LogonOutput
 import com.danesh.api.LogonRequest
@@ -143,7 +145,7 @@ class HpGateway @Inject constructor(
     override suspend fun billInquiry(input: BillInquiryInput): BillInquiryOutput {
         if (!isFeatureDispatchable(FEATURE_BILL)) return disabledFeatureResult(TransactionType.BILL)
         return withContext(Dispatchers.IO) {
-            executor.execute(
+          val v=  executor.execute(
                 request = BillInquiryRequest(
                     billId = input.billId,
                     payId = input.payId,
@@ -152,6 +154,8 @@ class HpGateway @Inject constructor(
                 ),
                 handler = billInquiryHandler,
             ).inquiry!!
+            Log.d("TAG", "billInquiry: dddddddddd$v")
+            v
         }
     }
 
@@ -383,6 +387,10 @@ class HpGateway @Inject constructor(
             rrn = rrn,
             holderName = holderName,
         )
+
+    override suspend fun getCouponList(input: CouponListInput): CouponListOutput {
+        TODO("Not yet implemented")
+    }
 
     private fun BillInput.toPaymentUserInput(): BillUserInput =
         BillUserInput(

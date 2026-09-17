@@ -82,8 +82,13 @@ data class CashDepositInput(
     val pinBlock: String,
     val amount: Long = 0,val destinationAccount: String, val pan: String
 )
-
+data class CouponListInput(
+    val track2: String,
+    val pinBlock: String,
+)
 typealias CashDepositOutput = TransactionResultDetail
+typealias CouponListOutput = TransactionResultDetail
+
 
 data class CashOutInput(
     val track2: String,
@@ -185,7 +190,7 @@ enum class TransactionType {
     SUPPORT,
     CARD_TO_WALLET,
     WALLET_TO_WALLET,
-    SIGNON,TERMINAL_CONFIG
+    SIGNON,TERMINAL_CONFIG,COUPON_LIST,COUPON_INQUIRY
 }
 
 typealias LogonOutput = TransactionResultDetail
@@ -217,5 +222,8 @@ interface PspGateway {
     suspend fun init(input: InitInput): InitOutput
     suspend fun signOn(input:SignOnInput): SignOnOutput
     suspend fun terminalConfig(input:TerminalConfigInput): TerminalConfigOutput
+
+    suspend fun getCouponList(input: CouponListInput): CouponListOutput
+
 
 }

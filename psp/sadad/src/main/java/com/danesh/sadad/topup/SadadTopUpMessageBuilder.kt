@@ -22,22 +22,22 @@ class SadadTopUpMessageBuilder @Inject constructor(
             mti = SadadKeyConfig.TOPUP_MTI
             processingCode = SadadKeyConfig.TOPUP_PROCESSING_CODE
             stan = messageSupport.nextStan()
-            pan = messageSupport.resolvePan(request.pan, request.track2)
             this.amount = amount
-            dateTime = session.dateTime
             messageSupport.run { applySadadStandardTerminalFields() }
-            messageSupport.run { applySadadFunctionCode(SadadKeyConfig.TOPUP_FUNCTION_CODE) }
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
+
+            messageSupport.run { applySadadFunctionCode(SadadKeyConfig.SADAD_NII) }
             currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             mac = TransactionIsoProfile.PURCHASE.emptyMac
-            setField48 {
-                setTransactionType(SadadKeyConfig.TOPUP_FUNCTION_CODE)
-                setTerminalType("2")
-                setField48Tag(SadadKeyConfig.OPERATOR_TAG, request.operatorCode)
-                setField48Tag(SadadKeyConfig.MOBILE_TAG, request.mobileNumber)
-                setField48Tag(SadadKeyConfig.VOUCHER_AMOUNT_TAG, amount)
-            }
+//            setField48 {
+//                setTransactionType(SadadKeyConfig.TOPUP_FUNCTION_CODE)
+//                setTerminalType("2")
+//                setField48Tag(SadadKeyConfig.OPERATOR_TAG, request.operatorCode)
+//                setField48Tag(SadadKeyConfig.MOBILE_TAG, request.mobileNumber)
+//                setField48Tag(SadadKeyConfig.VOUCHER_AMOUNT_TAG, amount)
+//            }
         }
     }
 }

@@ -110,6 +110,8 @@ enum class TransactionIsoProfile(
         is BillUserInput -> input.amount.ifBlank { "0" }
         is SignOnUserInput ->""
         is TerminalConfigUserInput -> ""
+        is CouponListUserInput -> ""
+        is CouponInquiryUserInput -> ""
     }
 
     companion object {

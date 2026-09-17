@@ -52,8 +52,8 @@ class BpInitMessageBuilder @Inject constructor(
         )
         val dateTime = currentLocalDateTime()
         val message = messageProvider.create().apply {
-            mti = TransactionIsoProfile.INIT.mti
-            processingCode = TransactionIsoProfile.INIT.processingCode
+            mti =BpKeyConfig.INIT_MTI
+            processingCode = BpKeyConfig.INIT_PROCESSING_CODE
             this.dateTime = dateTime
             stan = contextProvider.nextStan()
             messageReasonCode = BpKeyConfig.INIT_MESSAGE_REASON

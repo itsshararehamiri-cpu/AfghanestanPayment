@@ -23,6 +23,9 @@ import com.danesh.api.CashDepositUserInput
 import com.danesh.api.CashOutInput
 import com.danesh.api.CashOutOutput
 import com.danesh.api.CashOutUserInput
+import com.danesh.api.CouponListInput
+import com.danesh.api.CouponListOutput
+import com.danesh.api.CouponListUserInput
 import com.danesh.api.InitOutput
 import com.danesh.api.InitInput
 import com.danesh.api.InitRequest
@@ -56,6 +59,9 @@ import com.danesh.bp.cash_deposit.CashDepositHandler
 import com.danesh.bp.cash_deposit.BpCashDepositRequest
 import com.danesh.bp.cash_out.CashOutHandler
 import com.danesh.bp.cash_out.BpCashOutRequest
+import com.danesh.bp.coupon.BpCouponListRequest
+import com.danesh.bp.coupon.BpCouponListResult
+import com.danesh.bp.coupon.CouponListHandler
 import com.danesh.bp.init.InitHandler
 import com.danesh.bp.init.BpInitTrace
 import com.danesh.bp.logon.BpLogonTrace
@@ -90,6 +96,7 @@ class BpGateway @Inject constructor(
     private val initHandler: InitHandler,
     private val deviceOperations: PspDeviceOperations,
     private val billHandler: BillHandler,
+    private val couponListHandler: CouponListHandler,
     private val device: Device
 ) : PspGateway {
 
@@ -243,6 +250,7 @@ class BpGateway @Inject constructor(
         device.getCheckValue("hamin")
         return withContext(Dispatchers.IO) {
             BpInitTrace.step("Gateway", "اجرای تراکنش ISO")
+       //   val  X=1/0
             executor.execute(
                 request = InitRequest(
                     firstBallotTicket = input.firstBallotTicket,
@@ -268,6 +276,10 @@ class BpGateway @Inject constructor(
 
     private fun BalanceInput.toUserInput(): BpBalanceRequest =
         BalanceUserInput(pinBlock = pinBlock, track2 = track2,pan=pan)
+
+
+    private fun CouponListInput.toUserInput(): BpCouponListRequest =
+        CouponListUserInput(pinBlock = "", track2 = "",pan="", requestedIndex = 1)
 
     private fun BillInput.toUserInput(): BpBillRequest =
         BillUserInput(
@@ -328,4 +340,13 @@ class BpGateway @Inject constructor(
             track2 = track2,
             amount = amount.toString(), destinationAccount = destinationAccount, pan = ""
         )
+
+    override suspend fun getCouponList(input: CouponListInput): CouponListOutput {
+        return withContext(Dispatchers.IO) {
+            executor.execute(
+                request = input.toUserInput(),
+                handler = couponListHandler,
+            ).detail
+        }
+    }
 }

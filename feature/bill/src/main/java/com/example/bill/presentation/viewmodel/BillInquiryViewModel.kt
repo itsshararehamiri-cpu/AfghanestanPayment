@@ -94,7 +94,7 @@ class BillInquiryViewModel @Inject constructor(
                     isLoading = false,
                     errorMessage = null,
                     amount = amount,
-                    requestId ="",// result.requestId,
+                    requestId = result.requestId,
                     billId = result.billId.ifBlank { billId },
                     details = result.toUiDetails(),
                 )

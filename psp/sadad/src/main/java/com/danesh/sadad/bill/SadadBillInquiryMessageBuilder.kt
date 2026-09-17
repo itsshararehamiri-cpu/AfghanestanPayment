@@ -6,6 +6,7 @@ import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
+import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,32 +16,25 @@ class SadadBillInquiryMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
     fun build(request: BillInquiryRequest): IsoMessage {
-        val session = messageSupport.beginSession()
-        val profile = TransactionIsoProfile.BILL_INQUIRY
-        val billNumber = request.billId.trim().take(7)
-        val serviceId = request.payId.trim().take(8)
-        val serviceNumber = serviceId.padStart(8, '0').takeLast(8)
         return messageProvider.create().apply {
-            messageSupport.run {
-                applySadadCardFields(
-                    profile = profile,
-                    session = session,
-                    pan = request.pan,
-                    amount = ZERO_AMOUNT,
-                    track2 = request.track2,
-                    pinBlock = "",
-                    includeTrack2 = false,
-                )
-            }
-            setField48 {
-                setTransactionType(FUNCTION_CODE)
-                setTerminalType(TERMINAL_TYPE_POS)
-                setField48Tag("033", SadadKeyConfig.ASYCUDA)
-                setFinancialTransactionIndicator(NON_FINANCIAL)
-                setField48Tag("044", serviceNumber)
-                setField48Tag("850", billNumber)
-                setField48Tag("856", serviceId)
-            }
+            mti = SadadKeyConfig.BILL_INQUIRY_MTI
+            processingCode = SadadKeyConfig.BILL_INQUIRY_PROCESSING_CODE
+           // amount = messageSupport.formatIsoAmount(request.amount)
+            stan = messageSupport.nextStan()
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
+
+            track2 = messageSupport.normalizeTrack2(request.track2)
+            terminalId = messageSupport.terminalIdOrDefault()
+            merchantId = messageSupport.merchantIdOrDefault()
+            getIsoMessage().set(48, messageSupport.additionalPrivateData())
+            //pinBlock = ISOUtil.hex2byte(request.pinBlock)
+            messageSupport.run { setSadadTransportData(transportData()) }
+            privateUseField61 = messageSupport.multiMerchantModeOne()
+            getIsoMessage().set(63, "")
+
+            mac = SadadKeyConfig.EMPTY_MAC
         }
     }
 

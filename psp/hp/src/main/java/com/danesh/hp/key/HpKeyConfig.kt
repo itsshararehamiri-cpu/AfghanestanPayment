@@ -48,5 +48,7 @@ object HpKeyConfig {
 
     /** فیلد 51 — واحد پولی صورت‌حساب دارنده کارت */
     const val CARDHOLDER_BILLING_CURRENCY = "971"
-    const val ASYCUDA="01000001"
+    const val ASYCUDA="01000002"
+    const val ASYCUDA2="01000001"
+
 }

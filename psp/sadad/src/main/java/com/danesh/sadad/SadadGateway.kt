@@ -22,6 +22,8 @@ import com.danesh.api.CashDepositUserInput
 import com.danesh.api.CashOutInput
 import com.danesh.api.CashOutOutput
 import com.danesh.api.CashOutUserInput
+import com.danesh.api.CouponListInput
+import com.danesh.api.CouponListOutput
 import com.danesh.api.InitInput
 import com.danesh.api.InitOutput
 import com.danesh.api.InitRequest
@@ -115,6 +117,9 @@ class SadadGateway @Inject constructor(
             ).inquiry!!
         }
 
+    override suspend fun getCouponList(input: CouponListInput): CouponListOutput {
+        TODO("Not yet implemented")
+    }
     override suspend fun balance(input: BalanceInput): BalanceOutput = withContext(Dispatchers.IO) {
         executor.execute(
             request = BalanceUserInput(pinBlock = input.pinBlock, track2 = input.track2, pan = input.pan),

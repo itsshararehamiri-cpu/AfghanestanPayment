@@ -154,6 +154,11 @@ data class TransactionResultDetail(
      */
     @SerializedName("receiptFooterText")
     val receiptFooterText: String = "",
+
+
+    @SerializedName("requestId")
+    val requestId: String="" ,
+
 )
 
 fun Int.toTransactionType(): TransactionType = when (this) {

@@ -6,6 +6,7 @@ import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
+import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,32 +16,24 @@ class SadadCardToCardMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
     fun build(request: CardToCardUserInput): IsoMessage {
-        val session = messageSupport.beginSession()
-        val profile = TransactionIsoProfile.CARD_TO_CARD
-        val destinationPan = request.destinationPan.filter { it.isDigit() }.take(16)
-        val track2 = messageSupport.normalizeTrack2(request.track2)
-        val holderName = request.holderName.trim()
         return messageProvider.create().apply {
-            messageSupport.run {
-                applySadadCardFields(
-                    profile = profile,
-                    session = session,
-                    pan = request.pan,
-                    amount = request.amount,
-                    track2 = request.track2,
-                    pinBlock = request.pinBlock,
-                    includeTrack2 = false,
-                )
-            }
-            pointOfServiceEntryMode = SadadKeyConfig.CARD_TO_CARD_POS_ENTRY_MODE
-            currency = session.currency.ifBlank { SadadKeyConfig.CARDHOLDER_BILLING_CURRENCY }
-            messageSupport.run { applySadadTransferAcquirerFields(track2) }
-            setField48 {
-                setCard2NNumber(destinationPan)
-                if (holderName.isNotBlank()) {
-                    setField48Tag(SadadKeyConfig.HOLDER_NAME_TAG, holderName)
-                }
-            }
+            mti = SadadKeyConfig.CARD_TO_CARD_MTI
+            processingCode = SadadKeyConfig.CARD_TO_CARD_PROCESSING_CODE
+            amount = messageSupport.formatIsoAmount(request.amount)
+
+            stan = messageSupport.nextStan()
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
+
+//            messageReasonCode = SadadKeyConfig.BALANCE_POS_CONDITION_CODE
+            track2 = messageSupport.normalizeTrack2(request.track2)
+            terminalId = messageSupport.terminalIdOrDefault()
+            merchantId = messageSupport.merchantIdOrDefault()
+            pinBlock = ISOUtil.hex2byte(request.pinBlock)
+            transportData=""
+            messageSupport.run { setSadadTransportData(transportData()) }
+            mac = SadadKeyConfig.EMPTY_MAC
         }
     }
 }
