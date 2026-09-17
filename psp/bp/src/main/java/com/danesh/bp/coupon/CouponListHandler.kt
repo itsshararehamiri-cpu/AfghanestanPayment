@@ -3,6 +3,7 @@ package com.danesh.bp.coupon
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
+import com.danesh.bp.key.BpKeyConfig
 import com.danesh.bp.util.BpIsoHandlerSupport
 import com.danesh.bp.util.BpTransactionMessages
 import com.danesh.engine.HandlerTransaction
@@ -37,6 +38,7 @@ class CouponListHandler @Inject constructor(
                 isSuccess = false,
                 responseMessage = messages.queueFailed()
             ).copy(responseCode = TransactionTransportCodes.QUEUE_BLOCKED),
+            requestedIndex = request.requestedIndex,
         )
     }
 
@@ -57,6 +59,7 @@ class CouponListHandler @Inject constructor(
                 isSuccess = false,
                 responseMessage = messages.failed()
             ),
+            requestedIndex = request.requestedIndex,
         )
     }
 
@@ -73,6 +76,10 @@ class CouponListHandler @Inject constructor(
                 isSuccess = true,
                 responseMessage = messages.success()
             ),
+            rawList = response?.getIsoMessage()?.getString(47).orEmpty(),
+            requestedIndex = request.requestedIndex,
+            lastIndex = response?.getField48Tag(BpKeyConfig.COUPON_LAST_INDEX_TAG)
+                ?.trim()?.toIntOrNull() ?: request.requestedIndex,
         )
     }
 
@@ -88,6 +95,7 @@ class CouponListHandler @Inject constructor(
             responseCode = TransactionTransportCodes.CONNECT_FAILED,
             responseMessage = transport.connectFailedMessage(error),
         ),
+        requestedIndex = request.requestedIndex,
     )
 
     override fun sendFailure(
@@ -102,6 +110,7 @@ class CouponListHandler @Inject constructor(
             responseCode = TransactionTransportCodes.SEND_FAILED,
             responseMessage = transport.sendFailedMessage(error),
         ),
+        requestedIndex = request.requestedIndex,
     )
 
     override fun receiveFailure(
@@ -116,6 +125,7 @@ class CouponListHandler @Inject constructor(
             responseCode = TransactionTransportCodes.RECEIVE_FAILED,
             responseMessage = transport.receiveFailedMessage(error),
         ),
+        requestedIndex = request.requestedIndex,
     )
 
     override fun networkError(

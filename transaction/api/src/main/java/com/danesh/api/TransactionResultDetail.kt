@@ -159,6 +159,33 @@ data class TransactionResultDetail(
     @SerializedName("requestId")
     val requestId: String="" ,
 
+    /**
+     * لیست کالاهای کالابرگ (فیلد 47 پاسخ لیست کالابرگ) — فرمت:
+     * CouponTitle;UnitCode;CouponCode|... — حاصل چسباندن تمام صفحات لیست.
+     */
+    @SerializedName("couponList")
+    val couponList: String = "",
+
+    /**
+     * مبلغی که باید نقدی از کارت برداشت شود (فیلد 6 پاسخ استعلام کالابرگ).
+     */
+    @SerializedName("couponCashAmount")
+    val couponCashAmount: String = "",
+
+    /**
+     * اعتبار تخصیص‌یافته به هر کالا (فیلد 47 پاسخ استعلام کالابرگ) — فرمت:
+     * CommodityCode;AssignedCredit|...
+     */
+    @SerializedName("couponAssignedCredits")
+    val couponAssignedCredits: String = "",
+
+    /**
+     * شماره پیگیری کالابرگ (فیلد 44 پاسخ استعلام کالابرگ) — باید در تراکنش خرید کالابرگ
+     * بعدی (فیلد 44) و در Reverse/Confirm آن نیز ارسال شود.
+     */
+    @SerializedName("couponTrackingNumber")
+    val couponTrackingNumber: String = "",
+
 )
 
 fun Int.toTransactionType(): TransactionType = when (this) {

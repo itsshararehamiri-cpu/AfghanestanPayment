@@ -1,15 +1,16 @@
-package com.danesh.bp.coupon.inquiry
+package com.danesh.bp.coupon.purchase
 
-import com.danesh.api.CouponInquiryUserInput
-import com.danesh.api.CouponOrderItem
+import com.danesh.api.CouponPurchaseUserInput
 import com.danesh.api.PspDeviceMetadataProvider
 import com.danesh.api.TransactionContextProvider
+import com.danesh.bp.field22.BpPosEntryMode
 import com.danesh.bp.field48.BpField48LastSuccessValues
 import com.danesh.bp.field63.toBpField63
 import com.danesh.bp.key.BpKeyConfig
 import com.danesh.bp.mac.BpMacCalculator
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import org.jpos.iso.ISOUtil
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -17,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BpCouponInquiryMessageBuilder @Inject constructor(
+class BpCouponPurchaseMessageBuilder @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val lastSuccessValues: BpField48LastSuccessValues,
     private val metadataProvider: PspDeviceMetadataProvider,
@@ -25,39 +26,39 @@ class BpCouponInquiryMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
 
-    suspend fun build(request: CouponInquiryUserInput): IsoMessage {
+    /**
+     * فیلد 4 باید برابر با فیلد 6 پاسخ تراکنش استعلام کالابرگ ([request.amount] که از
+     * TransactionResultDetail.couponCashAmount مرحله‌ی استعلام تأمین شده) باشد. فیلد 37 و
+     * فیلد 44 نیز باید دقیقاً برابر با فیلد 37 و فیلد 44 همان پاسخ استعلام باشند.
+     */
+    suspend fun build(request: CouponPurchaseUserInput): IsoMessage {
         val config = contextProvider.getTerminalConfig()
         val message = messageProvider.create().apply {
-            mti = BpKeyConfig.COUPON_INQUIRY_MTI
-            pan = request.pan
-            processingCode = BpKeyConfig.COUPON_INQUIRY_PROCESSING_CODE
-            amount = formatIsoAmount(totalOrderAmount(request.items))
+            mti = BpKeyConfig.COUPON_PURCHASE_MTI
+            processingCode = BpKeyConfig.COUPON_PURCHASE_PROCESSING_CODE
+            amount = formatIsoAmount(request.amount)
             stan = contextProvider.nextStan()
             dateTime = currentLocalDateTime()
+            pointOfServiceEntryMode = BpPosEntryMode.forCurrentCardRead()
+            messageReasonCode = BpKeyConfig.PURCHASE_MESSAGE_REASON
+            track2 = request.track2
+            setRrn(request.inquiryRrn)
             terminalId = config.terminalId
+            additionalResponseData = request.couponTrackingNumber
+            currency = BpKeyConfig.COUPON_PURCHASE_CURRENCY
+            pinBlock = ISOUtil.hex2byte(request.pinBlock)
+            securityControlInfo = BpKeyConfig.FIELD53
+            privateUseField63 = metadataProvider.metadata().toBpField63()
             setField48 {
                 setField48Tag(
                     tag = BpKeyConfig.COUPON_FIELD48_TAG_LAST_SUCCESS,
                     value = lastSuccessValues.stanTagValue(),
                 )
             }
-            securityControlInfo = BpKeyConfig.NETWORK_FIELD53
-            privateUseField63 = metadataProvider.metadata().toBpField63()
-            getIsoMessage().set(47, buildOrderList(request.items))
         }
         macCalculator.applyTransactionMac(message)
         return message
     }
-
-    /** فرمت فیلد 47: CommodityCodeA;QuantityA;AmountA;UnitCodeA|... */
-    private fun buildOrderList(items: List<CouponOrderItem>): String =
-        items.joinToString(separator = "|") { item ->
-            "${item.commodityCode};${item.quantity};${item.amount};${item.unitCode}"
-        }
-
-    /** فیلد 4: مبلغ کل سفارش — مجموع مبلغ اقلام فیلد 47. */
-    private fun totalOrderAmount(items: List<CouponOrderItem>): String =
-        items.sumOf { it.amount.filter(Char::isDigit).toLongOrNull() ?: 0L }.toString()
 
     private fun formatIsoAmount(amount: String): String {
         val digits = amount.filter(Char::isDigit)

@@ -72,19 +72,38 @@ data class CashOutUserInput(
 
 data class CouponListUserInput(
     override val pinBlock: String,
-    override val track2: String,    override val pan: String,
-
-    val requestedIndex: Int = 1
-
-
+    override val track2: String,
+    override val pan: String,
 ) : UserTransactionInput
 
-
+/** یک قلم سفارش کالابرگ — فرمت فیلد 47 استعلام: CommodityCode;Quantity;Amount;UnitCode */
+data class CouponOrderItem(
+    val commodityCode: String,
+    val quantity: Int,
+    val amount: String,
+    val unitCode: String,
+)
 
 data class CouponInquiryUserInput(
     override val pinBlock: String,
-    override val track2: String,    override val pan: String,  val amount: String,
-    val requestedIndex: Int = 1
+    override val track2: String,
+    override val pan: String,
+    val items: List<CouponOrderItem>,
+) : UserTransactionInput
+
+/**
+ * خرید کالابرگ — فیلد 37 و فیلد 44 باید دقیقاً برابر با فیلد 37 و فیلد 44
+ * پاسخ تراکنش استعلام کالابرگ ([CouponInquiryUserInput]) باشند.
+ */
+data class CouponPurchaseUserInput(
+    override val pinBlock: String,
+    override val track2: String,
+    override val pan: String,
+    val amount: String,
+    /** فیلد 37 (RRN) پاسخ استعلام کالابرگ */
+    val inquiryRrn: String,
+    /** فیلد 44 (شماره پیگیری کالابرگ) پاسخ استعلام کالابرگ */
+    val couponTrackingNumber: String,
 ) : UserTransactionInput
 
 data class VoucherUserInput(

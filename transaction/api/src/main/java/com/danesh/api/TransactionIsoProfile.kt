@@ -112,6 +112,7 @@ enum class TransactionIsoProfile(
         is TerminalConfigUserInput -> ""
         is CouponListUserInput -> ""
         is CouponInquiryUserInput -> ""
+        is CouponPurchaseUserInput -> input.amount
     }
 
     companion object {

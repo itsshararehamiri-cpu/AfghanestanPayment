@@ -87,6 +87,16 @@ class BpTransactionResultMapper @Inject constructor(
             ?: request.getField48Tag(BpField48Tags.MOBILE_OPERATOR).orEmpty().trim()
         val payId = request.getField48Tag(BpField48Tags.PAYMENT_ID).orEmpty().trim()
 
+        val couponCashAmount = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getIsoMessage()?.getString(6).orEmpty()
+        val couponAssignedCredits = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.getIsoMessage()?.getString(47).orEmpty()
+        val couponTrackingNumber = response
+            ?.takeIf { transactionType == TransactionType.COUPON_INQUIRY && resolvedSuccess }
+            ?.additionalResponseData.orEmpty()
+
        return TransactionResultDetail(
             isSuccess = resolvedSuccess,
             transactionType = transactionType,
@@ -122,6 +132,9 @@ class BpTransactionResultMapper @Inject constructor(
             mobileNumber = mobileNumber,
             voucherMethod =response?.getField48Tag(BpField48Tags.SERVICE_CODE)?:"",
             payId = payId,
+            couponCashAmount = couponCashAmount,
+            couponAssignedCredits = couponAssignedCredits,
+            couponTrackingNumber = couponTrackingNumber,
         )
 
     }

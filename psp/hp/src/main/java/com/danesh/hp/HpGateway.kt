@@ -388,9 +388,29 @@ class HpGateway @Inject constructor(
             holderName = holderName,
         )
 
-    override suspend fun getCouponList(input: CouponListInput): CouponListOutput {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getCouponList(input: CouponListInput): CouponListOutput =
+        TransactionResultDetail(
+            isSuccess = false,
+            responseCode = "40",
+            responseMessage = "Coupon list is not available for this PSP",
+            transactionType = TransactionType.COUPON_LIST,
+        )
+
+    override suspend fun couponInquiry(input: com.danesh.api.CouponInquiryInput): com.danesh.api.CouponInquiryOutput =
+        TransactionResultDetail(
+            isSuccess = false,
+            responseCode = "40",
+            responseMessage = "Coupon inquiry is not available for this PSP",
+            transactionType = TransactionType.COUPON_INQUIRY,
+        )
+
+    override suspend fun couponPurchase(input: com.danesh.api.CouponPurchaseInput): com.danesh.api.CouponPurchaseOutput =
+        TransactionResultDetail(
+            isSuccess = false,
+            responseCode = "40",
+            responseMessage = "Coupon purchase is not available for this PSP",
+            transactionType = TransactionType.COUPON_PURCHASE,
+        )
 
     private fun BillInput.toPaymentUserInput(): BillUserInput =
         BillUserInput(

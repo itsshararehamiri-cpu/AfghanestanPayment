@@ -1,6 +1,5 @@
 package com.danesh.bp.coupon
 
-import com.danesh.api.CouponListUserInput
 import com.danesh.api.PspDeviceMetadataProvider
 import com.danesh.api.TransactionContextProvider
 import com.danesh.bp.field48.BpField48LastSuccessValues
@@ -24,21 +23,21 @@ class BpCouponListMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
 ) {
 
-    suspend fun build(request: CouponListUserInput): IsoMessage {
+    suspend fun build(request: BpCouponListRequest): IsoMessage {
         val config = contextProvider.getTerminalConfig()
         val message = messageProvider.create().apply {
             mti = BpKeyConfig.COUPON_MTI
             processingCode = BpKeyConfig.COUPON_PROCESSING_CODE
-            stan = BpKeyConfig.CASH_OUT_STAN
+            stan = contextProvider.nextStan()
             dateTime = currentLocalDateTime()
             terminalId = config.terminalId
             setField48 {
                 setField48Tag(
-                    tag = BpKeyConfig.BALANCE_FIELD48_TAG,
+                    tag = BpKeyConfig.COUPON_FIELD48_TAG_LAST_SUCCESS,
                     value = lastSuccessValues.stanTagValue(),
                 )
                 setField48Tag(
-                    tag = BpKeyConfig.COUPON_REQUEST_INDEX_TAG ,
+                    tag = BpKeyConfig.COUPON_REQUEST_INDEX_TAG,
                     value = request.requestedIndex.toString(),
                 )
             }
@@ -48,11 +47,6 @@ class BpCouponListMessageBuilder @Inject constructor(
         macCalculator.applyTransactionMac(message)
         return message
     }
-//
-//    private fun formatIsoAmount(amount: String): String {
-//        val digits = amount.filter(Char::isDigit)
-//        return digits.padStart(12, '0').takeLast(12)
-//    }
 
     private fun currentLocalDateTime(): String {
         return SimpleDateFormat("yyMMddHHmmss", Locale.US).format(Date())

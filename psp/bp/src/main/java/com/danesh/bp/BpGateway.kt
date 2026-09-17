@@ -25,7 +25,12 @@ import com.danesh.api.CashOutOutput
 import com.danesh.api.CashOutUserInput
 import com.danesh.api.CouponListInput
 import com.danesh.api.CouponListOutput
-import com.danesh.api.CouponListUserInput
+import com.danesh.api.CouponInquiryInput
+import com.danesh.api.CouponInquiryOutput
+import com.danesh.api.CouponInquiryUserInput
+import com.danesh.api.CouponPurchaseInput
+import com.danesh.api.CouponPurchaseOutput
+import com.danesh.api.CouponPurchaseUserInput
 import com.danesh.api.InitOutput
 import com.danesh.api.InitInput
 import com.danesh.api.InitRequest
@@ -62,6 +67,10 @@ import com.danesh.bp.cash_out.BpCashOutRequest
 import com.danesh.bp.coupon.BpCouponListRequest
 import com.danesh.bp.coupon.BpCouponListResult
 import com.danesh.bp.coupon.CouponListHandler
+import com.danesh.bp.coupon.inquiry.BpCouponInquiryRequest
+import com.danesh.bp.coupon.inquiry.CouponInquiryHandler
+import com.danesh.bp.coupon.purchase.BpCouponPurchaseRequest
+import com.danesh.bp.coupon.purchase.CouponPurchaseHandler
 import com.danesh.bp.init.InitHandler
 import com.danesh.bp.init.BpInitTrace
 import com.danesh.bp.logon.BpLogonTrace
@@ -97,6 +106,8 @@ class BpGateway @Inject constructor(
     private val deviceOperations: PspDeviceOperations,
     private val billHandler: BillHandler,
     private val couponListHandler: CouponListHandler,
+    private val couponInquiryHandler: CouponInquiryHandler,
+    private val couponPurchaseHandler: CouponPurchaseHandler,
     private val device: Device
 ) : PspGateway {
 
@@ -278,9 +289,6 @@ class BpGateway @Inject constructor(
         BalanceUserInput(pinBlock = pinBlock, track2 = track2,pan=pan)
 
 
-    private fun CouponListInput.toUserInput(): BpCouponListRequest =
-        CouponListUserInput(pinBlock = "", track2 = "",pan="", requestedIndex = 1)
-
     private fun BillInput.toUserInput(): BpBillRequest =
         BillUserInput(
             pinBlock = pinBlock,
@@ -343,10 +351,60 @@ class BpGateway @Inject constructor(
 
     override suspend fun getCouponList(input: CouponListInput): CouponListOutput {
         return withContext(Dispatchers.IO) {
+            val rawList = StringBuilder()
+            var index = 1
+            var result: BpCouponListResult
+            do {
+                result = executor.execute(
+                    request = BpCouponListRequest(requestedIndex = index),
+                    handler = couponListHandler,
+                )
+                if (!result.detail.isSuccess) break
+                rawList.append(result.rawList)
+                index = result.requestedIndex + 1
+            } while (result.lastIndex >= index && index <= MAX_COUPON_LIST_PAGES)
+            result.detail.copy(couponList = rawList.toString())
+        }
+    }
+
+    override suspend fun couponInquiry(input: CouponInquiryInput): CouponInquiryOutput {
+        return withContext(Dispatchers.IO) {
             executor.execute(
                 request = input.toUserInput(),
-                handler = couponListHandler,
+                handler = couponInquiryHandler,
             ).detail
         }
+    }
+
+    override suspend fun couponPurchase(input: CouponPurchaseInput): CouponPurchaseOutput {
+        return withContext(Dispatchers.IO) {
+            executor.execute(
+                request = input.toUserInput(),
+                handler = couponPurchaseHandler,
+            ).detail
+        }
+    }
+
+    private fun CouponInquiryInput.toUserInput(): BpCouponInquiryRequest =
+        CouponInquiryUserInput(
+            pinBlock = pinBlock,
+            track2 = track2,
+            pan = pan,
+            items = items,
+        )
+
+    private fun CouponPurchaseInput.toUserInput(): BpCouponPurchaseRequest =
+        CouponPurchaseUserInput(
+            pinBlock = pinBlock,
+            track2 = track2,
+            pan = pan,
+            amount = amount.toString(),
+            inquiryRrn = inquiryRrn,
+            couponTrackingNumber = couponTrackingNumber,
+        )
+
+    private companion object {
+        /** سقف ایمنی برای جلوگیری از حلقه‌ی بی‌پایان در صورت پاسخ نامعتبر تگ 1E. */
+        const val MAX_COUPON_LIST_PAGES = 200
     }
 }

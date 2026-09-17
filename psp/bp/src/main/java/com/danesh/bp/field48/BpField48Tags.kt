@@ -31,6 +31,12 @@ object BpField48Tags {
     const val SERVICE_CODE = "1B"
     const val SERVICE_HELP_TEXT = "1C"
     const val COUPON_REQUEST_INDEX_TAG  = "1D"
+    /** شماره آخرین اندیس (Index) لیست کالابرگ — پاسخ Coupon List */
+    const val COUPON_LAST_INDEX_TAG = "1E"
+    /** مقدار موجودی اعتبار کالابرگ — پاسخ Coupon Inquiry */
+    const val COUPON_CREDIT_BALANCE_TAG = "1F"
+    /** مقدار اعتبار مصرف‌شده/مورد نیاز کالابرگ — پاسخ Coupon Inquiry */
+    const val COUPON_CREDIT_REQUIRED_TAG = "20"
     const val KEY_INDEX = "1E"
     const val LAST_KEY_INDEX = "1F"
     const val CREDIT_BALANCE = "20"
