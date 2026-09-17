@@ -50,6 +50,7 @@ class K9 @Inject constructor(
 
 ) : Device {
     private var deviceManager: DeviceManager? = null
+    private var mIcCardDevice: IcCardDevice? = null
     private val cardType: Byte = 0
     override val INDEX_DATA: Int
         get() = 1
@@ -550,45 +551,49 @@ class K9 @Inject constructor(
     }
 
     override fun powerOnIcCard(): Boolean {
-        return false
+        val manager = deviceManager
+        if (manager == null) {
+            DeviceTrace.warn(SDK, "powerOnIcCard deviceManager=null")
+            return false
+        }
+        val icCardDevice = manager.icDevice
+        val atr = icCardDevice.reset()
+        if (atr == null) {
+            DeviceTrace.warn(SDK, "powerOnIcCard reset failed")
+            mIcCardDevice = null
+            return false
+        }
+        DeviceTrace.step(SDK, "powerOnIcCard success atrLen=${atr.size}")
+        mIcCardDevice = icCardDevice
+        return true
     }
 
     override fun powerOffIcCard() {
-
+        mIcCardDevice?.halt()
+        DeviceTrace.step(SDK, "powerOffIcCard halted")
+        mIcCardDevice = null
     }
 
     override fun isIcCardDetect(): Boolean {
-        return false
+        val icCardDevice = mIcCardDevice ?: deviceManager?.icDevice ?: return false
+        return runCatching { icCardDevice.exists() }.getOrDefault(false)
     }
 
     override suspend fun sendApdu(byteArray: ByteArray, onError: (String) -> Unit): ByteArray? {
-        var mIcCardDevice: IcCardDevice? = null
-        if (deviceManager == null) {
-            mIcCardDevice?.halt()
+        val icCardDevice = mIcCardDevice
+        if (deviceManager == null || icCardDevice == null) {
             onError(errorMessage(context, R.string.error_icc_device, "deviceManager=null"))
-        } else {
-            mIcCardDevice = deviceManager!!.icDevice
-            val result = mIcCardDevice.reset()
-            DeviceTrace.debug(SDK, "sendApdu reset resultLen=${result?.size ?: 0}")
-            if (mIcCardDevice.exists()) {
-                val result = mIcCardDevice.send(byteArray)
-                mIcCardDevice?.halt()
-
-                return result
-                //  showNormalMessage("Send result = " + HexUtils.bcd2str(result))
-            } else {
-                mIcCardDevice?.halt()
-
-                onError(
-                    errorMessage(
-                        context, R.string.error_icc_card_not_found, "iccCard.exists=false"
-                    )
-                )
-
-            }
+            return null
         }
-        mIcCardDevice?.halt()
-        return null
+        if (!icCardDevice.exists()) {
+            onError(
+                errorMessage(
+                    context, R.string.error_icc_card_not_found, "iccCard.exists=false"
+                )
+            )
+            return null
+        }
+        return icCardDevice.send(byteArray)
     }
 
     /**
