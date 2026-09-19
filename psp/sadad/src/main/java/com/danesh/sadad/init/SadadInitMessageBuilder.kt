@@ -20,7 +20,8 @@ class SadadInitMessageBuilder @Inject constructor(
     fun build(): IsoMessage {
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
-        val stan = contextProvider.nextStan()
+        // مستند: DE11 پیام INIT باید یک عدد تصادفی ۶ رقمی باشد، نه شمارنده‌ی ترتیبی nextStan().
+        val stan = (0..999999).random().toString().padStart(6, '0')
         // شماره ترمینال INIT: ۶ رقم ساعت/دقیقه/ثانیه + ۲ رقم آخر trace number (تصادفی، صرفاً برای فعال‌سازی)
         val randomTerminalId = (clock.time + stan.takeLast(2)).takeLast(SadadKeyConfig.TERMINAL_ID_LENGTH)
         val placeholderMerchantId = "1".repeat(SadadKeyConfig.MERCHANT_ID_LENGTH)

@@ -1,6 +1,5 @@
 package com.danesh.sadad.voucher
 
-import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.VoucherUserInput
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
@@ -15,28 +14,39 @@ class SadadVoucherMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
     private val messageProvider: IsoMessageProvider,
 ) {
+    /**
+     * 5-CHARGE (MTI 0200/0210, DE3 150000): خرید شارژ از اپراتور موبایل.
+     * DE48 طبق سند باید ProviderID(4) + CategoryID(2) + Space(0x20) + ChargeCount(2)
+     * باشد؛ مدل فعلی [VoucherUserInput] فقط operatorCode دارد و category/charge-count
+     * را در اختیار ندارد — تا تکمیل مدل ورودی، operatorCode به‌عنوان ProviderID و
+     * مقادیر پیش‌فرض «۰۱» برای CategoryID/ChargeCount استفاده می‌شود.
+     */
     fun build(request: VoucherUserInput): IsoMessage {
         val session = messageSupport.beginSession()
         val amount = request.amount.filter { it.isDigit() }.padStart(12, '0').takeLast(12)
+        val providerId = request.operatorCode.filter { it.isDigit() }.padStart(4, '0').takeLast(4)
+        val field48 = providerId + DEFAULT_CATEGORY_ID + " " + DEFAULT_CHARGE_COUNT
         return messageProvider.create().apply {
             mti = SadadKeyConfig.VOUCHER_MTI
             processingCode = SadadKeyConfig.VOUCHER_PROCESSING_CODE
             stan = messageSupport.nextStan()
-            pan = messageSupport.resolvePan(request.pan, request.track2)
             this.amount = amount
             dateTime = session.dateTime
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode = SadadKeyConfig.POS_CONDITION_CODE
             messageSupport.run { applySadadStandardTerminalFields() }
-            messageSupport.run { applySadadFunctionCode(SadadKeyConfig.VOUCHER_FUNCTION_CODE) }
-            currency = session.currency
             track2 = messageSupport.normalizeTrack2(request.track2)
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
-            mac = TransactionIsoProfile.PURCHASE.emptyMac
-            setField48 {
-                setTransactionType(SadadKeyConfig.VOUCHER_FUNCTION_CODE)
-                setTerminalType("2")
-                setField48Tag(SadadKeyConfig.OPERATOR_TAG, request.operatorCode)
-                setField48Tag(SadadKeyConfig.VOUCHER_AMOUNT_TAG, amount)
-            }
+            getIsoMessage().set(48, field48)
+            messageSupport.run { setSadadTransportData(transportData()) }
+            privateUseField63 = messageSupport.functionCode040Field63()
+            mac = SadadKeyConfig.EMPTY_MAC
         }
+    }
+
+    private companion object {
+        const val DEFAULT_CATEGORY_ID = "01"
+        const val DEFAULT_CHARGE_COUNT = "01"
     }
 }

@@ -56,6 +56,8 @@ import com.danesh.api.WalletToWalletOutput
 import com.danesh.api.WalletToWalletUserInput
 import com.danesh.engine.TransactionExecutor
 import com.danesh.iso.IsoMessage
+import com.danesh.sadad.acceptpin.AcceptPinHandler
+import com.danesh.sadad.acceptpin.SadadAcceptPinRequest
 import com.danesh.sadad.balance.BalanceHandler
 import com.danesh.sadad.bill.BillInquiryHandler
 import com.danesh.sadad.bill.BillPaymentHandler
@@ -63,12 +65,32 @@ import com.danesh.sadad.card_to_card.CardToCardHandler
 import com.danesh.sadad.card_to_wallet.CardToWalletHandler
 import com.danesh.sadad.cash_deposit.CashDepositHandler
 import com.danesh.sadad.cash_out.CashOutHandler
+import com.danesh.sadad.fixedduty.FixedDutyHandler
+import com.danesh.sadad.fixedduty.SadadFixedDutyRequest
+import com.danesh.sadad.fuelstation.FuelStationInquiryHandler
+import com.danesh.sadad.fuelstation.SadadFuelStationInquiryRequest
+import com.danesh.sadad.gambond.GamBondHandler
+import com.danesh.sadad.gambond.SadadGamBondRequest
+import com.danesh.sadad.gisstation.SadadSaleGisStationRequest
+import com.danesh.sadad.gisstation.SaleGisStationHandler
 import com.danesh.sadad.init.InitHandler
+import com.danesh.sadad.inquiry.InquiryHandler
+import com.danesh.sadad.inquiry.SadadInquiryRequest
+import com.danesh.sadad.inquirystatus.InquiryStatusHandler
+import com.danesh.sadad.inquirystatus.SadadInquiryStatusRequest
+import com.danesh.sadad.kahroba.KahrobaBalanceHandler
+import com.danesh.sadad.kahroba.KahrobaSaleHandler
+import com.danesh.sadad.kahroba.SadadKahrobaBalanceRequest
+import com.danesh.sadad.kahroba.SadadKahrobaSaleRequest
 import com.danesh.sadad.logon.LogonHandler
 import com.danesh.sadad.name_inquiry.NameInquiryHandler
 import com.danesh.sadad.purchase.PurchaseHandler
+import com.danesh.sadad.refund.RefundHandler
+import com.danesh.sadad.refund.SadadRefundRequest
 import com.danesh.sadad.support.SupportHandler
 import com.danesh.sadad.topup.TopUpHandler
+import com.danesh.sadad.transactionsummary.SadadTransactionSummaryRequest
+import com.danesh.sadad.transactionsummary.TransactionSummaryHandler
 import com.danesh.sadad.voucher.VoucherHandler
 import com.danesh.sadad.wallet_to_wallet.WalletToWalletHandler
 import kotlinx.coroutines.Dispatchers
@@ -95,6 +117,17 @@ class SadadGateway @Inject constructor(
     private val logonHandler: LogonHandler,
     private val initHandler: InitHandler,
     private val deviceOperations: PspDeviceOperations,
+    private val inquiryHandler: InquiryHandler,
+    private val fixedDutyHandler: FixedDutyHandler,
+    private val inquiryStatusHandler: InquiryStatusHandler,
+    private val transactionSummaryHandler: TransactionSummaryHandler,
+    private val acceptPinHandler: AcceptPinHandler,
+    private val refundHandler: RefundHandler,
+    private val kahrobaSaleHandler: KahrobaSaleHandler,
+    private val kahrobaBalanceHandler: KahrobaBalanceHandler,
+    private val gamBondHandler: GamBondHandler,
+    private val saleGisStationHandler: SaleGisStationHandler,
+    private val fuelStationInquiryHandler: FuelStationInquiryHandler,
 ) : PspGateway {
 
     override suspend fun bill(input: BillInput): BillOutput = withContext(Dispatchers.IO) {
@@ -324,4 +357,54 @@ class SadadGateway @Inject constructor(
             amount = amount,
             requestId = requestId,
         )
+
+    /*
+     * تراکنش‌های اختصاصی سداد (نسخه ۲.۱۰ مستند پروتکل) که معادلی در PspGateway
+     * (مشترک با BP/HP) ندارند — به‌جای افزودن متدهای بی‌ربط به آن اینترفیس، این‌ها
+     * متدهای عمومی اضافیِ همین کلاس هستند و فقط از کد Sadad‌-آگاه صدا زده می‌شوند.
+     */
+
+    /** 10-INQUIRY */
+    suspend fun inquiry(request: SadadInquiryRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = inquiryHandler) }
+
+    /** 11-FIXED DUTY */
+    suspend fun fixedDuty(request: SadadFixedDutyRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = fixedDutyHandler) }
+
+    /** 13-INQUIRY STATUS */
+    suspend fun inquiryStatus(request: SadadInquiryStatusRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = inquiryStatusHandler) }
+
+    /** 18-TRANSACTION SUMMARY */
+    suspend fun transactionSummary(request: SadadTransactionSummaryRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = transactionSummaryHandler) }
+
+    /** 19-ACCEPT PIN */
+    suspend fun acceptPin(request: SadadAcceptPinRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = acceptPinHandler) }
+
+    /** 20-REFUND */
+    suspend fun refund(request: SadadRefundRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = refundHandler) }
+
+    /** 21.1-KAHROBA SALE (NFC) */
+    suspend fun kahrobaSale(request: SadadKahrobaSaleRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = kahrobaSaleHandler) }
+
+    /** 21.2-KAHROBA BALANCE (NFC) */
+    suspend fun kahrobaBalance(request: SadadKahrobaBalanceRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = kahrobaBalanceHandler) }
+
+    /** 22-GAM BOND */
+    suspend fun gamBond(request: SadadGamBondRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = gamBondHandler) }
+
+    /** 24-SALE GIS STATION */
+    suspend fun saleGisStation(request: SadadSaleGisStationRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = saleGisStationHandler) }
+
+    /** 26-FUEL STATION INQUIRY */
+    suspend fun fuelStationInquiry(request: SadadFuelStationInquiryRequest): SadadNetworkResult =
+        withContext(Dispatchers.IO) { executor.execute(request = request, handler = fuelStationInquiryHandler) }
 }

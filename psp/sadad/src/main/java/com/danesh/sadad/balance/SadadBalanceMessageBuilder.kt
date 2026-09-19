@@ -45,6 +45,7 @@ class SadadBalanceMessageBuilder @Inject constructor(
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             transportData=""
             messageSupport.run { setSadadTransportData(transportData()) }
+            privateUseField63 = messageSupport.functionCode040Field63()
             mac = SadadKeyConfig.EMPTY_MAC
         }
     }

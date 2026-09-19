@@ -189,4 +189,13 @@ class SadadIsoMessageSupport @Inject constructor(
     /** DE61 Mode 1: Mode=01 + merchant slot n2. */
     fun multiMerchantModeOne(): String =
         SadadKeyConfig.PURCHASE_DE61_MODE_ONE + SadadKeyConfig.PURCHASE_DEFAULT_MERCHANT_SLOT
+
+    /**
+     * فیلد ۶۳ (Private4) با Function Code 040 — طبق مقدمه‌ی مستند پروتکل، برای تراکنش‌های
+     * شاپرک۲ (پیام‌های 0100/0200/0400) که مشخصه‌ی دیگری برای فیلد ۶۳ ندارند («Check attention»)
+     * الزامی است. چون نوع اتصال واقعی ترمینال (LAN/Dialup/Portable) در پیکربندی فعلی مشخص
+     * نیست، طبق خود مستند («اگر سیم‌کارت ندارد یا داده‌ای برای ارسال نیست فقط ۰۱۰۴۰۰۰۰ بفرستید»)
+     * مقدار امنِ Portable بدون داده فرستاده می‌شود.
+     */
+    fun functionCode040Field63(): String = "01040000"
 }

@@ -75,7 +75,8 @@ object SadadKeyConfig {
     const val BILL_ID_LENGTH = 13
     const val BILL_PAYMENT_ID_LENGTH = 13
 
-    const val VOUCHER_MTI = "1100"
+    /** 5-CHARGE سند: MTI 0200 (پاسخ 0210) — قبلاً به‌اشتباه 1100 بود. */
+    const val VOUCHER_MTI = "0200"
     const val VOUCHER_PROCESSING_CODE = "150000"
     const val VOUCHER_FUNCTION_CODE = "774"
 
@@ -86,7 +87,10 @@ object SadadKeyConfig {
     const val SUPPORT_PROCESSING_CODE = "100000"
     const val SUPPORT_FUNCTION_CODE = "702"
 
-    const val REVERSE_MTI = "1420"
+    /** 8-ADVICE: 0220 (پاسخ 0230) */
+    const val ADVICE_MTI = "0220"
+    /** 9-REVERSAL: 0400 (پاسخ 0410) */
+    const val REVERSE_MTI = "0400"
 
     const val OPERATOR_TAG = "018"
     const val MOBILE_TAG = "019"
@@ -94,6 +98,73 @@ object SadadKeyConfig {
     const val SUPPORT_SERVICE_TAG = "024"
     const val HOLDER_NAME_TAG = "049"
     const val WALLET_TAG = "045"
+
+    /** 10-INQUIRY: MTI 0100 (پاسخ 0110) / DE3 240000 */
+    const val INQUIRY_MTI = "0100"
+    const val INQUIRY_PROCESSING_CODE = "240000"
+
+    /** 11-FIXED DUTY: MTI 0200 (پاسخ 0210) / DE3 220000 */
+    const val FIXED_DUTY_MTI = "0200"
+    const val FIXED_DUTY_PROCESSING_CODE = "220000"
+
+    /** 13-INQUIRY STATUS: MTI 0100 (پاسخ 0110) / DE3 330000 */
+    const val INQUIRY_STATUS_MTI = "0100"
+    const val INQUIRY_STATUS_PROCESSING_CODE = "330000"
+    /** DE48 مقدار ثابت طبق سند */
+    const val INQUIRY_STATUS_FIELD48 = "01"
+
+    /** 14-INQUIRY BNPL: MTI 0100 (پاسخ 0110) / DE3 690000 */
+    const val INQUIRY_BNPL_MTI = "0100"
+    const val INQUIRY_BNPL_PROCESSING_CODE = "690000"
+
+    /** 15/16/17 کالابرگ: MTI متفاوت با DE3 مشترک 680000 */
+    const val COMMODITY_BASKET_PROCESSING_CODE = "680000"
+    const val INQUIRY_COMMODITY_BASKET_MTI = "0100"
+    const val SALE_COMMODITY_BASKET_MTI = "0200"
+    const val CANCEL_COMMODITY_BASKET_MTI = "0100"
+
+    /** 18-TRANSACTION SUMMARY: MTI 0100 (پاسخ 0110) / DE3 430000 */
+    const val TRANSACTION_SUMMARY_MTI = "0100"
+    const val TRANSACTION_SUMMARY_PROCESSING_CODE = "430000"
+
+    /** 19-ACCEPT PIN: MTI 0100 (پاسخ 0110) / DE3 710000 */
+    const val ACCEPT_PIN_MTI = "0100"
+    const val ACCEPT_PIN_PROCESSING_CODE = "710000"
+
+    /** 20-REFUND: MTI 0200 (پاسخ 0210) / DE3 200000 */
+    const val REFUND_MTI = "0200"
+    const val REFUND_PROCESSING_CODE = "200000"
+    const val REFUND_TYPE_OFFLINE = "01"
+    const val REFUND_TYPE_ONLINE = "02"
+
+    /** 21.1-KAHROBA SALE: MTI 0200 (پاسخ 0210) / DE3 000000 / DE22 071 (NFC) */
+    const val KAHROBA_POS_ENTRY_MODE = "071"
+    /** 21.2-KAHROBA BALANCE: MTI 0100 (پاسخ 0110) / DE3 310000 / DE22 071 (NFC) */
+
+    /** 22-GAM BOND: MTI 0200 (پاسخ 0210) / DE3 700000 */
+    const val GAM_BOND_MTI = "0200"
+    const val GAM_BOND_PROCESSING_CODE = "700000"
+
+    /** 23-BAAM WALLET INQUIRY: MTI 0100 (پاسخ 0110) / DE3 240000 */
+    const val BAAM_WALLET_MTI = "0100"
+    const val BAAM_WALLET_PROCESSING_CODE = "240000"
+    const val BAAM_WALLET_FUNCTION_CODE = "086"
+
+    /** 24-SALE GIS STATION: MTI 0200 (پاسخ 0210) / DE3 740000 */
+    const val SALE_GIS_STATION_MTI = "0200"
+    const val SALE_GIS_STATION_PROCESSING_CODE = "740000"
+    const val GIS_STATION_FUNCTION_CODE = "060"
+
+    /** 25.1-INQUIRY TOLL: MTI 0100 (پاسخ 0110) / DE3 240000 */
+    const val TOLL_INQUIRY_MTI = "0100"
+    const val TOLL_INQUIRY_PROCESSING_CODE = "240000"
+    /** 25.2-TOLL PAYMENT: MTI 0200 (پاسخ 0210) / DE3 730000 */
+    const val TOLL_PAYMENT_MTI = "0200"
+    const val TOLL_PAYMENT_PROCESSING_CODE = "730000"
+
+    /** 26-FUEL STATION INQUIRY: MTI 0100 (پاسخ 0110) / DE3 240000 */
+    const val FUEL_STATION_INQUIRY_MTI = "0100"
+    const val FUEL_STATION_INQUIRY_PROCESSING_CODE = "240000"
 
     val EMPTY_MAC: ByteArray = ByteArray(8)
 }

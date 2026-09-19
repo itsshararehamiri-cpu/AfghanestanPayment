@@ -28,11 +28,12 @@ class SadadBillInquiryMessageBuilder @Inject constructor(
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
-            getIsoMessage().set(48, messageSupport.additionalPrivateData())
+            getIsoMessage().set(
+                48,
+                messageSupport.billPaymentField48(request.billId, request.payId),
+            )
             //pinBlock = ISOUtil.hex2byte(request.pinBlock)
             messageSupport.run { setSadadTransportData(transportData()) }
-            privateUseField61 = messageSupport.multiMerchantModeOne()
-            getIsoMessage().set(63, "")
 
             mac = SadadKeyConfig.EMPTY_MAC
         }

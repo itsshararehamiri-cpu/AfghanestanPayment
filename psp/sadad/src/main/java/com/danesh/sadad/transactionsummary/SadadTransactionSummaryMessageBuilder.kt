@@ -1,6 +1,5 @@
-package com.danesh.sadad.topup
+package com.danesh.sadad.transactionsummary
 
-import com.danesh.api.TopUpUserInput
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import com.danesh.sadad.iso.SadadIsoMessageSupport
@@ -9,24 +8,23 @@ import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** 18-TRANSACTION SUMMARY: MTI 0100 (پاسخ 0110) / DE3 430000. */
 @Singleton
-class SadadTopUpMessageBuilder @Inject constructor(
+class SadadTransactionSummaryMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
     private val messageProvider: IsoMessageProvider,
 ) {
-    fun build(request: TopUpUserInput): IsoMessage {
+    fun build(request: SadadTransactionSummaryRequest): IsoMessage {
         messageSupport.beginSession()
-        val amount = request.amount.filter { it.isDigit() }.padStart(12, '0').takeLast(12)
         return messageProvider.create().apply {
-            mti = SadadKeyConfig.TOPUP_MTI
-            processingCode = SadadKeyConfig.TOPUP_PROCESSING_CODE
+            mti = SadadKeyConfig.TRANSACTION_SUMMARY_MTI
+            processingCode = SadadKeyConfig.TRANSACTION_SUMMARY_PROCESSING_CODE
             stan = messageSupport.nextStan()
-            this.amount = amount
-            messageSupport.run { applySadadStandardTerminalFields() }
-            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
-
-            messageSupport.run { applySadadFunctionCode(SadadKeyConfig.SADAD_NII) }
-            track2 = messageSupport.normalizeTrack2(request.track2)
+            pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
+            nii = SadadKeyConfig.SADAD_NII
+            posConditionCode = SadadKeyConfig.POS_CONDITION_CODE
+            terminalId = messageSupport.terminalIdOrDefault()
+            merchantId = messageSupport.merchantIdOrDefault()
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             messageSupport.run { setSadadTransportData(transportData()) }
             privateUseField63 = messageSupport.functionCode040Field63()

@@ -1,6 +1,5 @@
-package com.danesh.sadad.bill
+package com.danesh.sadad.fixedduty
 
-import com.danesh.api.BillUserInput
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import com.danesh.sadad.iso.SadadIsoMessageSupport
@@ -10,46 +9,29 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * پرداخت قبض سداد — درخواست به سوئیچ.
- *
- * MTI 0200
- * DE3  170000  Processing Code
- * DE4  مبلغ ۱۲ رقمی
- * DE11 STAN
- * DE22 021     POS Entry Mode (n 3)
- * DE24 007     NII
- * DE25 14      POS Condition Code (n 2)
- * DE35 Track 2
- * DE41 Terminal Id (ans 8)
- * DE42 Acceptor Id (ans 15)
- * DE48 Bill_ID(13) + Payment_ID(13) — خام ۲۶ رقم، بدون TLV همراه‌پی
- * DE52 PIN block
- * DE59 Transport data
- * DE64 MAC (8 بایت خالی)
+ * 11-FIXED DUTY: MTI 0200 (پاسخ 0210) / DE3 220000.
  */
 @Singleton
-class SadadBillPaymentMessageBuilder @Inject constructor(
+class SadadFixedDutyMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
     private val messageProvider: IsoMessageProvider,
 ) {
-    fun build(request: BillUserInput): IsoMessage {
+    fun build(request: SadadFixedDutyRequest): IsoMessage {
+        messageSupport.beginSession()
         return messageProvider.create().apply {
-            mti = SadadKeyConfig.BILL_MTI
-            processingCode = SadadKeyConfig.BILL_PROCESSING_CODE
+            mti = SadadKeyConfig.FIXED_DUTY_MTI
+            processingCode = SadadKeyConfig.FIXED_DUTY_PROCESSING_CODE
             amount = messageSupport.formatIsoAmount(request.amount)
             stan = messageSupport.nextStan()
             pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
             nii = SadadKeyConfig.SADAD_NII
-            messageReasonCode = SadadKeyConfig.POS_CONDITION_CODE
+            posConditionCode = SadadKeyConfig.POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
-            getIsoMessage().set(
-                48,
-                messageSupport.billPaymentField48(request.billId, request.payId),
-            )
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             messageSupport.run { setSadadTransportData(transportData()) }
+            privateUseField61 = messageSupport.multiMerchantModeOne()
             privateUseField63 = messageSupport.functionCode040Field63()
             mac = SadadKeyConfig.EMPTY_MAC
         }

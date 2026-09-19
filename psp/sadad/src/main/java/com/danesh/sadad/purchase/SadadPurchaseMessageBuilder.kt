@@ -51,7 +51,7 @@ class SadadPurchaseMessageBuilder @Inject constructor(
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
             messageSupport.run { setSadadTransportData(transportData()) }
             privateUseField61 = messageSupport.multiMerchantModeOne()
-            getIsoMessage().set(63, "")
+            privateUseField63 = messageSupport.functionCode040Field63()
 
             mac = SadadKeyConfig.EMPTY_MAC
         }
