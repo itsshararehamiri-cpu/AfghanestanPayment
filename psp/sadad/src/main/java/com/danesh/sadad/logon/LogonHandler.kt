@@ -4,6 +4,7 @@ import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.LogonRequest
 import com.danesh.api.PspDeviceOperations
+import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
@@ -23,6 +24,7 @@ class LogonHandler @Inject constructor(
     private val deviceOperations: PspDeviceOperations,
     private val deviceWorkflow: SadadDeviceWorkflow,
     private val configurationStore: DeviceConfigurationStore,
+    private val contextProvider: TransactionContextProvider,
 ) : HandlerTransaction<LogonRequest, SadadNetworkResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -70,6 +72,7 @@ class LogonHandler @Inject constructor(
         response?.getDump()
         return try {// TODO:
             if (response != null) {
+                persistTerminalIds(response)
                 kotlinx.coroutines.runBlocking {
 //                    deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())
 //                    configurationStore.markConfigured()
@@ -144,4 +147,19 @@ class LogonHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): SadadNetworkResult = receiveFailure(request, sentMessage, e)
+
+    /**
+     * DE41/DE42 پاسخ LOGON — سوئیچ شماره ترمینال/پذیرنده را برمی‌گرداند و باید
+     * ذخیره شود، وگرنه تراکنش‌های بعدی این فیلدها را خالی می‌فرستند.
+     */
+    private fun persistTerminalIds(response: IsoMessage) {
+        val current = contextProvider.getTerminalConfig()
+        val terminalId = response.terminalId.takeIf { it.isNotBlank() } ?: current.terminalId
+        val merchantId = response.merchantId.takeIf { it.isNotBlank() } ?: current.merchantId
+        if (terminalId != current.terminalId || merchantId != current.merchantId) {
+            contextProvider.saveTerminalConfig(
+                current.copy(terminalId = terminalId, merchantId = merchantId),
+            )
+        }
+    }
 }

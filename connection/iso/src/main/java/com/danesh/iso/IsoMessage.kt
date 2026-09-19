@@ -71,3 +71,6 @@ interface IsoMessage : RawMessage {
 
 fun IsoMessage.requireBp(): BpIsoMessage =
     this as? BpIsoMessage ?: error("Expected BpIsoMessage but was ${this::class.simpleName}")
+
+fun IsoMessage.requireSadad(): SadadIsoMessage =
+    this as? SadadIsoMessage ?: error("Expected SadadIsoMessage but was ${this::class.simpleName}")

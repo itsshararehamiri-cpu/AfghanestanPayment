@@ -4,6 +4,7 @@ import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.InitRequest
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.PspDeviceOperations
+import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
@@ -23,6 +24,7 @@ class InitHandler @Inject constructor(
     private val transport: SadadIsoHandlerSupport,
     private val configurationStore: DeviceConfigurationStore,
     private val deviceOperations: PspDeviceOperations,
+    private val contextProvider: TransactionContextProvider,
 ) : HandlerTransaction<InitRequest, SadadNetworkResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -74,6 +76,7 @@ class InitHandler @Inject constructor(
                     terminalKey = SadadKeyMaterial.masterKeyBytes(),
                 )
             }
+            response?.let { persistTerminalIds(it) }
             configurationStore.markConfigured()
             SadadNetworkResult(
                 detail = transport.map(
@@ -145,4 +148,20 @@ class InitHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): SadadNetworkResult = receiveFailure(request, sentMessage, e)
+
+    /**
+     * DE41/DE42 پاسخ INIT — سوئیچ شماره ترمینال/پذیرنده واقعی را برمی‌گرداند
+     * (در درخواست فقط مقادیر موقتِ فعال‌سازی ارسال شده بودند)؛ بدون این ذخیره،
+     * تراکنش‌های بعدی (از جمله LOGON) با DE41/DE42 خالی ارسال می‌شوند.
+     */
+    private fun persistTerminalIds(response: IsoMessage) {
+        val current = contextProvider.getTerminalConfig()
+        val terminalId = response.terminalId.takeIf { it.isNotBlank() } ?: current.terminalId
+        val merchantId = response.merchantId.takeIf { it.isNotBlank() } ?: current.merchantId
+        if (terminalId != current.terminalId || merchantId != current.merchantId) {
+            contextProvider.saveTerminalConfig(
+                current.copy(terminalId = terminalId, merchantId = merchantId),
+            )
+        }
+    }
 }

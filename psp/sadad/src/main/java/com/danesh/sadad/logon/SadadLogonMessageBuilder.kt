@@ -18,7 +18,6 @@ class SadadLogonMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
 ) {
     fun build(): IsoMessage {
-        val config = contextProvider.getTerminalConfig()
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
         return messageProvider.create().apply {
@@ -30,7 +29,6 @@ class SadadLogonMessageBuilder @Inject constructor(
             pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
-            currency = config.currency
             transportData=""
             messageSupport.run { setSadadTransportData(transportData()) }
             mac = TransactionIsoProfile.LOGON.emptyMac

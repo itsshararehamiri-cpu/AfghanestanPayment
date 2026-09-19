@@ -156,7 +156,7 @@ class SadadIsoMessage(
                 try {
                     isoMsg.set(received.getComponent(field))
                 } catch (e: ISOException) {
-                    Log.w("BpIsoMessage", "copy field $field failed: ${e.message}")
+                    Log.w(LOG_TAG, "copy field $field failed: ${e.message}")
                 }
             }
         }

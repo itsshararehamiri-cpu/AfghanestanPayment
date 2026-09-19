@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 import org.jpos.iso.ISOPackager
 import javax.inject.Inject
 
-private const val TAG = "BpJposConnection"
+private const val TAG = "SadadJposConnection"
 
 class SadadJposConnection @Inject constructor(
     private val connectionPreferences: ConnectionPreferences,
@@ -50,7 +50,7 @@ class SadadJposConnection @Inject constructor(
         val response = messageProvider.create()
         response.toIsoMessage(received)
         response.print("resp>>")
-        channel.lastReceivedIsoBody?.let { raw -> response.requireBp().setRawPackedBody(raw) }// TODO:  requireBp
+        channel.lastReceivedIsoBody?.let { raw -> response.requireSadad().setRawPackedBody(raw) }
         return response
     }
 
@@ -95,7 +95,7 @@ class SadadJposConnection @Inject constructor(
             val received = channel.receive()
          val temp=   messageProvider.create().also {
                 it.toIsoMessage(received)
-                channel.lastReceivedIsoBody?.let { raw -> it.requireBp().setRawPackedBody(raw) }// TODO: requireBp
+                channel.lastReceivedIsoBody?.let { raw -> it.requireSadad().setRawPackedBody(raw) }
             }
             temp.print("resp>>")
             temp
