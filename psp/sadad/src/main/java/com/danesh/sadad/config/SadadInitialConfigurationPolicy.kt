@@ -19,7 +19,7 @@ class SadadInitialConfigurationPolicy @Inject constructor(
     override val usesKeyCardLoading: Boolean = true
 
     override suspend fun injectKeys(): Result<Unit> = runCatching {
-        deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())
-        configurationStore.markConfigured()
+        //deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())
+       // configurationStore.markConfigured()
     }
 }

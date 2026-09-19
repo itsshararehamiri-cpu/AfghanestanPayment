@@ -165,7 +165,7 @@ class SadadIsoMessage(
 
     override fun getDump(): String {
         val baos = ByteArrayOutputStream()
-        PrintStream(baos, true, "cp1256").use { ps -> isoMsg.dump(ps, " ") }
+        PrintStream(baos, true, "cp1256").use { ps -> isoMsg.dump(ps, " z>") }
         return baos.toString("cp1256")
     }
 

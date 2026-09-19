@@ -33,7 +33,7 @@ import com.danesh.ui.toolbar.Toolbar
 fun TerminalSetupScreen(
     uiState: InitialConfigurationUiState,
     onBackClick: () -> Unit,
-    title: String = stringResource(R.string.settings_terminal_setup),
+    title: String = stringResource(R.string.settings_terminal_setup),//settings_terminal_setup
     onFirstBallotTicketChange: (String) -> Unit,
     onSecondBallotTicketChange: (String) -> Unit,
     onScanFirstBallotTicket: () -> Unit,

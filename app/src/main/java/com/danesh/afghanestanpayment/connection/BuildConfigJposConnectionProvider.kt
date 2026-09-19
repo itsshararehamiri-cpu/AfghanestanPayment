@@ -1,5 +1,6 @@
 package com.danesh.afghanestanpayment.connection
 
+import android.util.Log
 import com.danesh.afghanestanpayment.BuildConfig
 import com.danesh.core.Connection
 import com.danesh.iso.BpJposConnection
@@ -18,12 +19,14 @@ class BuildConfigJposConnectionProvider @Inject constructor(
 
     ) : JposConnectionProvider {
 
-    private val delegate: Connection<IsoMessage> = when (BuildConfig.ACTIVE_PSP) {
-        "BP" -> bpConnection
-        "HP" -> hpConnection
-        "SADAD"->sadadConnection
-        else -> hpConnection
-    }
+    private val delegate: Connection<IsoMessage> =
+          when (BuildConfig.ACTIVE_PSP) {
+            "BP" -> bpConnection
+            "HP" -> hpConnection
+            "SADAD"->sadadConnection
+            else -> hpConnection
+        }.also { Log.d("TAG", "dddddddelegateddd${BuildConfig.ACTIVE_PSP}: ") }
+
 
     override suspend fun start() = delegate.start()
 
@@ -38,7 +41,9 @@ class BuildConfigJposConnectionProvider @Inject constructor(
 
     override fun stop() = delegate.stop()
 
-    override suspend fun receive(): IsoMessage? = delegate.receive()
+    override suspend fun receive(): IsoMessage? {
+        return delegate.receive()
+    }
 
     override fun close() = delegate.close()
 }

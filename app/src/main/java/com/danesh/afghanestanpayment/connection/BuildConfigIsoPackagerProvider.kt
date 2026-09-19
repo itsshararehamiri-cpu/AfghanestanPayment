@@ -16,6 +16,10 @@ class BuildConfigIsoPackagerProvider @Inject constructor() : IsoPackagerProvider
         "BP" -> {
             BpIso93BPackager()
         }
+        "SADAD" -> {
+            Log.d("TAG", "create: ddddddddd")
+            BpIso93BPackager()
+        }
         else ->{
             HpIso93BPackager()
         }

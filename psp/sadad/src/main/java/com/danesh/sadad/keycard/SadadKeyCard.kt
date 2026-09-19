@@ -1,5 +1,7 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
+
 /**
  * کارت‌های کلید سداد (مستند «راهنمای استفاده از کارت کلید» F-P102, نسخه 2.0.1).
  *
@@ -20,7 +22,10 @@ enum class SadadKeyCard(val appletIdHex: String) {
     CARD_C("53414441444B4D53430303"),
     ;
 
-    val appletId: ByteArray get() = SadadHex.decode(appletIdHex)
+    val appletId: ByteArray get() {
+        Log.d("TAG", "ddddddddnv$appletIdHex: ")
+        return SadadHex.decode(appletIdHex)
+    }
 }
 
 /**
@@ -36,12 +41,12 @@ enum class SadadKeyCard(val appletIdHex: String) {
  * نگاشت به اسلات‌های دستگاه در [SadadKeyCardInjector] مستند شده است.
  */
 enum class SadadKeyNumber(val number: Int) {
-    TERMINAL_MASTER_KEY(0x01),
-    MAC(0x02),
-    DATA(0x03),
-    INIT_PIN(0x04),
-    INIT_MAC(0x05),
-    INIT_DATA(0x06),
+    TERMINAL_MASTER_KEY(0x00),// TODO: az0
+    MAC(0x01),
+    DATA(0x02),
+    INIT_PIN(0x03),
+    INIT_MAC(0x04),
+    INIT_DATA(0x05),
 }
 
 /** کدهای خطای بازگشتی از کارت (بخش 5 مستند). */
@@ -58,7 +63,10 @@ enum class SadadKeyCardError(val sw: Int) {
     ;
 
     companion object {
-        fun fromSw(sw: Int): SadadKeyCardError? = entries.find { it.sw == sw }
+        fun fromSw(sw: Int): SadadKeyCardError? {
+            Log.d("TAG", "fromSw:SadadKeyCardError $sw")
+            return entries.find { it.sw == sw }
+        }
     }
 }
 

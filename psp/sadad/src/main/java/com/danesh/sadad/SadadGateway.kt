@@ -293,7 +293,7 @@ class SadadGateway @Inject constructor(
         }
 
     override suspend fun logon(masterKey: String): LogonOutput {
-        deviceOperations.prepareLogon()
+        Log.d("TAG", "logon: jjkjkkjk")
         return withContext(Dispatchers.IO) {
             executor.execute(
                 request = LogonRequest(masterKey),

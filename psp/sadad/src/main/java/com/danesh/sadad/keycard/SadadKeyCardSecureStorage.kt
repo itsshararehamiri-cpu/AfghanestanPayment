@@ -4,7 +4,10 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
+import com.danesh.core.Device
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.jpos.iso.ISOUtil
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -35,23 +38,45 @@ interface SadadKeyCardKeyPairStore {
  */
 @Singleton
 class SadadKeyCardSecureStorage @Inject constructor(
-    @ApplicationContext private val context: Context,
-) : SadadKeyCardKeyPairStore {
+    @ApplicationContext private val context: Context,    private val device: Device,
+
+    ) : SadadKeyCardKeyPairStore {
 
     private val prefs by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     override fun save(keyIndex: Int, modulus: ByteArray, privateExponent: ByteArray) {
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage save() called with: keyIndex = $keyIndex"
+        )
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage save() called with: , modulus = ${ISOUtil.hexString(modulus)}"
+        )
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage save() called with: keyIndex = $keyIndex,  privateExponent = ${ISOUtil.hexString(privateExponent)}"
+        )
         prefs.edit()
             .putString(modulusKey(keyIndex), encrypt(modulus))
             .putString(exponentKey(keyIndex), encrypt(privateExponent))
             .apply()
+        device
     }
 
     override fun load(keyIndex: Int): SadadStoredRsaKeyPair? {
         val modulusEncoded = prefs.getString(modulusKey(keyIndex), null) ?: return null
         val exponentEncoded = prefs.getString(exponentKey(keyIndex), null) ?: return null
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage load() called with: keyIndex = ${modulusEncoded}"
+        )
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage load() called with: keyIndex = ${exponentEncoded}"
+        )
         return SadadStoredRsaKeyPair(
             modulus = decrypt(modulusEncoded),
             privateExponent = decrypt(exponentEncoded),
@@ -59,6 +84,10 @@ class SadadKeyCardSecureStorage @Inject constructor(
     }
 
     override fun clear(keyIndex: Int) {
+        Log.d(
+            "TAG",
+            "SadadKeyCardSecureStorage clear() called with: keyIndex = ${keyIndex}"
+        )
         prefs.edit()
             .remove(modulusKey(keyIndex))
             .remove(exponentKey(keyIndex))

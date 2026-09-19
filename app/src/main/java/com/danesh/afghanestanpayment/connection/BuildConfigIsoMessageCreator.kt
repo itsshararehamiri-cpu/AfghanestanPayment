@@ -1,5 +1,6 @@
 package com.danesh.afghanestanpayment.connection
 
+import android.util.Log
 import com.danesh.afghanestanpayment.BuildConfig
 import com.danesh.iso.BpIsoMessage
 import com.danesh.iso.HpIsoMessage
@@ -18,6 +19,10 @@ class BuildConfigIsoMessageCreator @Inject constructor(
 
     override fun create(packager: ISOPackager): IsoMessage = when (BuildConfig.ACTIVE_PSP) {
         "BP" -> BpIsoMessage(BpField48Tlv()).also { it.setPackager(packager) }
+        "SADAD" -> {
+            Log.d("TAG", "create: ddddddddddddd")
+            BpIsoMessage(BpField48Tlv()).also { it.setPackager(packager) }
+        }
         else -> hpIsoMessageProvider.get().also { it.setPackager(packager) }
     }
 }

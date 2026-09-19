@@ -1,5 +1,6 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
 import com.danesh.api.KeyCardKcvSummary
 import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.KeyCardPinRejectedException
@@ -33,6 +34,7 @@ class SadadKeyCardLoadingServiceAdapter @Inject constructor(
             KeyCardType.CARD_C -> SadadKeyCard.CARD_C
             KeyCardType.CARD_A -> error("unreachable")
         }
+        Log.d("TAG", "loadAndInjectMasterKeys: $sadadCard")
         return service.loadAndInjectMasterKeys(sadadCard, pin, keyIndex)
             .map { summary ->
                 KeyCardKcvSummary(

@@ -2,6 +2,7 @@ package com.danesh.sadad.keycard
 
 import android.util.Log
 import com.danesh.core.Device
+import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,23 +23,29 @@ class SadadDeviceIccTransport @Inject constructor(
 ) : SadadIccTransport {
 
     override fun powerOn(): Boolean {
-        Log.d("TAG", "powerOn: ")
+        Log.d("TAG", "powerOn: SadadDeviceIccTransport")
         return device.powerOnIcCard()
     }
 
     override fun powerOff() {
+        Log.d("TAG", "powerOff: SadadDeviceIccTransport")
+
         return device.powerOffIcCard()
     }
 
     override fun isCardPresent(): Boolean {
+        Log.d("TAG", "isCardPresent: SadadDeviceIccTransport")
+
         return device.isIcCardDetect()
     }
 
     override suspend fun exchange(command: ByteArray): ByteArray {
+        Log.d("TAG", "exchange: SadadDeviceIccTransport${ISOUtil.hexString(command)}")
+
         var errorMessage: String? = null
         val response = device.sendApdu(command) { message -> errorMessage = message }
         return response ?: throw SadadKeyCardException(
             errorMessage ?: "پاسخی از کارت‌خوان دریافت نشد",
-        )
+        )// TODO:  
     }
 }

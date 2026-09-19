@@ -1,5 +1,7 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
+import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,8 +40,12 @@ class SadadKeyCardService @Inject constructor(
         pin: String,
         keyIndex: Int,
     ): Result<SadadKeyCardKcvSummary> = runCatching {
+        Log.d("TAG", "loadAndInjectMasterKeys() calledcard$card")
+        Log.d("TAG", "loadAndInjectMasterKeys() calledpin$pin")
+        Log.d("TAG", "loadAndInjectMasterKeys() calledkeyindex$keyIndex")
+
         require(card != SadadKeyCard.CARD_A) { "این عملیات فقط برای کارت B یا C است" }
-        val stored = storage.load(keyIndex)
+        val stored = storage.load(5)// TODO: keyIndex
             ?: error("ابتدا باید کارت A با همین اندیس کلید ($keyIndex) خوانده شود")
         val privateKey = SadadKeyCardCrypto.buildPrivateKey(stored.modulus, stored.privateExponent)
 
@@ -47,8 +53,15 @@ class SadadKeyCardService @Inject constructor(
             reader.selectApplet(card)
             verifyPinOrThrow(pin)
             SadadKeyNumber.entries.associateWith { keyNumber ->
-                val encrypted = reader.readEncryptedKey(keyIndex, keyNumber)
-                runCatching { SadadKeyCardCrypto.decryptTransportedKey(privateKey, encrypted) }
+                Log.d("TAG", "loadAndInjectMasterkeyIndexKeys: $keyIndex")
+                val encrypted = reader.readEncryptedKey(16, keyNumber)//5keyindex
+                Log.d("TAG", "loadAndInjectMasterKeys: keyNumber$keyNumber")
+                Log.d("TAG", "loadAndInjectMasterKeys: encrypted${ISOUtil.hexString(encrypted)}")
+
+                runCatching {val twmp= SadadKeyCardCrypto.decryptTransportedKey(privateKey, encrypted)
+                    Log.d("TAG", "loadAndInjectMasterKeys: decryptTransportedKey${ISOUtil.hexString(twmp)}")
+
+                    twmp}
                     .getOrElse { cause ->
                         throw SadadKeyCardException(
                             message = "رمزگشایی کلید ${keyNumber.name} ناموفق بود — " +
@@ -82,7 +95,10 @@ class SadadKeyCardService @Inject constructor(
     }
 
     private suspend fun verifyPinOrThrow(pin: String) {
+        Log.d("TAG", "verifyPinOrThrow() called with: pin = $pin")
         val result = reader.verifyPin(pin)
+        Log.d("TAG", "verifyPinOrThrow() called with: pin = $result")
+
         if (!result.success) throw SadadPinRejectedException(result.remainingTries)
     }
 }

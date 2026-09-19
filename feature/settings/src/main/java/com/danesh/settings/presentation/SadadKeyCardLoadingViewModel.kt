@@ -1,11 +1,13 @@
 package com.danesh.settings.presentation
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.KeyCardPinRejectedException
 import com.danesh.api.KeyCardType
+import com.danesh.api.PspGateway
 import com.danesh.settings.R
 import com.danesh.settings.model.SadadKeyCardLoadingUiState
 import com.danesh.settings.util.SettingsTextInputFilter
@@ -26,13 +28,18 @@ private const val MAX_KEY_INDEX_LENGTH = 3
 class SadadKeyCardLoadingViewModel @Inject constructor(
     private val service: KeyCardLoadingService,
     @ApplicationContext private val appContext: Context,
+    private val pspGateway: PspGateway
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SadadKeyCardLoadingUiState())
     val uiState: StateFlow<SadadKeyCardLoadingUiState> = _uiState.asStateFlow()
 
     init {
-        refreshStoredCardAState()
+      viewModelScope.launch {
+          Log.d("TAG", "kkjkkjkjjjf: ")
+          pspGateway.logon("")
+          refreshStoredCardAState()
+      }
     }
 
     private fun refreshStoredCardAState() {
@@ -141,7 +148,7 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
             _uiState.update {
                 it.copy(isCardBcStepLoading = true, resultMessage = null, isSuccess = false, kcvSummary = null)
             }
-            val result = service.loadAndInjectMasterKeys(card, pin, keyIndex)
+            val result = service.loadAndInjectMasterKeys(card, pin, 15)// TODO:  
             _uiState.update { state ->
                 result.fold(
                     onSuccess = { summary ->

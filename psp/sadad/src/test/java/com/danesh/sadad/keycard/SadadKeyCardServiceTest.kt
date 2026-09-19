@@ -1,10 +1,12 @@
 package com.danesh.sadad.keycard
 
+import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.DeviceConfigurationSummary
 import com.danesh.core.Device
 import com.danesh.core.KCV
 import kotlinx.coroutines.runBlocking
+import org.jpos.iso.ISOUtil
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,10 +20,33 @@ import javax.crypto.Cipher
 private class InMemoryKeyPairStore : SadadKeyCardKeyPairStore {
     private val pairs = mutableMapOf<Int, SadadStoredRsaKeyPair>()
     override fun save(keyIndex: Int, modulus: ByteArray, privateExponent: ByteArray) {
+        Log.d(
+            "TAG",
+            "InMemoryKeyPairStore save() called with: keyIndex = $keyIndex"
+        )
+        Log.d(
+            "TAG",
+            "InMemoryKeyPairStore save() called with: , modulus = ${ISOUtil.hexString(modulus)}"
+        )
+        Log.d(
+            "TAG",
+            "InMemoryKeyPairStore save() called with: keyIndex = $keyIndex,  privateExponent = ${ISOUtil.hexString(privateExponent)}"
+        )
         pairs[keyIndex] = SadadStoredRsaKeyPair(modulus, privateExponent)
     }
-    override fun load(keyIndex: Int): SadadStoredRsaKeyPair? = pairs[keyIndex]
+    override fun load(keyIndex: Int): SadadStoredRsaKeyPair? {
+        val temp=pairs[keyIndex]
+        Log.d(
+            "TAG",
+            "InMemoryKeyPairStore load() called with: keyIndex = $keyIndex"
+        )
+        return temp
+    }
     override fun clear(keyIndex: Int) {
+        Log.d(
+            "TAG",
+            "InMemoryKeyPairStore clear() called with: keyIndex = $keyIndex"
+        )
         pairs.remove(keyIndex)
     }
 }

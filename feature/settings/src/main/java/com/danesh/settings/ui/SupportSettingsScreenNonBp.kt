@@ -131,7 +131,9 @@ fun SupportSettingsScreenNonBp(
                     label = stringResource(R.string.settings_key_provisioning),
                     icon = R.drawable.ic_unlock,
                     iconContentDescription = stringResource(R.string.settings_key_provisioning),
-                    onClick = { if (!uiState.isKeyLoadingInProgress) onKeyLoadingClick() },
+                    onClick = {
+                        Log.d("TAG", "SupportSettingsScreenNonBp: dkkk")
+                        if (!uiState.isKeyLoadingInProgress) onKeyLoadingClick() },
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))

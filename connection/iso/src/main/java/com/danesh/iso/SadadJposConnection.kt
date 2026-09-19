@@ -19,7 +19,7 @@ class SadadJposConnection @Inject constructor(
 
     private lateinit var ip: String
     private var port: Int = -1
-    private lateinit var channel: NACChannel3
+    private lateinit var channel: NACChannel4
     private val packager: ISOPackager = SadadIso93BPackager()
 
     override suspend fun connect() {
@@ -33,7 +33,7 @@ class SadadJposConnection @Inject constructor(
         val header = BpWireFrame.buildTpdu(nii)// TODO:
         this.ip = ip
         this.port = port
-        channel = NACChannel3(ip, port, packager, header)
+        channel = NACChannel4(ip, port, packager, header)
     }
 
     override suspend fun request(message: IsoMessage, isEcho: Boolean): IsoMessage? {
@@ -118,7 +118,7 @@ class SadadJposConnection @Inject constructor(
         val header = BpWireFrame.buildTpdu(nii)
         ip = endpointIp
         port = endpointPort
-        channel = NACChannel3(endpointIp, endpointPort, packager, header)
+        channel = NACChannel4(endpointIp, endpointPort, packager, header)
         channel.name = "sipa"
         channel.packager = packager
         channel.timeout = timeoutMs

@@ -4,7 +4,7 @@ import com.danesh.api.KeyCardKcvSummary
 import com.danesh.api.KeyCardType
 
 data class SadadKeyCardLoadingUiState(
-    val keyIndex: String = "1",
+    val keyIndex: String = "5",
     val cardAPin: String = "",
     val cardBcPin: String = "",
     val selectedCard: KeyCardType = KeyCardType.CARD_C,

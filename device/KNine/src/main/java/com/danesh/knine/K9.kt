@@ -551,6 +551,7 @@ class K9 @Inject constructor(
     }
 
     override fun powerOnIcCard(): Boolean {
+        Log.d("TAG", "powerOnIcCard: icciccicc")
         val manager = deviceManager
         if (manager == null) {
             DeviceTrace.warn(SDK, "powerOnIcCard deviceManager=null")
@@ -571,6 +572,8 @@ class K9 @Inject constructor(
     }
 
     override fun powerOffIcCard() {
+        Log.d("TAG", "powerOffIcCard: icciccicc")
+
         try {
             mIcCardDevice?.halt()
             DeviceTrace.step(SDK, "powerOffIcCard halted")
@@ -583,6 +586,8 @@ class K9 @Inject constructor(
     }
 
     override fun isIcCardDetect(): Boolean {
+        Log.d("TAG", "isIcCardDetect: icciccicc")
+
         val icCardDevice = mIcCardDevice ?: deviceManager?.icDevice ?: return false
 
         return runCatching {val v= icCardDevice.exists()
@@ -591,6 +596,8 @@ class K9 @Inject constructor(
     }
 
     override suspend fun sendApdu(byteArray: ByteArray, onError: (String) -> Unit): ByteArray? {
+        Log.d("TAG", "sendApdu: icciccicc")
+
         Log.d("TAG", "sendApdu: ddddddyt->${HexUtils.bytesToHexString(byteArray)}")
         val icCardDevice = mIcCardDevice
         if (deviceManager == null || icCardDevice == null) {
@@ -607,7 +614,13 @@ class K9 @Inject constructor(
             )
             return null
         }
-        return icCardDevice.send(byteArray)
+        val temp= icCardDevice.send(byteArray)
+
+
+        Log.d("TAG", "sendApdu: res${HexUtils.bytesToHexString(temp)}")
+        Log.d("TAG", "sendApdu:req ${HexUtils.bytesToHexString(byteArray)}")
+
+        return temp
     }
 
     /**
