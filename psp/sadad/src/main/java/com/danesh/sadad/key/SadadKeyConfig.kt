@@ -61,8 +61,8 @@ object SadadKeyConfig {
     /** ایندکس کلید مستر — در سناریوی فعلی ۱۶ (کاربر موقع تزریق کارت C وارد می‌کند). */
     const val INIT_MASTER_KEY_INDEX = "016"
     const val INIT_RESERVE = "000"
-    /** مستند ۳ گفته؛ طبق درخواست باید ۴ ست شود. */
-    const val INIT_ENC_METHOD = "4"
+    /** طبق مستند PosTrans-Final.pdf باید ۳ باشد. */
+    const val INIT_ENC_METHOD = "3"
 
     const val PURCHASE_PROCESSING_CODE = "000000"
     /** DE61 Mode 1: one terminal one merchant — Mode n2 + MID n2 */
