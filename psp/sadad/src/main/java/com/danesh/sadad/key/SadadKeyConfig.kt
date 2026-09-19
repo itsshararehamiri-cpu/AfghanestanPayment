@@ -49,6 +49,21 @@ object SadadKeyConfig {
 
  const val LOGON_PROCESSING_CODE="920000"
 
+    /**
+     * DE59 پیام INIT — طبق صفحه ۱۹ مستند PosTrans-Final.pdf:
+     * Structure Version(n1) + Connection Attempts(n2) + Last time done(n2) +
+     * HW(ans5) + SW(ans6) + FW(ans6) + len(n2) + S.NO(LLVAR) +
+     * Master Key Index(n3) + Reserve(000) + Enc. Method(n1)
+     */
+    const val INIT_STRUCTURE_VERSION = "3"
+    const val INIT_CONNECTION_ATTEMPTS = "00"
+    const val INIT_LAST_TIME_DONE = "00"
+    /** ایندکس کلید مستر — در سناریوی فعلی ۱۶ (کاربر موقع تزریق کارت C وارد می‌کند). */
+    const val INIT_MASTER_KEY_INDEX = "016"
+    const val INIT_RESERVE = "000"
+    /** مستند ۳ گفته؛ طبق درخواست باید ۴ ست شود. */
+    const val INIT_ENC_METHOD = "4"
+
     const val PURCHASE_PROCESSING_CODE = "000000"
     /** DE61 Mode 1: one terminal one merchant — Mode n2 + MID n2 */
     const val PURCHASE_DE61_MODE_ONE = "01"

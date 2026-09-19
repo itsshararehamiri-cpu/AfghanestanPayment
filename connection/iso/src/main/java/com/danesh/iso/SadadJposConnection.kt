@@ -30,7 +30,7 @@ class SadadJposConnection @Inject constructor(
     }
 
     override suspend fun init(ip: String, port: Int, nii: String) {
-        val header = BpWireFrame.buildTpdu(nii)// TODO:
+        val header = SadadWireFrame.buildTpdu(nii)
         this.ip = ip
         this.port = port
         channel = NACChannel4(ip, port, packager, header)
@@ -115,7 +115,7 @@ class SadadJposConnection @Inject constructor(
         nii: String,
         timeoutMs: Int = 30000,
     ) {
-        val header = BpWireFrame.buildTpdu(nii)
+        val header = SadadWireFrame.buildTpdu(nii)
         ip = endpointIp
         port = endpointPort
         channel = NACChannel4(endpointIp, endpointPort, packager, header)

@@ -1,8 +1,11 @@
 package com.danesh.sadad.iso
 
+import android.os.Build
 import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.TransactionSessionClock
+import com.danesh.common.app.AppVersionProvider
+import com.danesh.core.Device
 import com.danesh.iso.ByteUtil
 import com.danesh.iso.IsoMessage
 import com.danesh.sadad.key.SadadKeyConfig
@@ -14,6 +17,8 @@ import javax.inject.Singleton
 class SadadIsoMessageSupport @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val sessionClock: TransactionSessionClock,
+    private val device: Device,
+    private val appVersionProvider: AppVersionProvider,
 ) {
     data class Session(
         val currency: String,
@@ -127,6 +132,33 @@ class SadadIsoMessageSupport @Inject constructor(
         val config = contextProvider.getTerminalConfig()
         return config.deviceSerial.ifBlank { config.terminalId }
             .ifBlank { SadadKeyConfig.DEFAULT_TERMINAL_ID }
+    }
+
+    /**
+     * DE59 پیام INIT — طبق صفحه ۱۹ مستند PosTrans-Final.pdf (ر.ک. [SadadKeyConfig]).
+     */
+    fun initTransportData(): String {
+        val config = contextProvider.getTerminalConfig()
+        val serial = config.deviceSerial.ifBlank { device.getSerial() }
+            .ifBlank { SadadKeyConfig.DEFAULT_TERMINAL_ID }
+        val serialLength = serial.length.coerceAtMost(99)
+        val truncatedSerial = serial.take(serialLength)
+        val hw = Build.MODEL.orEmpty().take(5).padEnd(5, ' ')
+        val sw = appVersionProvider.versionName().take(6).padEnd(6, ' ')
+        val fw = Build.VERSION.RELEASE.orEmpty().take(6).padEnd(6, ' ')
+        return buildString {
+            append(SadadKeyConfig.INIT_STRUCTURE_VERSION)
+            append(SadadKeyConfig.INIT_CONNECTION_ATTEMPTS)
+            append(SadadKeyConfig.INIT_LAST_TIME_DONE)
+            append(hw)
+            append(sw)
+            append(fw)
+            append(serialLength.toString().padStart(2, '0'))
+            append(truncatedSerial)
+            append(SadadKeyConfig.INIT_MASTER_KEY_INDEX)
+            append(SadadKeyConfig.INIT_RESERVE)
+            append(SadadKeyConfig.INIT_ENC_METHOD)
+        }
     }
 
     /** DE48 — دادهٔ خصوصی اجباری؛ بدون تگ Function Code همراه‌پی. */

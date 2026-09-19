@@ -5,6 +5,7 @@ import com.danesh.api.TransactionIsoProfile
 import com.danesh.api.TransactionSessionClock
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,6 +15,7 @@ class SadadLogonMessageBuilder @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val sessionClock: TransactionSessionClock,
     private val messageProvider: IsoMessageProvider,
+    private val messageSupport: SadadIsoMessageSupport,
 ) {
     fun build(): IsoMessage {
         val config = contextProvider.getTerminalConfig()
@@ -26,10 +28,11 @@ class SadadLogonMessageBuilder @Inject constructor(
             posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
             nii = SadadKeyConfig.SADAD_NII
             pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
-            terminalId = config.terminalId
-            merchantId = config.merchantId
+            terminalId = messageSupport.terminalIdOrDefault()
+            merchantId = messageSupport.merchantIdOrDefault()
             currency = config.currency
-            transportData=""// TODO:
+            transportData=""
+            messageSupport.run { setSadadTransportData(transportData()) }
             mac = TransactionIsoProfile.LOGON.emptyMac
         }
     }
