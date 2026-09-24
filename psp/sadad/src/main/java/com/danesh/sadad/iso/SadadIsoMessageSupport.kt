@@ -40,7 +40,7 @@ class SadadIsoMessageSupport @Inject constructor(
         )
     }
 
-    fun nextStan(): String ="${contextProvider.nextStan().toInt()+2000}"
+    fun nextStan(): String ="${contextProvider.nextStan().toInt()+3000}"
 
     fun merchantName(): String = contextProvider.getTerminalConfig().merchantName
 
