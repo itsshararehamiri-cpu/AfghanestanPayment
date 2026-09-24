@@ -33,7 +33,6 @@ import com.danesh.settings.LanguageSelectionBottomSheet
 import com.danesh.settings.MerchantReceiptPrintSelectionBottomSheet
 import com.danesh.settings.R
 import com.danesh.settings.ThemeSelectionBottomSheet
-import com.danesh.settings.data.SettingsPasswordRepository
 import com.danesh.common.receipt.MerchantReceiptPrintMode
 import com.danesh.settings.model.AppFontFamily
 import com.danesh.settings.model.AppLanguage
@@ -77,7 +76,7 @@ fun MerchantSettingsScreen(
     var showThemeSheet by rememberSaveable { mutableStateOf(false) }
     var showMerchantReceiptSheet by rememberSaveable { mutableStateOf(false) }
     var showResetPasswordDialog by rememberSaveable { mutableStateOf(false) }
-    val defaultMerchantPassword = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD
+    val defaultMerchantPassword = uiState.defaultMerchantPassword
 
     Column(
         modifier = Modifier

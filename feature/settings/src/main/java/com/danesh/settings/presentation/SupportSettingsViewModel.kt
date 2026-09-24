@@ -141,7 +141,7 @@ class SupportSettingsViewModel @Inject constructor(
         passwordRepository.resetMerchantPassword()
         _uiState.update {
             it.copy(
-                merchantPasswordResetMessage = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD,
+                merchantPasswordResetMessage = passwordRepository.defaultMerchantPassword,
             )
         }
     }
@@ -246,6 +246,7 @@ class SupportSettingsViewModel @Inject constructor(
             merchantDisplayPreferences.getMicroPaymentIndexAmountRials(),
         )
         return SupportSettingsUiState(
+            defaultMerchantPassword = passwordRepository.defaultMerchantPassword,
             isConnected = networkConnectivityMonitor.isConnected.value,
             ipAddress = connectionPreferences.getIp(),
             port = connectionPreferences.getPort().toString(),

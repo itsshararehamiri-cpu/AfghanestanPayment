@@ -3,6 +3,7 @@ package com.danesh.settings.model
 import com.danesh.common.network.NetworkConnectionType
 
 data class MerchantSettingsUiState(
+    val defaultMerchantPassword: String = "",
     val isChangeAccountEnabled: Boolean = true,
     val isConnected: Boolean = false,
     val ipAddress: String = "",

@@ -4,6 +4,7 @@ import com.danesh.common.connection.ConnectionDefaults
 import com.danesh.common.network.NetworkConnectionType
 
 data class SupportSettingsUiState(
+    val defaultMerchantPassword: String = "",
     val isConnected: Boolean = false,
     val ipAddress: String = ConnectionDefaults.IP,
     val port: String = ConnectionDefaults.PORT.toString(),

@@ -253,7 +253,7 @@ class MerchantSettingsViewModel @Inject constructor(
         passwordRepository.resetMerchantPassword()
         _uiState.update {
             it.copy(
-                merchantPasswordResetMessage = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD,
+                merchantPasswordResetMessage = passwordRepository.defaultMerchantPassword,
             )
         }
     }
@@ -287,6 +287,7 @@ class MerchantSettingsViewModel @Inject constructor(
         val menuVisibility = settingsMenuVisibilityProvider.visibility()
         val defaultAmountEnabled = merchantDisplayPreferences.isDefaultPurchaseAmountEnabled()
         return MerchantSettingsUiState(
+            defaultMerchantPassword = passwordRepository.defaultMerchantPassword,
             isChangeAccountEnabled = menuFeaturePreferences.isFeatureEnabled(
                 MenuItemType.CHANGE_ACCOUNT.name,
             ),
