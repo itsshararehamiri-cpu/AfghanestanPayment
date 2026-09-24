@@ -1,5 +1,6 @@
 package com.danesh.common.receipt
 
+import com.danesh.common.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +89,14 @@ fun TransactionResultDetailsCard(
             result.terminalId,
             result.merchantId,
         )
+
+        if (result.terminalUniqueCode.isNotBlank()) {
+            ElectronicReceiptDetailRow(
+                label = stringResource(R.string.label_terminal_unique_code),
+                value = result.terminalUniqueCode,
+                icon = R.drawable.ic_terminal_merchant,
+            )
+        }
 
         if (result.payId.isNotBlank()) {
             ElectronicReceiptDepositIdRow(depositId = result.payId)

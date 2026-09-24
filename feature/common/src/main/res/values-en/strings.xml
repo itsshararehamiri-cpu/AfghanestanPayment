@@ -202,4 +202,5 @@
     <string name="voucher_operator_awcc">AWCC</string>
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">Mobile Number</string>
+    <string name="label_terminal_unique_code">Card reader code</string>
 </resources>

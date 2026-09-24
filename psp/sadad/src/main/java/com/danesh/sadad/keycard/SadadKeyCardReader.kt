@@ -23,9 +23,10 @@ class SadadKeyCardReader @Inject constructor(
     fun isCardPresent(): Boolean = transport.isCardPresent()
 
     suspend fun selectApplet(card: SadadKeyCard) {
-        val response = transport.exchange(SadadKeyCardApdu.selectApplet(card))
-        Log.d("TAG", "selectAppletSadadKeyCardReader: ${ISOUtil.hexString(response)}")
-        val temp = SadadKeyCardApdu.requireSuccess(response, "Select applet ${card.name}")
+        val temp = exchangeUntilComplete(
+            SadadKeyCardApdu.selectApplet(card),
+            "Select applet ${card.name}",
+        )
         Log.d("TAG", "selectApplet SadadKeyCardReader: ${ISOUtil.hexString(temp)}")
 
     }
@@ -33,10 +34,8 @@ class SadadKeyCardReader @Inject constructor(
     suspend fun verifyPin(pin: String): SadadPinVerificationResult {
         val verifyPinCommand = SadadKeyCardApdu.verifyPin(pin)
         Log.d("TAG", "verifyPin: ${ISOUtil.hexString(verifyPinCommand)}")
-        val response = transport.exchange(verifyPinCommand)
-        val body = SadadKeyCardApdu.requireSuccess(response, "Verify PIN")
+        val body = exchangeUntilComplete(verifyPinCommand, "Verify PIN")
         require(body.size >= 2) { "Unexpected Verify PIN response length: ${body.size}" }
-        Log.d("TAG", "verifyPin SadadKeyCardReader: ${ISOUtil.hexString(response)}")
 
         val temp = SadadPinVerificationResult(
             success = body[0].toInt() == 0x01,
@@ -46,12 +45,41 @@ class SadadKeyCardReader @Inject constructor(
         return temp
     }
 
+    /**
+     * کارت‌خوان سنترم (T=0) پاسخ طولانی را خودش جمع نمی‌کند:
+     * - `61 xx`: کار موفق بوده و xx بایت دیگر آماده است ← باید `00 C0 00 00 xx` (GET RESPONSE) زده شود؛
+     *   اگر باز `61 yy` آمد، تکرار و داده‌ها پشت سر هم جمع می‌شوند.
+     * - `6C xx`: طول درخواستی اشتباه بوده ← همان دستور با Le = xx دوباره فرستاده می‌شود.
+     * خروجی: بدنه پاسخ کامل (بدون SW) در صورت 9000، وگرنه [SadadKeyCardException].
+     */
     private suspend fun exchangeUntilComplete(command: ByteArray, operation: String): ByteArray {
         var response = transport.exchange(command)
-        SadadKeyCardApdu.moreDataLength(SadadKeyCardApdu.statusWord(response))?.let { le ->
-            response = transport.exchange(SadadKeyCardApdu.getResponse(le))
+        Log.d(APDU_TAG, "$operation -> ${ISOUtil.hexString(response)}")
+        SadadKeyCardApdu.wrongLengthLe(SadadKeyCardApdu.statusWord(response))?.let { le ->
+            response = transport.exchange(SadadKeyCardApdu.withLe(command, le))
+            Log.d(APDU_TAG, "$operation (Le=$le) -> ${ISOUtil.hexString(response)}")
         }
-        return SadadKeyCardApdu.requireSuccess(response, operation)
+        val collected = java.io.ByteArrayOutputStream()
+        var rounds = 0
+        while (true) {
+            val more = SadadKeyCardApdu.moreDataLength(SadadKeyCardApdu.statusWord(response)) ?: break
+            check(rounds++ < MAX_GET_RESPONSE_ROUNDS) { "$operation: too many GET RESPONSE rounds" }
+            collected.write(SadadKeyCardApdu.body(response))
+            val getResponse = SadadKeyCardApdu.getResponse(more)
+            response = transport.exchange(getResponse)
+            Log.d(
+                APDU_TAG,
+                "$operation GET RESPONSE ${ISOUtil.hexString(getResponse)} -> ${ISOUtil.hexString(response)}",
+            )
+        }
+        val last = SadadKeyCardApdu.requireSuccess(response, operation)
+        collected.write(last)
+        return collected.toByteArray()
+    }
+
+    private companion object {
+        const val APDU_TAG = "SadadIccApdu"
+        const val MAX_GET_RESPONSE_ROUNDS = 16
     }
 
     /** کلید عمومی RSA (128 بایت Modulus) از کارت A. */

@@ -1,5 +1,6 @@
 package com.danesh.report.data
 
+import com.danesh.common.security.LocalSecretCipher
 import android.util.Log
 import com.danesh.api.CurrencyDefaultsProvider
 import com.danesh.api.SafQueueReader
@@ -156,7 +157,12 @@ class ReportRepository @Inject constructor(
         !mobileNumber.isNullOrBlank() || operatorCode != null
 
     private fun revealStoredVoucherPin(stored: String?): String {
-        val hex = stored.orEmpty().trim().replace(" ", "")
+        val value = stored.orEmpty().trim()
+        if (LocalSecretCipher.isEncrypted(value)) {
+            return LocalSecretCipher.decrypt(value).orEmpty()
+        }
+        // رکوردهای قدیمی (رمز با کلید دیتای PED)
+        val hex = value.replace(" ", "")
         if (hex.isEmpty()) return ""
         if (hex.length < 16 || hex.length % 2 != 0) return stored.orEmpty()
         if (!hex.all { it in '0'..'9' || it in 'A'..'F' || it in 'a'..'f' }) return stored.orEmpty()

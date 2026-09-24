@@ -29,9 +29,10 @@ class PspSettingsLanguageOptions @Inject constructor(
             AppLanguage.PersianPashto -> SettingsAppLanguage.PersianPashto
             else -> SettingsAppLanguage.PersianDari
         }
+        // سداد: فقط فارسی (پیش‌فرض) و انگلیسی
         appRuntimeConfig.activePsp.isSadad -> when (language) {
-            AppLanguage.PersianPashto -> SettingsAppLanguage.PersianPashto
-            else -> SettingsAppLanguage.PersianDari
+            AppLanguage.English -> SettingsAppLanguage.English
+            else -> SettingsAppLanguage.Persian
         }
         else -> when (language) {
             AppLanguage.Other -> SettingsAppLanguage.Persian
@@ -61,6 +62,10 @@ class PspSettingsLanguageOptions @Inject constructor(
             AppLanguage.PersianPashto,
             -> language
             else -> appRuntimeConfig.activePsp.toDefaultAppLanguage()
+        }
+        appRuntimeConfig.activePsp.isSadad -> when (language) {
+            AppLanguage.English -> AppLanguage.English
+            else -> AppLanguage.Other
         }
         else -> when (language) {
             AppLanguage.Other,

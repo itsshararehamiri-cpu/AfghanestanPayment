@@ -10,8 +10,8 @@ import com.danesh.sadad.util.SadadField63Wire
  * Terminal Id n8، Card Acq Id n15،
  * سپس Len n3 + ans برای نام/آدرس فارسی و انگلیسی و تلفن،
  * Postal Code n10، Lines Count n2،
- * سپس Len n2 + ans برای Headline / Tax Memory Unique Code /
- * Sales Fund Device Serial / Sales Fund Memory Serial.
+ * سپس به تعداد Lines Count بار (Len n2 + ans) برای شماره‌های Headline/Dialup،
+ * و در صورت وجود Len n2 + ans برای Unique Code (کد کارتخوان) / Device Serial / Memory Serial.
  */
 data class TerminalInitializer(
     val terminalId: String,
@@ -70,18 +70,23 @@ object SadadTerminalInitializerCodec {
         val postalCode = cursor.readAscii(LEN_POSTAL_CODE)
         val linesCount = if (cursor.has(2)) cursor.readAscii(2) else "00"
 
-        val headlineNo = readLengthPrefixed(cursor, 2) { bytes, _ ->
-            String(bytes, SadadField63Wire.CHARSET).trim()
+        // مطابق parse_func_code_TERMINAL_INITIALIZER_RES: Count(n2) و به همان تعداد
+        // (Len n2 + Data) — شماره‌های Dialup/Headline؛ طول صفر حلقه را تمام می‌کند.
+        val headlines = mutableListOf<String>()
+        val count = linesCount.trim().toIntOrNull() ?: 0
+        for (i in 0 until count) {
+            if (!cursor.has(2)) break
+            val length = cursor.readDigits(2)
+            if (length <= 0 || !cursor.has(length)) break
+            headlines += cursor.readAscii(length).trim()
         }
-        val uniqueCode = readLengthPrefixed(cursor, 2) { bytes, _ ->
-            String(bytes, SadadField63Wire.CHARSET).trim()
-        }
-        val deviceSerial = readLengthPrefixed(cursor, 2) { bytes, _ ->
-            String(bytes, SadadField63Wire.CHARSET).trim()
-        }
-        val memorySerial = readLengthPrefixed(cursor, 2) { bytes, _ ->
-            String(bytes, SadadField63Wire.CHARSET).trim()
-        }
+        val headlineNo = headlines.joinToString(",")
+
+        // باقی‌مانده (اختیاری): Unique Code (کد کارتخوان) ، Device Serial ، Memory Serial — هر کدام Len n2 + Data
+        val plain: (ByteArray, Int) -> String = { bytes, _ -> String(bytes, SadadField63Wire.CHARSET).trim() }
+        val uniqueCode = readLengthPrefixed(cursor, 2, plain)
+        val deviceSerial = readLengthPrefixed(cursor, 2, plain)
+        val memorySerial = readLengthPrefixed(cursor, 2, plain)
 
         return TerminalInitializer(
             terminalId = terminalId,

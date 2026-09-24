@@ -80,6 +80,10 @@ data class TransactionResultDetail(
     @SerializedName("merchantReceiptText")
     val merchantReceiptText: String? = null,
 
+    /** کد کارتخوان (Terminal Unique Code سداد — Function Code 013/043) برای نمایش و چاپ روی رسید. */
+    @SerializedName("terminalUniqueCode")
+    val terminalUniqueCode: String = "",
+
     @SerializedName("merchantPhone")
     val merchantPhone: String = "",
 

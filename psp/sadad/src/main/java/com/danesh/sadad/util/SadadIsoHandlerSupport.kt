@@ -8,6 +8,7 @@ import com.danesh.common.strings.TransportErrorNormalizer
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoTransactionResultMapper
 import com.danesh.sadad.field54.SadadField54Parser
+import com.danesh.sadad.init.SadadInitProfileStore
 import com.danesh.sadad.iso.SadadIsoMessageFactory
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,6 +20,7 @@ class SadadIsoHandlerSupport @Inject constructor(
     private val resultMapper: IsoTransactionResultMapper,
     private val responseCodeText: SadadResponseCodeText,
     private val contextProvider: TransactionContextProvider,
+    private val initProfileStore: SadadInitProfileStore,
 ) {
     fun map(
         transactionType: TransactionType,
@@ -51,8 +53,27 @@ class SadadIsoHandlerSupport @Inject constructor(
         )
         val withMessage = normalized.copy(responseMessage = mappedResponseMessage(normalized))
         val hostData = SadadHostFunctionCodes.parse(response?.privateUseField63)
-        if (isSuccess) saveTopupVat(hostData)
+        if (isSuccess) {
+            saveTopupVat(hostData)
+            saveTerminalUniqueCode(hostData, withMessage.terminalId)
+        }
+        val terminalUniqueCode = runCatching { initProfileStore.get().taxMemoryUniqueCode }
+            .getOrDefault("")
         return SadadHostDataReceipt.apply(withMessage, hostData)
+            .copy(terminalUniqueCode = terminalUniqueCode)
+    }
+
+    /** Function Code 043: کد کارتخوان این پایانه (همان Unique Code فانکشن‌کد 013). */
+    private fun saveTerminalUniqueCode(hostData: SadadHostData, terminalId: String) {
+        val codes = hostData.terminalUniqueCodes
+        if (codes.isEmpty()) return
+        val code = codes[terminalId.trim()] ?: codes.values.singleOrNull() ?: return
+        runCatching {
+            val profile = initProfileStore.get()
+            if (profile.taxMemoryUniqueCode != code) {
+                initProfileStore.save(profile.copy(taxMemoryUniqueCode = code))
+            }
+        }
     }
 
     /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ. */
