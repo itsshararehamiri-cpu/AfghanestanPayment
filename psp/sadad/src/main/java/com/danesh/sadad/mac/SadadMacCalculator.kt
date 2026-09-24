@@ -11,10 +11,10 @@ import com.danesh.iso.IsoMessage
 import com.danesh.iso.requireSadad
 import com.danesh.sadad.key.SadadWorkingMacState
 import com.danesh.sadad.key.encodeHexKey
+import com.danesh.sadad.keycard.SadadKeyCardCrypto
+import com.danesh.sadad.keycard.SadadWrappingKeyHolder
 import org.jpos.iso.ISOUtil
 import java.security.MessageDigest
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,6 +27,7 @@ enum class SadadMacKeySource {
 class SadadMacCalculator @Inject constructor(
     private val device: Device,
     private val workingMacState: SadadWorkingMacState,
+    private val wrappingKeys: SadadWrappingKeyHolder,
 ) {
     suspend fun applyTransactionMac(message: IsoMessage) {
         val sadad = message.requireSadad()
@@ -69,12 +70,13 @@ class SadadMacCalculator @Inject constructor(
         )
         rememberMacInput(message, macInput)
         logMacInputFields(message, sadad, macInput)
-        val mac = device.getMac(
-            data = macInput,
-            index = pedIndex,
+        val mac = computeMac(
+            mti = message.mti,
+            macInput = macInput,
+            pedIndex = pedIndex,
+            keySource = keySource,
         )
         Log.d("MAC_DEBUG", "mti=${message.mti} mac=${ISOUtil.hexString(mac)}")
-        logPaddingTest(message, macInput, mac)
         message.mac = mac
         verifyMacInputMatchesWireBody(sadad, macInput)
     }
@@ -122,82 +124,107 @@ class SadadMacCalculator @Inject constructor(
         )
     }
 
-    private fun logPaddingTest(message: IsoMessage, macInput: ByteArray, pedMac: ByteArray) {
-        val ped8 = pedMac.copyOf(minOf(8, pedMac.size))
-        val mod = macInput.size % 8
-        val key = device.peekWorkingMacKey()
-        if (key == null || key.isEmpty()) {
-            Log.d(
-                "MAC_TEST",
-                "mti=${message.mti} len=${macInput.size} mod8=$mod software X9.19 skipped; " +
-                    "working key is not in memory. logon again after this build, then retry. " +
-                    "ped=${ISOUtil.hexString(ped8)}",
+    /**
+     * PED دستگاه K9 (TYPE_X919_00) وقتی طول داده مضرب ۸ است یک بلوک صفر اضافه پد می‌کند،
+     * ولی هاست سداد (ISO 9797-1 روش ۱) هیچ بلوکی اضافه نمی‌کند. به همین دلیل موجودی
+     * (طول ۱۱۸) درست بود و پرداخت قبض (طول ۱۵۲) با کد 19 رد می‌شد.
+     *
+     * - طول غیرهم‌تراز: همان PED (رفتارش با هاست یکی است).
+     * - طول هم‌تراز + کلید کاری: X9.19 نرم‌افزاری با MAK لاگان، به شرط این‌که KCV/MAC پروب
+     *   با PED یکی باشد (یعنی کلید نرم‌افزار همان کلید اسلات PED است).
+     */
+    private suspend fun computeMac(
+        mti: String?,
+        macInput: ByteArray,
+        pedIndex: Int,
+        keySource: SadadMacKeySource,
+    ): ByteArray {
+        val pedMac = device.getMac(data = macInput, index = pedIndex)
+        if (macInput.size % 8 != 0) return pedMac
+        logPedPaddingSelfTest(pedIndex)
+        if (keySource != SadadMacKeySource.WORKING) {
+            Log.w(
+                "MAC_DEBUG",
+                "mti=$mti len=${macInput.size} aligned but keySource=$keySource — PED MAC sent " +
+                    "(host may reject with 19)",
             )
-            return
+            return pedMac
         }
-        try {
-            val caseA = calculateX919(key, macInput)
-            val (caseBLabel, caseBData) = if (mod == 0) {
-                "plus8Zero" to macInput + ByteArray(8)
-            } else {
-                val boundary = ByteArray(8 - mod)
-                "plus${ISOUtil.hexString(boundary)}" to macInput + boundary
+        val key = wrappingKeys.workingMacKeyOrNull()
+        if (key == null) {
+            Log.e(
+                "MAC_DEBUG",
+                "mti=$mti len=${macInput.size} aligned and working MAC key not stored — " +
+                    "PED MAC sent; do a LOGON (CHANGE_KEY) so the key is saved",
+            )
+            return pedMac
+        }
+        return try {
+            if (!softwareKeyMatchesPed(key, pedIndex)) {
+                Log.e(
+                    "MAC_DEBUG",
+                    "mti=$mti stored working MAC key does not match PED slot $pedIndex — " +
+                        "PED MAC sent; do a LOGON again",
+                )
+                return pedMac
             }
-            val caseB = calculateX919(key, caseBData)
+            val softwareMac = SadadAnsiX919Mac.calculate(key, macInput)
             Log.d(
-                "MAC_TEST",
-                "mti=${message.mti} len=${macInput.size} mod8=$mod ped=${ISOUtil.hexString(ped8)}",
+                "MAC_DEBUG",
+                "mti=$mti len=${macInput.size} aligned → software X9.19 " +
+                    "mac=${ISOUtil.hexString(softwareMac)} ped=${ISOUtil.hexString(pedMac)} " +
+                    "pedMatches=${softwareMac.contentEquals(pedMac.copyOf(minOf(8, pedMac.size)))}",
             )
-            Log.d(
-                "MAC_TEST",
-                "caseA noExtraPad len=${macInput.size} mac=${ISOUtil.hexString(caseA)} " +
-                    "matchPed=${caseA.contentEquals(ped8)}",
-            )
-            Log.d(
-                "MAC_TEST",
-                "caseB $caseBLabel len=${caseBData.size} mac=${ISOUtil.hexString(caseB)} " +
-                    "matchPed=${caseB.contentEquals(ped8)}",
-            )
-        } catch (error: Exception) {
-            Log.e("MAC_TEST", "mti=${message.mti} x919 failed: ${error.message}")
+            softwareMac
         } finally {
             key.fill(0)
         }
     }
 
-    /** ANSI X9.19 با zero-pad. اگر طول مضرب ۸ باشد بلوک اضافه نمی‌گذارد. */
-    private fun calculateX919(key: ByteArray, data: ByteArray): ByteArray {
-        require(key.size == 16 || key.size == 24) {
-            "X9.19 key must be 16 or 24 bytes, was ${key.size}"
-        }
-        val k1 = key.copyOfRange(0, 8)
-        val k2 = key.copyOfRange(8, 16)
-        val k3 = if (key.size >= 24) key.copyOfRange(16, 24) else key.copyOfRange(0, 8)
-        val mod = data.size % 8
-        val padded = if (mod == 0) data else data.copyOf(data.size + (8 - mod))
-        var state = ByteArray(8)
-        var offset = 0
-        while (offset < padded.size) {
-            val block = padded.copyOfRange(offset, offset + 8)
-            state = desEcb(k1, xor8(state, block), encrypt = true)
-            offset += 8
-        }
-        state = desEcb(k2, state, encrypt = false)
-        return desEcb(k3, state, encrypt = true)
-    }
+    @Volatile
+    private var verifiedKey: Pair<Int, String>? = null
 
-    private fun xor8(left: ByteArray, right: ByteArray): ByteArray =
-        ByteArray(8) { index -> (left[index].toInt() xor right[index].toInt()).toByte() }
-
-    private fun desEcb(key8: ByteArray, block: ByteArray, encrypt: Boolean): ByteArray {
-        val cipher = Cipher.getInstance("DES/ECB/NoPadding")
-        cipher.init(
-            if (encrypt) Cipher.ENCRYPT_MODE else Cipher.DECRYPT_MODE,
-            SecretKeySpec(key8, "DES"),
+    /** مقایسه روی داده ۷ بایتی (غیرهم‌تراز) که رفتار padding PED روی آن درست است. */
+    private suspend fun softwareKeyMatchesPed(key: ByteArray, pedIndex: Int): Boolean {
+        val kcv = SadadKeyCardCrypto.kcvHex(key)
+        if (verifiedKey == (pedIndex to kcv)) return true
+        val probe = PROBE_UNALIGNED.copyOf()
+        val ped = device.getMac(data = probe, index = pedIndex)
+        val software = SadadAnsiX919Mac.calculate(key, probe)
+        val match = ped.size >= SadadAnsiX919Mac.MAC_LENGTH &&
+            MessageDigest.isEqual(ped.copyOf(SadadAnsiX919Mac.MAC_LENGTH), software)
+        Log.d(
+            "MAC_DEBUG",
+            "working key probe pedIndex=$pedIndex kcv=$kcv ped=${ISOUtil.hexString(ped)} " +
+                "software=${ISOUtil.hexString(software)} match=$match",
         )
-        return cipher.doFinal(block)
+        if (match) verifiedKey = pedIndex to kcv
+        return match
     }
 
+    @Volatile
+    private var paddingSelfTestDone = false
+
+    /**
+     * بدون نیاز به کلید: اگر PED استاندارد باشد MAC(۸ بایت صفر) == MAC(۷ بایت صفر).
+     * اگر فرق کند یعنی PED روی داده هم‌تراز یک بلوک اضافه پد می‌کند.
+     */
+    private suspend fun logPedPaddingSelfTest(pedIndex: Int) {
+        if (paddingSelfTestDone) return
+        paddingSelfTestDone = true
+        runCatching {
+            val aligned = device.getMac(data = ByteArray(8), index = pedIndex)
+            val unaligned = device.getMac(data = ByteArray(7), index = pedIndex)
+            Log.d(
+                "MAC_DEBUG",
+                "PED padding self-test mac(8x00)=${ISOUtil.hexString(aligned)} " +
+                    "mac(7x00)=${ISOUtil.hexString(unaligned)} " +
+                    "pedAddsExtraBlockWhenAligned=${!aligned.contentEquals(unaligned)}",
+            )
+        }.onFailure { error ->
+            Log.e("MAC_DEBUG", "PED padding self-test failed: ${error.message}")
+        }
+    }
 
     private fun verifyMacInputMatchesWireBody(message: SadadIsoMessage, macInput: ByteArray) {
         val wireBody = message.packIsoBody()
@@ -329,7 +356,12 @@ class SadadMacCalculator @Inject constructor(
         )
         logMessageBeforeMac(message, keySource)
         val macInput = message.requireSadad().packForMac()
-        val temp = device.getMac(data = macInput, index = pedIndex)
+        val temp = computeMac(
+            mti = message.mti,
+            macInput = macInput,
+            pedIndex = pedIndex,
+            keySource = keySource,
+        )
         Log.d("TAG", "calculateMac: pedIndex=$pedIndex ->${ISOUtil.hexString(macInput)}")
         Log.d("TAG", "calculateMac: ->${ISOUtil.hexString(temp)}")
         return temp
@@ -418,4 +450,8 @@ class SadadMacCalculator @Inject constructor(
 
     private fun calculateInitialMac(macInput: ByteArray): ByteArray =
         calculateInitialMacSoftware(macInput)
+
+    private companion object {
+        val PROBE_UNALIGNED = byteArrayOf(0x53, 0x41, 0x44, 0x41, 0x44, 0x4D, 0x41)
+    }
 }

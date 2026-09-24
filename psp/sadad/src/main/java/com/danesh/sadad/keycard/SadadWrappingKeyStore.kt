@@ -44,6 +44,18 @@ class SadadWrappingKeyStore(
         )
     }
 
+    /** MAK کاری لاگان — برای MAC نرم‌افزاری پیام‌های هم‌تراز (طول مضرب ۸). */
+    fun saveWorkingMac(key: ByteArray) {
+        prefs.edit().putString(KEY_WORKING_MAC, encrypt(key)).apply()
+    }
+
+    fun loadWorkingMac(): ByteArray? =
+        prefs.getString(KEY_WORKING_MAC, null)?.let(::decrypt)
+
+    fun clearWorkingMac() {
+        prefs.edit().remove(KEY_WORKING_MAC).apply()
+    }
+
     private fun encrypt(plain: ByteArray): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, keystoreKey())
@@ -90,6 +102,7 @@ class SadadWrappingKeyStore(
         const val KEY_PIN = "wrap_pin"
         const val KEY_MAC = "wrap_mac"
         const val KEY_DATA = "wrap_data"
+        const val KEY_WORKING_MAC = "working_mac"
         const val ANDROID_KEYSTORE = "AndroidKeyStore"
         const val KEY_ALIAS = "sadad_wrapping_kek"
         const val TRANSFORMATION = "AES/GCM/NoPadding"

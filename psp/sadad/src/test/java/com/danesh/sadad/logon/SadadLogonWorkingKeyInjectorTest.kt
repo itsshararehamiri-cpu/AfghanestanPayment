@@ -60,6 +60,7 @@ class SadadLogonWorkingKeyInjectorTest {
         assertEquals(16, macState.initMacIndex())
         assertEquals(17, macState.workingKeyIndex())
         assertTrue(macState.hasWorkingMac())
+        assertArrayEquals(workingMac, wrapping.workingMacKeyOrNull())
     }
 
     private fun ByteArray.toHex(): String =

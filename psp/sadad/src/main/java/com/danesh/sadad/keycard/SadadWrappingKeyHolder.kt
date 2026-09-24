@@ -26,9 +26,12 @@ class SadadWrappingKeyHolder private constructor(
     private var macKey: ByteArray? = null
     @Volatile
     private var dataKey: ByteArray? = null
+    @Volatile
+    private var workingMacKey: ByteArray? = null
 
     fun storeFromCard(keys: SadadKeyCardMasterKeys) {
         wipeRam()
+        clearWorkingMacKey()
         terminalMasterKey = keys.terminalMasterKey.copyOf()
         pinKey = keys.pinKey.copyOf()
         macKey = keys.macKey.copyOf()
@@ -64,6 +67,30 @@ class SadadWrappingKeyHolder private constructor(
         dataKey?.let { SensitiveBytes.wipe(it) }
         dataKey = plainData.copyOf()
         persist()
+    }
+
+    /** MAK کاری لاگان (plaintext) — همان کلیدی که روی اسلات C+1 PED نوشته شده. */
+    fun storeWorkingMacKey(plainMac: ByteArray) {
+        workingMacKey?.let { SensitiveBytes.wipe(it) }
+        workingMacKey = plainMac.copyOf()
+        runCatching { store?.saveWorkingMac(plainMac.copyOf()) }.onFailure { error ->
+            Log.e(TAG, "persist working MAC key failed", error)
+        }
+    }
+
+    fun workingMacKeyOrNull(): ByteArray? {
+        workingMacKey?.let { return it.copyOf() }
+        val loaded = runCatching { store?.loadWorkingMac() }.onFailure { error ->
+            Log.e(TAG, "restore working MAC key failed", error)
+        }.getOrNull() ?: return null
+        workingMacKey = loaded
+        return loaded.copyOf()
+    }
+
+    fun clearWorkingMacKey() {
+        workingMacKey?.let { SensitiveBytes.wipe(it) }
+        workingMacKey = null
+        runCatching { store?.clearWorkingMac() }
     }
 
     fun wipe() {
@@ -113,6 +140,8 @@ class SadadWrappingKeyHolder private constructor(
         pinKey?.let { SensitiveBytes.wipe(it) }
         macKey?.let { SensitiveBytes.wipe(it) }
         dataKey?.let { SensitiveBytes.wipe(it) }
+        workingMacKey?.let { SensitiveBytes.wipe(it) }
+        workingMacKey = null
         terminalMasterKey = null
         pinKey = null
         macKey = null
