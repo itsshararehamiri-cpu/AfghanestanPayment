@@ -1,6 +1,11 @@
 package com.danesh.sadad.keycard
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,9 +25,24 @@ class SadadKeyCardService @Inject constructor(
     private val injector: SadadKeyCardInjector,
 ) {
 
+    /**
+     * همهٔ دسترسی‌ها به کارت‌خوان پشت یک قفل و روی [Dispatchers.IO] اجرا می‌شوند:
+     * فراخوانی‌های SDK سنترم binder هم‌زمان‌اند و روی نخ اصلی باعث ANR می‌شدند،
+     * و polling حضور کارت نباید وسط تبادل APDU اجرا شود.
+     */
+    private val cardLock = Mutex()
+
     suspend fun hasStoredKeyPair(keyIndex: Int): Boolean = storage.load(keyIndex) != null
 
-    fun isCardPresent(): Boolean = runCatching { reader.isCardPresent() }.getOrDefault(false)
+    suspend fun isCardPresent(): Boolean = withContext(Dispatchers.IO) {
+        cardLock.withLock { runCatching { reader.isCardPresent() }.getOrDefault(false) }
+    }
+
+    /** بستن کارت‌خوان ICC بعد از پایان کار (موفق، خطا یا خروج از صفحه). */
+    suspend fun release() = withContext(NonCancellable + Dispatchers.IO) {
+        cardLock.withLock { runCatching { reader.powerOff() } }
+        Unit
+    }
 
     suspend fun hasApplet(card: SadadKeyCard): Boolean = runCatching {
         withCard {
@@ -94,13 +114,15 @@ class SadadKeyCardService @Inject constructor(
         injector.inject(masterKeys, keyIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
     }
 
-    private suspend fun <T> withCard(block: suspend () -> T): T {
-        check(reader.powerOn()) { "روشن‌سازی کارت‌خوان ناموفق بود" }
-        try {
-            check(reader.isCardPresent()) { "کارتی در کارت‌خوان شناسایی نشد" }
-            return block()
-        } finally {
-            reader.powerOff()
+    private suspend fun <T> withCard(block: suspend () -> T): T = withContext(Dispatchers.IO) {
+        cardLock.withLock {
+            try {
+                check(reader.powerOn()) { "روشن‌سازی کارت‌خوان ناموفق بود" }
+                check(reader.isCardPresent()) { "کارتی در کارت‌خوان شناسایی نشد" }
+                block()
+            } finally {
+                runCatching { reader.powerOff() }
+            }
         }
     }
 

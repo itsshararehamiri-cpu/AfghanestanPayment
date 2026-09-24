@@ -154,8 +154,9 @@ class VoucherHandler @Inject constructor(
             Log.d(TAG, "5) token count=0 serial= pin= ussd=")
             null
         }
-        val serial = pins?.serial.orEmpty().ifBlank { detail.voucherSerial }
-        val pin = pins?.let(pinCipher::reveal).orEmpty().ifBlank { detail.voucherPin }
+        val resolved = pins?.let(pinCipher::resolve)
+        val serial = resolved?.serial.orEmpty().ifBlank { detail.voucherSerial }
+        val pin = resolved?.pin.orEmpty().ifBlank { detail.voucherPin }
         val ussd = pins?.ussd.orEmpty().ifBlank { detail.voucherMethod.orEmpty() }
         Log.d(TAG, "6) written voucherSerial=$serial voucherPin=$pin voucherUssd=$ussd")
         logField64(response)

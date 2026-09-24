@@ -26,7 +26,19 @@ data class SadadChargePins(
     val pinEncrypted: Boolean = false,
     /** طول رمز شارژ اعلام‌شده در سرآیند (Pin_Length)؛ 0 اگر نامشخص. */
     val pinLength: Int = 0,
+    /**
+     * چیدمان‌های جایگزین متن‌ساده (رمز فقط رقم) از همان Data؛ اگر رمزگشایی [pin] رمز عددی
+     * معتبر ندهد، از این‌ها استفاده می‌شود (مثلاً وقتی میزبان اول رمز و بعد سریال حرفی-عددی می‌فرستد).
+     */
+    val plainAlternatives: List<SadadChargePins> = emptyList(),
 )
+
+/** رمز شارژ فقط رقم است (سریال می‌تواند حروف انگلیسی هم داشته باشد). */
+internal fun isValidChargePin(pin: String, pinLength: Int): Boolean =
+    pin.isNotEmpty() && pin.all { it in '0'..'9' } && (pinLength <= 0 || pin.length == pinLength)
+
+internal fun isValidChargeSerial(serial: String): Boolean =
+    serial.isNotEmpty() && serial.all { it in '0'..'9' || it in 'A'..'Z' || it in 'a'..'z' }
 
 object SadadChargeField62Parser {
 
@@ -70,6 +82,31 @@ object SadadChargeField62Parser {
                 "dataLen=${data.length}",
         )
 
+        // چیدمان‌های متن‌ساده که رمزشان فقط رقم است: «سریال سپس رمز» (مطابق مستند) و «رمز سپس سریال».
+        val plainCandidates = buildList {
+            if (data.length >= serialLen + pinLen) {
+                val pin = data.substring(serialLen, serialLen + pinLen)
+                if (isValidChargePin(pin, pinLen) && isValidChargeSerial(serial)) {
+                    add(SadadChargePins(serial = serial, pin = pin, pinCount = pinCount, pinLength = pinLen))
+                }
+                val pinFirst = data.take(pinLen)
+                val serialAfterPin = data.substring(pinLen, pinLen + serialLen)
+                if (isValidChargePin(pinFirst, pinLen) && isValidChargeSerial(serialAfterPin)) {
+                    add(
+                        SadadChargePins(
+                            serial = serialAfterPin,
+                            pin = pinFirst,
+                            pinCount = pinCount,
+                            pinLength = pinLen,
+                        ),
+                    )
+                }
+            }
+        }
+        plainCandidates.forEachIndexed { index, candidate ->
+            Log.d(TAG, "5) counted PLAIN candidate#$index serial=${candidate.serial} pin=${candidate.pin}")
+        }
+
         val cipherLen = encryptedPinHexLength(pinLen)
         val encryptedPairLen = serialLen + cipherLen
         if (data.length >= pinCount * encryptedPairLen) {
@@ -87,9 +124,12 @@ object SadadChargeField62Parser {
                     pinCount = pinCount,
                     pinEncrypted = true,
                     pinLength = pinLen,
+                    plainAlternatives = plainCandidates,
                 )
             }
         }
+
+        plainCandidates.firstOrNull()?.let { return it }
 
         val plainPairLen = serialLen + pinLen
         if (data.length < pinCount * plainPairLen) return null

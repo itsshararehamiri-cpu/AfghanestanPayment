@@ -26,6 +26,32 @@ class SadadChargeFieldCodecTest {
     }
 
     @Test
+    fun field62_encryptedPayloadAlsoOffersPinFirstPlainLayout() {
+        val field = "011715511820004800620806A0A6B435C970071"
+        val parsed = SadadChargeField62Parser.parse(field)
+        val alternative = parsed?.plainAlternatives?.single()
+        assertEquals("511820004800620", alternative?.pin)
+        assertEquals("806A0A6B435C97007", alternative?.serial)
+    }
+
+    @Test
+    fun field62_plainPinFirstWithAlphanumericSerial() {
+        // رمز ۱۲ رقمی سپس سریال حرفی-عددی (بدون بلوک hex معتبر برای رمزشده).
+        val parsed = SadadChargeField62Parser.parse("011012123456789012XY34ZW56QR")
+        assertEquals("123456789012", parsed?.pin)
+        assertEquals("XY34ZW56QR", parsed?.serial)
+        assertEquals(false, parsed?.pinEncrypted)
+    }
+
+    @Test
+    fun chargePinValidation_acceptsDigitsOnly() {
+        assertEquals(true, isValidChargePin("123456789012345", 15))
+        assertEquals(false, isValidChargePin("6A0A6B435C97007", 15))
+        assertEquals(false, isValidChargePin("1234", 15))
+        assertEquals(true, isValidChargeSerial("806A0A6B435C97007"))
+    }
+
+    @Test
     fun field62_encryptedPinHexLength() {
         assertEquals(16, SadadChargeField62Parser.encryptedPinHexLength(15))
         assertEquals(16, SadadChargeField62Parser.encryptedPinHexLength(16))

@@ -39,6 +39,9 @@ interface KeyCardLoadingService {
     /** آیا کارتی در کارت‌خوان ICC قرار دارد (بدون روشن کردن کارت). */
     suspend fun isCardPresent(): Boolean = false
 
+    /** بستن کارت‌خوان ICC بعد از پایان کار با کارت کلید. */
+    suspend fun releaseCardReader() {}
+
     /** آیا کارت داخل کارت‌خوان applet کارت [card] را دارد (کارت A و C می‌توانند یک کارت فیزیکی یا دو کارت جدا باشند). */
     suspend fun hasApplet(card: KeyCardType): Boolean = false
 

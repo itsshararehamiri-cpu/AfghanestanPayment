@@ -51,6 +51,18 @@ class K9 @Inject constructor(
 ) : Device {
     private var deviceManager: DeviceManager? = null
     private var mIcCardDevice: IcCardDevice? = null
+
+    /**
+     * هر `deviceManager.icDevice` در سرویس سنترم یک `open` جدید روی کارت‌خوان انجام می‌دهد؛
+     * برای polling حضور کارت یک نمونه نگه داشته می‌شود و در [powerOffIcCard] بسته می‌شود.
+     */
+    private var icDeviceHandle: IcCardDevice? = null
+
+    private fun icDeviceOrNull(): IcCardDevice? {
+        icDeviceHandle?.let { return it }
+        val manager = deviceManager ?: return null
+        return runCatching { manager.icDevice }.getOrNull()?.also { icDeviceHandle = it }
+    }
     private val cardType: Byte = 0
     override val INDEX_DATA: Int
         get() = 16
@@ -580,13 +592,12 @@ class K9 @Inject constructor(
 
     override fun powerOnIcCard(): Boolean {
         Log.d("TAG", "powerOnIcCard: icciccicc")
-        val manager = deviceManager
-        if (manager == null) {
+        val icCardDevice = icDeviceOrNull()
+        if (icCardDevice == null) {
             DeviceTrace.warn(SDK, "powerOnIcCard deviceManager=null")
             return false
         }
-        val icCardDevice = manager.icDevice
-        val atr = icCardDevice.reset()
+        val atr = runCatching { icCardDevice.reset() }.getOrNull()
         Log.d("TAG", "powerOnIcCardatr: $atr")
 
         if (atr == null) {
@@ -602,12 +613,14 @@ class K9 @Inject constructor(
     override fun powerOffIcCard() {
         Log.d("TAG", "powerOffIcCard: icciccicc")
 
+        val icCardDevice = mIcCardDevice ?: icDeviceHandle
+        mIcCardDevice = null
+        icDeviceHandle = null
+        if (icCardDevice == null) return
         try {
-            mIcCardDevice?.halt()
+            icCardDevice.halt()
             DeviceTrace.step(SDK, "powerOffIcCard halted")
-            mIcCardDevice = null
-        }
-        catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("TAG", "powerOffIcCard:ss ${e.cause}")
             Log.d("TAG", "powerOffIcCard:ss ${e.message}")
         }
@@ -616,7 +629,7 @@ class K9 @Inject constructor(
     override fun isIcCardDetect(): Boolean {
         Log.d("TAG", "isIcCardDetect: icciccicc")
 
-        val icCardDevice = mIcCardDevice ?: deviceManager?.icDevice ?: return false
+        val icCardDevice = mIcCardDevice ?: icDeviceOrNull() ?: return false
 
         return runCatching {val v= icCardDevice.exists()
             Log.d("TAG", "isIcCardDetect:ss ${v}")

@@ -20,12 +20,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
@@ -33,6 +35,7 @@ private const val TAG = "SadadKeyInjection"
 private const val POLL_INTERVAL_MS = 400L
 private const val CARD_WAIT_TIMEOUT_MS = 60_000L
 private const val SWAP_WAIT_TIMEOUT_MS = 120_000L
+private const val REMOVE_WAIT_TIMEOUT_MS = 60_000L
 private const val MAX_INDEX_LENGTH = 3
 private const val MIN_PIN_LENGTH = 4
 private const val MAX_PIN_LENGTH = 8
@@ -72,6 +75,14 @@ class SadadKeyInjectionViewModel @Inject constructor(
     }
 
     private suspend fun waitForCardLoop() {
+        try {
+            waitForCardLoopInternal()
+        } finally {
+            closeCardReader()
+        }
+    }
+
+    private suspend fun waitForCardLoopInternal() {
         _uiState.update {
             it.copy(
                 step = SadadKeyInjectionStep.WAIT_CARD,
@@ -265,8 +276,9 @@ class SadadKeyInjectionViewModel @Inject constructor(
                 )
             }
 
-            // مرحله ۵: «لطفاً کارت را خارج کنید»
-            if (awaitCardState(present = false, timeoutMs = Long.MAX_VALUE)) {
+            // مرحله ۵: «لطفاً کارت را خارج کنید» — polling محدود؛ قبلاً بی‌نهایت ادامه داشت
+            // و حتی بعد از رفتن به صفحهٔ دیگر هر ۴۰۰ms کارت‌خوان را باز/بررسی می‌کرد.
+            if (awaitCardState(present = false, timeoutMs = REMOVE_WAIT_TIMEOUT_MS)) {
                 _uiState.update {
                     it.copy(
                         cardRemoved = true,
@@ -279,6 +291,16 @@ class SadadKeyInjectionViewModel @Inject constructor(
         } catch (error: Exception) {
             Log.e(TAG, "key injection failed", error)
             fail(unexpectedErrorMessage(error))
+        } finally {
+            closeCardReader()
+        }
+    }
+
+    /** بعد از اتمام کار با کارت ICC (موفق، خطا یا لغو) کارت‌خوان بسته می‌شود. */
+    private suspend fun closeCardReader() {
+        withContext(NonCancellable) {
+            runCatching { service.releaseCardReader() }
+                .onFailure { Log.w(TAG, "closing card reader failed", it) }
         }
     }
 

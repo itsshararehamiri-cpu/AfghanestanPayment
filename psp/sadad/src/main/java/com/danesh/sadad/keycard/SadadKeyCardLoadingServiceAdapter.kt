@@ -29,6 +29,8 @@ class SadadKeyCardLoadingServiceAdapter @Inject constructor(
 
     override suspend fun isCardPresent(): Boolean = service.isCardPresent()
 
+    override suspend fun releaseCardReader() = service.release()
+
     override suspend fun hasApplet(card: KeyCardType): Boolean = service.hasApplet(
         when (card) {
             KeyCardType.CARD_A -> SadadKeyCard.CARD_A

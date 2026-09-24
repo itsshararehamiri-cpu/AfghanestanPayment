@@ -25,6 +25,30 @@ class SadadChargePinCipher @Inject constructor(
     private val device: Device,
 ) {
 
+    /**
+     * سریال و رمز نهایی شارژ. رمز باید فقط رقم باشد: اگر رمزگشایی بلوک رمزشده رمز عددی
+     * معتبر ندهد (کلید/چیدمان اشتباه)، چیدمان متن‌سادهٔ جایگزین از همان DE62 استفاده می‌شود.
+     */
+    fun resolve(pins: SadadChargePins): SadadChargePins {
+        if (!pins.pinEncrypted) return pins
+        val decrypted = decrypt(pins.pin, pins.pinLength)
+        if (isValidChargePin(decrypted, pins.pinLength)) {
+            Log.d(TAG, "PIN-RESOLVE decrypted pin is numeric; serial=${pins.serial}")
+            return pins.copy(pin = decrypted, pinEncrypted = false, plainAlternatives = emptyList())
+        }
+        val alternative = pins.plainAlternatives.firstOrNull()
+        if (alternative != null) {
+            Log.w(
+                TAG,
+                "PIN-RESOLVE decrypted pin '$decrypted' is not numeric; using plain layout " +
+                    "serial=${alternative.serial} pin=${alternative.pin}",
+            )
+            return alternative
+        }
+        Log.w(TAG, "PIN-RESOLVE decrypted pin '$decrypted' is not numeric and no plain layout fits")
+        return pins.copy(pin = decrypted, pinEncrypted = false, plainAlternatives = emptyList())
+    }
+
     /** رمز شارژ قابل نمایش؛ اگر [pins] رمزشده نباشد همان مقدار برمی‌گردد. */
     fun reveal(pins: SadadChargePins): String {
         if (!pins.pinEncrypted) {
