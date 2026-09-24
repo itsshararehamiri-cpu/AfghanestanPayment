@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.danesh.common.strings.AppStrings
 import com.danesh.settings.domain.ValidateSettingsPasswordUseCase
 import com.danesh.settings.model.AppRole
+import com.danesh.settings.model.MerchantPasswordCheck
 import com.danesh.settings.navigation.SettingsNavArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +48,8 @@ class SettingsAccessPasswordViewModel @Inject constructor(
         if (pin.length != 4) return
 
         viewModelScope.launch {
-            if (validatePassword(role, pin)) {
+            val result = validatePassword.check(role, pin)
+            if (result == MerchantPasswordCheck.VALID) {
                 _uiState.update { it.copy(errorMessage = null) }
                 if (role == AppRole.Merchant && validatePassword.requiresMerchantPasswordChange()) {
                     onMandatoryPasswordChange()
@@ -58,7 +60,11 @@ class SettingsAccessPasswordViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         pinValue = "",
-                        errorMessage = appStrings.wrongPassword(),
+                        errorMessage = if (result == MerchantPasswordCheck.LOCKED) {
+                            appStrings.merchantPasswordLocked()
+                        } else {
+                            appStrings.wrongPassword()
+                        },
                     )
                 }
             }

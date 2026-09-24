@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,8 @@ fun SettingsTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     inputFilter: SettingsTextInputFilter = SettingsTextInputFilter.None,
     enabled: Boolean = true,
+    /** رمز (مثل PIN کارت کلید): نمایش ستاره‌ای و صفحه‌کلید عددی مخفی. */
+    isSecret: Boolean = false,
 ) {
     val hasError = errorMessage != null
     val fieldColors = OutlinedTextFieldDefaults.colors(
@@ -108,7 +112,14 @@ fun SettingsTextField(
                     shape = fieldShape,
                     colors = fieldColors,
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = effectiveKeyboardType),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = if (isSecret) KeyboardType.NumberPassword else effectiveKeyboardType,
+                    ),
+                    visualTransformation = if (isSecret) {
+                        PasswordVisualTransformation()
+                    } else {
+                        VisualTransformation.None
+                    },
                     textStyle = textStyle,
                 )
             } else {

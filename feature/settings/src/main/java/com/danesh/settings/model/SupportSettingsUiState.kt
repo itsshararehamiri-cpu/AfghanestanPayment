@@ -1,9 +1,13 @@
 package com.danesh.settings.model
 
+import com.danesh.settings.domain.StartupOperation
+import com.danesh.settings.domain.StartupStepResult
+
 import com.danesh.common.connection.ConnectionDefaults
 import com.danesh.common.network.NetworkConnectionType
 
 data class SupportSettingsUiState(
+    val defaultMerchantPassword: String = "",
     val isConnected: Boolean = false,
     val ipAddress: String = ConnectionDefaults.IP,
     val port: String = ConnectionDefaults.PORT.toString(),
@@ -36,4 +40,8 @@ data class SupportSettingsUiState(
     val isTerminalInfoInProgress: Boolean = false,
     val terminalInfoSummary: InitialConfigurationSummary? = null,
     val terminalInfoErrorMessage: String? = null,
+    /** سداد: به‌جای «پیکربندی پایانه» سه ردیف «تزریق کلید»، «پیکربندی» (INIT) و «شروع به کار» (LOGON). */
+    val usesKeyCardSetup: Boolean = false,
+    val startupInProgress: StartupOperation? = null,
+    val startupResult: StartupStepResult? = null,
 )

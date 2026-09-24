@@ -24,6 +24,7 @@ import com.danesh.settings.presentation.InitialConfigurationViewModel
 import com.danesh.settings.presentation.KeyLoadingViewModel
 import com.danesh.settings.presentation.MerchantExitPasswordViewModel
 import com.danesh.settings.presentation.SadadKeyCardLoadingViewModel
+import com.danesh.settings.presentation.SadadKeyInjectionViewModel
 import com.danesh.settings.presentation.SupportServicesFlowViewModel
 import com.danesh.settings.presentation.SupportSettingsViewModel
 import com.danesh.settings.presentation.TerminalConfigViewModel
@@ -32,6 +33,7 @@ import com.danesh.support.presentation.SupportViewModel
 import com.danesh.settings.ui.ConfigurationScreen
 import com.danesh.settings.ui.KeyLoadingScreen
 import com.danesh.settings.ui.SadadKeyCardLoadingScreen
+import com.danesh.settings.ui.SadadKeyInjectionScreen
 import com.danesh.settings.ui.TerminalSetupScreen
 import com.danesh.settings.ui.BackupPlatformRoute
 import com.danesh.settings.ui.DefaultIdSettingsRoute
@@ -47,6 +49,7 @@ private object SupportSettingsRoutes {
     const val MAIN = "support_settings_main"
     const val CONFIGURATION = "support_settings_configuration"
     const val KEY_LOADING = "support_settings_key_loading"
+    const val SADAD_KEY_INJECTION = "support_settings_sadad_key_injection"
     const val INITIAL_CONFIGURATION = "support_settings_initial_configuration"
     const val TERMINAL_CONFIG = "support_settings_terminal_config"
     const val MENU_FEATURES = "support_settings_menu_features"
@@ -96,6 +99,9 @@ fun SupportSettingsNavHost(
                     },
                     onExitClick = {
                         navController.navigate(SupportSettingsRoutes.EXIT_PASSWORD)
+                    },
+                    onKeyInjectionClick = {
+                        navController.navigate(SupportSettingsRoutes.SADAD_KEY_INJECTION)
                     },
                 )
             } else {
@@ -327,6 +333,27 @@ fun SupportSettingsNavHost(
                     onCancelClick = { navController.popBackStack() },
                 )
             }
+        }
+
+        composable(SupportSettingsRoutes.SADAD_KEY_INJECTION) {
+            val viewModel: SadadKeyInjectionViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val leave = {
+                viewModel.cancel()
+                navController.popBackStack(SupportSettingsRoutes.MAIN, inclusive = false)
+            }
+
+            SadadKeyInjectionScreen(
+                uiState = uiState,
+                onBackClick = { leave() },
+                onRetryWaitClick = viewModel::waitForCard,
+                onCardAIndexChange = viewModel::updateCardAIndex,
+                onCardCIndexChange = viewModel::updateCardCIndex,
+                onCardAPinChange = viewModel::updateCardAPin,
+                onCardCPinChange = viewModel::updateCardCPin,
+                onSubmitClick = viewModel::submit,
+                onRetryClick = viewModel::retry,
+            )
         }
 
         composable(SupportSettingsRoutes.INITIAL_CONFIGURATION) {

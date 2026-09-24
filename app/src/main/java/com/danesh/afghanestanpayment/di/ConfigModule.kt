@@ -9,6 +9,10 @@ import com.danesh.afghanestanpayment.config.toReceiptPspBrand
 import com.danesh.common.menu.MenuFlavorFeatures
 import com.danesh.common.receipt.ReceiptPspBrandProvider
 import com.danesh.afghanestanpayment.config.toDefaultAppLanguage
+import com.danesh.afghanestanpayment.config.toDefaultMerchantPassword
+import com.danesh.settings.config.DefaultMerchantPasswordProvider
+import com.danesh.settings.config.MerchantPasswordLockPolicy
+import com.danesh.afghanestanpayment.config.toMerchantPasswordMaxFailedAttempts
 import com.danesh.common.locale.DefaultAppLanguageProvider
 import com.danesh.common.locale.LocalePreferences
 import com.danesh.common.locale.ReceiptCalendarStyleProvider
@@ -41,6 +45,22 @@ object ConfigModule {
         config: AppRuntimeConfig,
     ): DefaultAppLanguageProvider = DefaultAppLanguageProvider {
         config.activePsp.toDefaultAppLanguage()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDefaultMerchantPasswordProvider(
+        config: AppRuntimeConfig,
+    ): DefaultMerchantPasswordProvider = DefaultMerchantPasswordProvider {
+        config.activePsp.toDefaultMerchantPassword()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMerchantPasswordLockPolicy(
+        config: AppRuntimeConfig,
+    ): MerchantPasswordLockPolicy = MerchantPasswordLockPolicy {
+        config.activePsp.toMerchantPasswordMaxFailedAttempts()
     }
 
     @Provides

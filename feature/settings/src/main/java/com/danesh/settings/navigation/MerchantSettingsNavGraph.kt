@@ -108,6 +108,8 @@ fun MerchantSettingsNavHost(
                 onLanguageChange = merchantSettingsViewModel::setLanguage,
                 selectedTheme = AppThemeMode.valueOf(selectedTheme),
                 onThemeChange = { selectedTheme = it.name },
+                onStartupClick = merchantSettingsViewModel::runStartup,
+                onDismissStartupResult = merchantSettingsViewModel::dismissStartupResult,
             )
         }
         composable(MerchantSettingsRoutes.DEFAULT_PURCHASE_AMOUNT) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.danesh.common.strings.AppStrings
 import com.danesh.report.data.ReportPasswordRepository
+import com.danesh.settings.model.MerchantPasswordCheck
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,8 @@ class ReportPasswordViewModel @Inject constructor(
         if (pin.length != 4) return
 
         viewModelScope.launch {
-            if (passwordRepository.validate(pin)) {
+            val result = passwordRepository.check(pin)
+            if (result == MerchantPasswordCheck.VALID) {
                 _uiState.update {
                     it.copy(isAuthenticated = true, errorMessage = null)
                 }
@@ -50,7 +52,11 @@ class ReportPasswordViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         pinValue = "",
-                        errorMessage = appStrings.wrongPassword(),
+                        errorMessage = if (result == MerchantPasswordCheck.LOCKED) {
+                            appStrings.merchantPasswordLocked()
+                        } else {
+                            appStrings.wrongPassword()
+                        },
                     )
                 }
             }

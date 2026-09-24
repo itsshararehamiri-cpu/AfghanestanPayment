@@ -29,8 +29,11 @@ object KcvReceiptBitmapFactory {
         pinKeyValue: String,
         fonts: PaperReceiptBitmapFonts,
         pspBrand: ReceiptPspBrand,
+        masterKeyLabel: String? = null,
+        masterKeyValue: String = "",
     ): Bitmap {
-        val lines = listOf(
+        val lines = listOfNotNull(
+            masterKeyLabel?.let { "$it      $masterKeyValue" },
             "$macKeyLabel      $macKeyValue",
             "$dataKeyLabel      $dataKeyValue",
             "$pinKeyLabel      $pinKeyValue",

@@ -1,5 +1,7 @@
 package com.danesh.settings.ui
 
+import com.danesh.settings.domain.StartupOperation
+
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danesh.settings.R
-import com.danesh.settings.data.SettingsPasswordRepository
 import com.danesh.settings.model.SupportSettingsUiState
 import com.danesh.settings.ui.theme.SettingsColors
 import com.danesh.ui.theme.appScreenBackground
@@ -71,10 +72,13 @@ fun SupportSettingsScreenNonBp(
     onFetchTerminalInfoClick: () -> Unit = {},
     onDismissTerminalInfoResult: () -> Unit = {},
     onDismissTerminalInfoError: () -> Unit = {},
+    onKeyInjectionClick: () -> Unit = {},
+    onStartupClick: (StartupOperation) -> Unit = {},
+    onDismissStartupResult: () -> Unit = {},
 ) {
     var showResetPasswordDialog by rememberSaveable { mutableStateOf(false) }
     var showTerminalReplacementDialog by rememberSaveable { mutableStateOf(false) }
-    val defaultMerchantPassword = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD
+    val defaultMerchantPassword = uiState.defaultMerchantPassword
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,25 +143,56 @@ fun SupportSettingsScreenNonBp(
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            SettingsNavigationRow(
-                label = stringResource(R.string.settings_support_configuration),
-                icon = R.drawable.ic_configuration,
-                iconContentDescription = stringResource(R.string.settings_support_configuration),
-                value = uiState.configuration,
-                valueColor = SettingsColors.TextPrimary,
-                onClick = {
-                    if (uiState.usesTerminalConfigFlow) {
-                        if (!uiState.isTerminalInfoInProgress) {
-                            Log.d("TAG", "SupportSettingsScreenNonBp: fffffffff")
-                            onFetchTerminalInfoClick()
-                        }
-                    } else {
-                        Log.d("TAG", "SupportSettingsScreenNonBp: ffffffffff")
+            if (uiState.usesKeyCardSetup) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_sadad_key_injection),
+                    icon = R.drawable.ic_unlock,
+                    iconContentDescription = stringResource(R.string.settings_sadad_key_injection),
+                    onClick = onKeyInjectionClick,
+                )
 
-                        onConfigurationClick()
-                    }
-                },
-            )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_sadad_init),
+                    icon = R.drawable.ic_configuration,
+                    iconContentDescription = stringResource(R.string.settings_sadad_init),
+                    onClick = {
+                        if (uiState.startupInProgress == null) onStartupClick(StartupOperation.INIT)
+                    },
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_sadad_logon),
+                    icon = R.drawable.ic_terminal_info,
+                    iconContentDescription = stringResource(R.string.settings_sadad_logon),
+                    onClick = {
+                        if (uiState.startupInProgress == null) onStartupClick(StartupOperation.LOGON)
+                    },
+                )
+            } else {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_support_configuration),
+                    icon = R.drawable.ic_configuration,
+                    iconContentDescription = stringResource(R.string.settings_support_configuration),
+                    value = uiState.configuration,
+                    valueColor = SettingsColors.TextPrimary,
+                    onClick = {
+                        if (uiState.usesTerminalConfigFlow) {
+                            if (!uiState.isTerminalInfoInProgress) {
+                                Log.d("TAG", "SupportSettingsScreenNonBp: fffffffff")
+                                onFetchTerminalInfoClick()
+                            }
+                        } else {
+                            Log.d("TAG", "SupportSettingsScreenNonBp: ffffffffff")
+
+                            onConfigurationClick()
+                        }
+                    },
+                )
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -199,6 +234,12 @@ fun SupportSettingsScreenNonBp(
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
+
+    StartupOperationDialogs(
+        inProgress = uiState.startupInProgress,
+        result = uiState.startupResult,
+        onDismissResult = onDismissStartupResult,
+    )
 
     if (showResetPasswordDialog) {
         AlertDialog(

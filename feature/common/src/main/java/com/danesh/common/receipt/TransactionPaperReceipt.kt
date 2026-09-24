@@ -460,6 +460,14 @@ private fun PaperReceiptHeader(
         textColor = firstColor,
         isPaperReceipt = isPaperReceipt,
     )
+    if (receiptType == ReceiptType.MERCHANT_RECEIPT) {
+        AddHostReceiptText(
+            modifier = modifierRowReceipt,
+            text = result.merchantReceiptText,
+            textColor = firstColor,
+            isPaperReceipt = isPaperReceipt,
+        )
+    }
     if (isPaperReceipt) {
         AddReceiptType(
             modifier = modifierRowReceipt,

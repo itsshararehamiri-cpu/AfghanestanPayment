@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.danesh.settings.domain.StartupOperation
+import com.danesh.settings.domain.TerminalStartupRunner
 
 @HiltViewModel
 class MerchantSettingsViewModel @Inject constructor(
@@ -54,6 +56,7 @@ class MerchantSettingsViewModel @Inject constructor(
     private val safQueueSettlementService: SafQueueSettlementService,
     private val settingsMenuVisibilityProvider: SettingsMenuVisibilityProvider,
     private val merchantSupportServiceResolver: MerchantSupportServiceResolver,
+    private val startupRunner: TerminalStartupRunner,
 ) : ViewModel() {
 
     val availableLanguages: List<AppLanguage> = languageOptions.availableSettingsLanguages()
@@ -253,9 +256,25 @@ class MerchantSettingsViewModel @Inject constructor(
         passwordRepository.resetMerchantPassword()
         _uiState.update {
             it.copy(
-                merchantPasswordResetMessage = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD,
+                merchantPasswordResetMessage = passwordRepository.defaultMerchantPassword,
             )
         }
+    }
+
+    /** سداد: «شروع به کار» → LOGON. */
+    fun runStartup() {
+        if (_uiState.value.startupInProgress != null) return
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(startupInProgress = StartupOperation.LOGON, startupResult = null)
+            }
+            val result = startupRunner.runLogon()
+            _uiState.update { it.copy(startupInProgress = null, startupResult = result) }
+        }
+    }
+
+    fun dismissStartupResult() {
+        _uiState.update { it.copy(startupResult = null) }
     }
 
     fun clearMerchantPasswordResetMessage() {
@@ -287,6 +306,8 @@ class MerchantSettingsViewModel @Inject constructor(
         val menuVisibility = settingsMenuVisibilityProvider.visibility()
         val defaultAmountEnabled = merchantDisplayPreferences.isDefaultPurchaseAmountEnabled()
         return MerchantSettingsUiState(
+            defaultMerchantPassword = passwordRepository.defaultMerchantPassword,
+            showStartup = menuVisibility.showMerchantStartup,
             isChangeAccountEnabled = menuFeaturePreferences.isFeatureEnabled(
                 MenuItemType.CHANGE_ACCOUNT.name,
             ),

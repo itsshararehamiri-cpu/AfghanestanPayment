@@ -33,7 +33,6 @@ import com.danesh.settings.LanguageSelectionBottomSheet
 import com.danesh.settings.MerchantReceiptPrintSelectionBottomSheet
 import com.danesh.settings.R
 import com.danesh.settings.ThemeSelectionBottomSheet
-import com.danesh.settings.data.SettingsPasswordRepository
 import com.danesh.common.receipt.MerchantReceiptPrintMode
 import com.danesh.settings.model.AppFontFamily
 import com.danesh.settings.model.AppLanguage
@@ -71,13 +70,15 @@ fun MerchantSettingsScreen(
     onLanguageChange: (AppLanguage) -> Unit = {},
     selectedTheme: AppThemeMode = AppThemeMode.Dark,
     onThemeChange: (AppThemeMode) -> Unit = {},
+    onStartupClick: () -> Unit = {},
+    onDismissStartupResult: () -> Unit = {},
 ) {
     var showFontSheet by rememberSaveable { mutableStateOf(false) }
     var showLanguageSheet by rememberSaveable { mutableStateOf(false) }
     var showThemeSheet by rememberSaveable { mutableStateOf(false) }
     var showMerchantReceiptSheet by rememberSaveable { mutableStateOf(false) }
     var showResetPasswordDialog by rememberSaveable { mutableStateOf(false) }
-    val defaultMerchantPassword = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD
+    val defaultMerchantPassword = uiState.defaultMerchantPassword
 
     Column(
         modifier = Modifier
@@ -99,6 +100,17 @@ fun MerchantSettingsScreen(
             SettingsSectionTitle(
                 title = stringResource(R.string.settings_merchant_operations_section),
             )
+
+            if (uiState.showStartup) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_sadad_logon),
+                    icon = R.drawable.ic_terminal_info,
+                    iconContentDescription = stringResource(R.string.settings_sadad_logon),
+                    onClick = { if (uiState.startupInProgress == null) onStartupClick() },
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             SettingsNavigationRow(
                 label = stringResource(R.string.settings_merchant_settlement),
@@ -246,6 +258,12 @@ fun MerchantSettingsScreen(
             onDismissRequest = { showMerchantReceiptSheet = false },
         )
     }
+
+    StartupOperationDialogs(
+        inProgress = uiState.startupInProgress,
+        result = uiState.startupResult,
+        onDismissResult = onDismissStartupResult,
+    )
 
     if (showResetPasswordDialog) {
         AlertDialog(

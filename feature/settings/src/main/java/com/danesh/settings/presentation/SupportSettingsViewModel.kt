@@ -1,5 +1,8 @@
 package com.danesh.settings.presentation
 
+import com.danesh.settings.domain.StartupOperation
+import com.danesh.settings.domain.TerminalStartupRunner
+
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
@@ -70,6 +73,7 @@ class SupportSettingsViewModel @Inject constructor(
     private val paperReceiptTypefaceResolver: PaperReceiptTypefaceResolver,
     private val receiptPspBrandProvider: ReceiptPspBrandProvider,
     private val localePreferences: LocalePreferences,
+    private val startupRunner: TerminalStartupRunner,
     @ApplicationContext private val appContext: Context,
 
     ) : ViewModel() {
@@ -141,7 +145,7 @@ class SupportSettingsViewModel @Inject constructor(
         passwordRepository.resetMerchantPassword()
         _uiState.update {
             it.copy(
-                merchantPasswordResetMessage = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD,
+                merchantPasswordResetMessage = passwordRepository.defaultMerchantPassword,
             )
         }
     }
@@ -246,6 +250,7 @@ class SupportSettingsViewModel @Inject constructor(
             merchantDisplayPreferences.getMicroPaymentIndexAmountRials(),
         )
         return SupportSettingsUiState(
+            defaultMerchantPassword = passwordRepository.defaultMerchantPassword,
             isConnected = networkConnectivityMonitor.isConnected.value,
             ipAddress = connectionPreferences.getIp(),
             port = connectionPreferences.getPort().toString(),
@@ -261,6 +266,7 @@ class SupportSettingsViewModel @Inject constructor(
             microPaymentIndexAmount = MicroPaymentIndexRules.formatDisplay(microPaymentAmount),
             usesSimplifiedSupportSettings = menuVisibility.usesSimplifiedSupportSettings,
             usesTerminalConfigFlow = initialConfigurationPolicy.usesTerminalConfigFlow,
+            usesKeyCardSetup = initialConfigurationPolicy.usesKeyCardLoading,
         )
     }
 
@@ -300,6 +306,23 @@ class SupportSettingsViewModel @Inject constructor(
                 },
             )
         }
+    }
+
+    /** سداد: «پیکربندی» → INIT و «شروع به کار» → LOGON. */
+    fun runStartup(operation: StartupOperation) {
+        if (_uiState.value.startupInProgress != null) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(startupInProgress = operation, startupResult = null) }
+            val result = when (operation) {
+                StartupOperation.INIT -> startupRunner.runInit()
+                StartupOperation.LOGON -> startupRunner.runLogon()
+            }
+            _uiState.update { it.copy(startupInProgress = null, startupResult = result) }
+        }
+    }
+
+    fun dismissStartupResult() {
+        _uiState.update { it.copy(startupResult = null) }
     }
 
     fun dismissKeyLoadingResult() {

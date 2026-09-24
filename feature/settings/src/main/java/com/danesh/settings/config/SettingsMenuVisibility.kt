@@ -8,6 +8,8 @@ data class SettingsMenuVisibility(
     val showSupportMicroPaymentIndex: Boolean = true,
     /** همراه‌پی و سداد: صفحه تنظیمات پشتیبانی مستقل [com.danesh.settings.ui.SupportSettingsScreenNonBp] نمایش داده شود. */
     val usesSimplifiedSupportSettings: Boolean = false,
+    /** سداد: ردیف «شروع به کار» (LOGON) در تنظیمات پذیرنده. */
+    val showMerchantStartup: Boolean = false,
 )
 
 fun interface SettingsMenuVisibilityProvider {

@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danesh.settings.R
-import com.danesh.settings.data.SettingsPasswordRepository
 import com.danesh.settings.model.SupportSettingsUiState
 import com.danesh.settings.ui.theme.SettingsColors
 import com.danesh.ui.toolbar.Toolbar
@@ -64,7 +63,7 @@ fun SupportSettingsScreen(
     var showTerminalReplacementDialog by rememberSaveable { mutableStateOf(false) }
     var showTmUpdateDialog by rememberSaveable { mutableStateOf(false) }
     var showSupportServicesDialog by rememberSaveable { mutableStateOf(false) }
-    val defaultMerchantPassword = SettingsPasswordRepository.DEFAULT_MERCHANT_PASSWORD
+    val defaultMerchantPassword = uiState.defaultMerchantPassword
     Column(
         modifier = Modifier
             .fillMaxSize()

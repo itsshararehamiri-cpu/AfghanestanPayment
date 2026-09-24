@@ -27,6 +27,16 @@ class SadadKeyCardLoadingServiceAdapter @Inject constructor(
             workingMacState.saveRsaKeyIndex(keyIndex)
         }
 
+    override suspend fun isCardPresent(): Boolean = service.isCardPresent()
+
+    override suspend fun hasApplet(card: KeyCardType): Boolean = service.hasApplet(
+        when (card) {
+            KeyCardType.CARD_A -> SadadKeyCard.CARD_A
+            KeyCardType.CARD_B -> SadadKeyCard.CARD_B
+            KeyCardType.CARD_C -> SadadKeyCard.CARD_C
+        },
+    )
+
     override fun persistedRsaKeyIndex(): Int? = workingMacState.rsaKeyIndex()
 
     override fun persistedCardCIndex(): Int? = workingMacState.persistedCardCIndex()

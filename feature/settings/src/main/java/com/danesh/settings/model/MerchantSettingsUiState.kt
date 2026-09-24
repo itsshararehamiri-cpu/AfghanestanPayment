@@ -1,8 +1,11 @@
 package com.danesh.settings.model
 
 import com.danesh.common.network.NetworkConnectionType
+import com.danesh.settings.domain.StartupOperation
+import com.danesh.settings.domain.StartupStepResult
 
 data class MerchantSettingsUiState(
+    val defaultMerchantPassword: String = "",
     val isChangeAccountEnabled: Boolean = true,
     val isConnected: Boolean = false,
     val ipAddress: String = "",
@@ -26,6 +29,10 @@ data class MerchantSettingsUiState(
     val merchantPasswordResetMessage: String? = null,
     val showShowFee: Boolean = true,
     val showMicroPaymentIndex: Boolean = true,
+    /** سداد: ردیف «شروع به کار» (LOGON). */
+    val showStartup: Boolean = false,
+    val startupInProgress: StartupOperation? = null,
+    val startupResult: StartupStepResult? = null,
 )
 
 data class MerchantSupportLaunchRequest(
