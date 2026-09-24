@@ -254,6 +254,18 @@ internal class K9KeyManager(
         return calcPedMac(device, data, index, keyType, resolvedMacType)
     }
 
+    /** MAC با MacType صریح (بدون تغییر resolvedMacType) — برای پیام‌های هم‌تراز سداد. */
+    fun getMacWithType(data: ByteArray, index: Int, keyType: MacKeyType, macTypeName: String): ByteArray {
+        val device = pinpadProvider() ?: return ByteArray(0)
+        if (data.isEmpty()) return ByteArray(0)
+        val macType = runCatching { MacType.valueOf(macTypeName) }.getOrNull() ?: return ByteArray(0)
+        return runCatching { calcPedMac(device, data, index, keyType, macType) }
+            .getOrElse { error ->
+                DeviceTrace.warn(KEY_SDK, "getMacWithType macType=$macTypeName FAILED: ${error.message}")
+                ByteArray(0)
+            }
+    }
+
     /**
      * پروب MacType × MacMode وقتی خروجی PED با مرجع نرم‌افزاری (هاست) فرق دارد.
      * اگر تطبیق پیدا شود، برای getMacهای بعدی همان ترکیب را نگه می‌دارد.

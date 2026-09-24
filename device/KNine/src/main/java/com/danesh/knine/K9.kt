@@ -234,6 +234,13 @@ class K9 @Inject constructor(
        // return ByteArray(8)
     }
 
+    override suspend fun getMacWithType(
+        data: ByteArray,
+        index: Int,
+        keyType: MacKeyType,
+        macType: String,
+    ): ByteArray = keyManager.getMacWithType(data, index, keyType, macType)
+
     override suspend fun diagnoseMacMismatch(
         data: ByteArray,
         index: Int,

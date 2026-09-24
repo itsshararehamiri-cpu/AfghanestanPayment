@@ -55,6 +55,17 @@ interface Device {
     ): ByteArray
 
 
+    /**
+     * MAC با یک MacType مشخص PED (نام enum در SDK، مثل "TYPE_X919").
+     * آرایه خالی یعنی این دستگاه/نوع پشتیبانی نمی‌شود.
+     */
+    suspend fun getMacWithType(
+        data: ByteArray,
+        index: Int = INDEX_MAC,
+        keyType: MacKeyType = MacKeyType.WORK,
+        macType: String,
+    ): ByteArray = ByteArray(0)
+
     suspend fun diagnoseMacMismatch(
         data: ByteArray,
         index: Int = INDEX_MAC,

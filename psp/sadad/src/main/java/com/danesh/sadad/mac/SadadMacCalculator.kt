@@ -132,6 +132,8 @@ class SadadMacCalculator @Inject constructor(
      * - طول غیرهم‌تراز: همان PED (رفتارش با هاست یکی است).
      * - طول هم‌تراز + کلید کاری: X9.19 نرم‌افزاری با MAK لاگان، به شرط این‌که KCV/MAC پروب
      *   با PED یکی باشد (یعنی کلید نرم‌افزار همان کلید اسلات PED است).
+     * - طول هم‌تراز بدون کلید: MacType دیگری از PED که روی داده هم‌تراز بلوک اضافه نگذارد
+     *   (با پروب پیدا می‌شود).
      */
     private suspend fun computeMac(
         mti: String?,
@@ -142,43 +144,101 @@ class SadadMacCalculator @Inject constructor(
         val pedMac = device.getMac(data = macInput, index = pedIndex)
         if (macInput.size % 8 != 0) return pedMac
         logPedPaddingSelfTest(pedIndex)
-        if (keySource != SadadMacKeySource.WORKING) {
-            Log.w(
-                "MAC_DEBUG",
-                "mti=$mti len=${macInput.size} aligned but keySource=$keySource — PED MAC sent " +
-                    "(host may reject with 19)",
-            )
-            return pedMac
+        if (keySource == SadadMacKeySource.WORKING) {
+            softwareMacOrNull(mti, macInput, pedIndex)?.let { return it }
         }
+        alignedPedMacOrNull(mti, macInput, pedIndex)?.let { return it }
+        Log.e(
+            "MAC_DEBUG",
+            "mti=$mti len=${macInput.size} aligned: no software key and no PED MacType without " +
+                "extra block — PED MAC sent (host will reject with 19). Do a LOGON with CHANGE_KEY.",
+        )
+        return pedMac
+    }
+
+    private suspend fun softwareMacOrNull(
+        mti: String?,
+        macInput: ByteArray,
+        pedIndex: Int,
+    ): ByteArray? {
         val key = wrappingKeys.workingMacKeyOrNull()
         if (key == null) {
-            Log.e(
-                "MAC_DEBUG",
-                "mti=$mti len=${macInput.size} aligned and working MAC key not stored — " +
-                    "PED MAC sent; do a LOGON (CHANGE_KEY) so the key is saved",
-            )
-            return pedMac
+            Log.w("MAC_DEBUG", "mti=$mti working MAC key not stored — trying PED MacType probe")
+            return null
         }
         return try {
             if (!softwareKeyMatchesPed(key, pedIndex)) {
                 Log.e(
                     "MAC_DEBUG",
-                    "mti=$mti stored working MAC key does not match PED slot $pedIndex — " +
-                        "PED MAC sent; do a LOGON again",
+                    "mti=$mti stored working MAC key does not match PED slot $pedIndex",
                 )
-                return pedMac
+                return null
             }
             val softwareMac = SadadAnsiX919Mac.calculate(key, macInput)
             Log.d(
                 "MAC_DEBUG",
                 "mti=$mti len=${macInput.size} aligned → software X9.19 " +
-                    "mac=${ISOUtil.hexString(softwareMac)} ped=${ISOUtil.hexString(pedMac)} " +
-                    "pedMatches=${softwareMac.contentEquals(pedMac.copyOf(minOf(8, pedMac.size)))}",
+                    "mac=${ISOUtil.hexString(softwareMac)}",
             )
             softwareMac
         } finally {
             key.fill(0)
         }
+    }
+
+    /** null = هنوز پروب نشده؛ "" = هیچ نوعی جواب نداد. */
+    @Volatile
+    private var alignedMacType: String? = null
+
+    /**
+     * بدون کلید: مرجع درست برای داده هم‌تراز P (بایت آخر 00) همان MAC پیش‌فرض PED روی
+     * P بدون بایت آخر است (غیرهم‌تراز → padding استاندارد). هر MacType دیگری که روی P
+     * همین نتیجه را بدهد، روی داده هم‌تراز بلوک اضافه نمی‌گذارد.
+     */
+    private suspend fun alignedPedMacOrNull(
+        mti: String?,
+        macInput: ByteArray,
+        pedIndex: Int,
+    ): ByteArray? {
+        val type = alignedMacType ?: probeAlignedMacType(pedIndex).also { alignedMacType = it }
+        if (type.isEmpty()) return null
+        val mac = device.getMacWithType(data = macInput, index = pedIndex, macType = type)
+        if (mac.size < SadadAnsiX919Mac.MAC_LENGTH) return null
+        Log.d(
+            "MAC_DEBUG",
+            "mti=$mti len=${macInput.size} aligned → PED macType=$type mac=${ISOUtil.hexString(mac)}",
+        )
+        return mac.copyOf(SadadAnsiX919Mac.MAC_LENGTH)
+    }
+
+    private suspend fun probeAlignedMacType(pedIndex: Int): String {
+        val probes = ALIGNED_PROBES.map { probe ->
+            probe to device.getMac(data = probe.copyOf(probe.size - 1), index = pedIndex)
+        }
+        for (type in CANDIDATE_MAC_TYPES) {
+            val allMatch = probes.all { (probe, reference) ->
+                val candidate = runCatching {
+                    device.getMacWithType(data = probe.copyOf(), index = pedIndex, macType = type)
+                }.getOrDefault(ByteArray(0))
+                val ok = candidate.size >= SadadAnsiX919Mac.MAC_LENGTH &&
+                    reference.size >= SadadAnsiX919Mac.MAC_LENGTH &&
+                    candidate.copyOf(SadadAnsiX919Mac.MAC_LENGTH)
+                        .contentEquals(reference.copyOf(SadadAnsiX919Mac.MAC_LENGTH))
+                Log.d(
+                    "MAC_DEBUG",
+                    "aligned probe type=$type len=${probe.size} " +
+                        "candidate=${ISOUtil.hexString(candidate)} " +
+                        "reference=${ISOUtil.hexString(reference)} match=$ok",
+                )
+                ok
+            }
+            if (allMatch) {
+                Log.d("MAC_DEBUG", "aligned probe → using PED macType=$type for aligned input")
+                return type
+            }
+        }
+        Log.e("MAC_DEBUG", "aligned probe → no PED MacType matches standard X9.19")
+        return ""
     }
 
     @Volatile
@@ -453,5 +513,20 @@ class SadadMacCalculator @Inject constructor(
 
     private companion object {
         val PROBE_UNALIGNED = byteArrayOf(0x53, 0x41, 0x44, 0x41, 0x44, 0x4D, 0x41)
+
+        /** داده‌های هم‌تراز با بایت آخر 00 (۱۶ و ۲۴ بایت). */
+        val ALIGNED_PROBES = listOf(
+            ByteArray(16) { i -> if (i == 15) 0.toByte() else (0x31 + i).toByte() },
+            ByteArray(24) { i -> if (i == 23) 0.toByte() else (0xA0 + i).toByte() },
+        )
+
+        val CANDIDATE_MAC_TYPES = listOf(
+            "TYPE_X919",
+            "TYPE_X919_MP",
+            "TYPE_BOC_EXTENED",
+            "TYPE_X9_9",
+            "TYPE_XOR_3DES",
+            "TYPE_CUP_ECB",
+        )
     }
 }

@@ -123,6 +123,19 @@ class LoggingDevice(
         }
     }
 
+    override suspend fun getMacWithType(
+        data: ByteArray,
+        index: Int,
+        keyType: MacKeyType,
+        macType: String,
+    ): ByteArray {
+        DeviceTrace.step(
+            "getMacWithType",
+            "calc PED makIndex=$index keyType=$keyType macType=$macType inputBytes=${data.size}",
+        )
+        return delegate.getMacWithType(data, index, keyType, macType)
+    }
+
     override suspend fun diagnoseMacMismatch(
         data: ByteArray,
         index: Int,
