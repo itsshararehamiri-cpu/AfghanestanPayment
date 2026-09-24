@@ -14,12 +14,23 @@ class SadadChargeFieldCodecTest {
     }
 
     @Test
-    fun field62_readsLiveCountedAsciiWithoutHexDecode() {
+    fun field62_readsLiveCountedEncryptedPinBlock() {
+        // Pin_Length=15 رقم، ولی داده یک بلوک ۸ بایتی رمزشده (۱۶ hex) است.
         val field = "011715511820004800620806A0A6B435C970071"
         val parsed = SadadChargeField62Parser.parse(field)
         assertEquals("51182000480062080", parsed?.serial)
-        assertEquals("6A0A6B435C97007", parsed?.pin)
+        assertEquals("6A0A6B435C970071", parsed?.pin)
+        assertEquals(true, parsed?.pinEncrypted)
+        assertEquals(15, parsed?.pinLength)
         assertEquals(1, parsed?.pinCount)
+    }
+
+    @Test
+    fun field62_encryptedPinHexLength() {
+        assertEquals(16, SadadChargeField62Parser.encryptedPinHexLength(15))
+        assertEquals(16, SadadChargeField62Parser.encryptedPinHexLength(16))
+        assertEquals(16, SadadChargeField62Parser.encryptedPinHexLength(8))
+        assertEquals(32, SadadChargeField62Parser.encryptedPinHexLength(17))
     }
 
     @Test
@@ -35,7 +46,8 @@ class SadadChargeFieldCodecTest {
         val field = "011715511820004800620806A0A6B435C970071"
         val parsed = SadadChargeField62Parser.parse(field.toByteArray(Charsets.ISO_8859_1))
         assertEquals("51182000480062080", parsed?.serial)
-        assertEquals("6A0A6B435C97007", parsed?.pin)
+        assertEquals("6A0A6B435C970071", parsed?.pin)
+        assertEquals(true, parsed?.pinEncrypted)
     }
 
     @Test

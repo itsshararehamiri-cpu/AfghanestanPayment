@@ -19,6 +19,7 @@ import com.danesh.iso.IsoMessage
 import com.danesh.sadad.key.SadadKeyConfig
 import com.danesh.sadad.util.CardTrackUtils
 import com.danesh.sadad.voucher.SadadChargeField62Parser
+import com.danesh.sadad.voucher.SadadChargePinCipher
 import com.danesh.sadad.voucher.SadadVoucherPinProtector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ class SadadTransactionStore @Inject constructor(
     private val reportStorageCleanup: TransactionReportStorageCleanup,
     private val sessionClock: TransactionSessionClock,
     private val voucherPinProtector: SadadVoucherPinProtector,
+    private val chargePinCipher: SadadChargePinCipher,
 ) : TransactionStore<IsoMessage> {
 
     override suspend fun registerSaf(message: IsoMessage) {
@@ -94,12 +96,13 @@ class SadadTransactionStore @Inject constructor(
                     walletCode = destValue.takeIf { destTag == DEST_TAG_WALLET },
                     terminalId = request.terminalId,
                     serialVoucher = chargePins?.serial?.takeIf { it.isNotBlank() },
-                    pinVoucher = chargePins?.pin
+                    pinVoucher = chargePins
+                        ?.let(chargePinCipher::reveal)
                         ?.takeIf { it.isNotBlank() }
                         ?.let { pin ->
-                            Log.d(TAG, "7) encrypt input=$pin")
+                            Log.d(TAG, "7) store encrypt input=$pin")
                             val encrypted = voucherPinProtector.encryptToHex(pin).ifBlank { pin }
-                            Log.d(TAG, "7) encrypt hex output=$encrypted")
+                            Log.d(TAG, "7) store encrypt output=$encrypted")
                             encrypted
                         }
                         ?: run {

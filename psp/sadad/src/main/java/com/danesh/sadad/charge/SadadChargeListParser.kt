@@ -51,7 +51,7 @@ internal object SadadChargeListParser {
             if (!isEnabled(operatorNode)) return@forEach
             val collected = mutableListOf<ChargeProduct>()
             childMenuItems(operatorNode).forEach { child ->
-                collectProducts(child, kind, groupLabel = "", collected)
+                collectProducts(child, kind, groupLabel = "", groupLabelEn = "", collected)
             }
             val providerId = collected.firstOrNull()?.providerId.orEmpty()
             if (providerId.isBlank() || collected.isEmpty()) return@forEach
@@ -73,6 +73,7 @@ internal object SadadChargeListParser {
         node: Element,
         kind: ChargeKind,
         groupLabel: String,
+        groupLabelEn: String,
         out: MutableList<ChargeProduct>,
     ) {
         if (!isEnabled(node)) return
@@ -91,6 +92,8 @@ internal object SadadChargeListParser {
                 loadUssd = descriptor.getAttribute("load"),
                 labelFa = node.getAttribute("fn"),
                 groupLabelFa = groupLabel,
+                labelEn = node.getAttribute("en"),
+                groupLabelEn = groupLabelEn,
                 hasCount = when (descriptor.getAttribute("hasCount").lowercase()) {
                     "false" -> false
                     else -> true
@@ -99,8 +102,9 @@ internal object SadadChargeListParser {
             return
         }
         val nextGroup = node.getAttribute("fn")
+        val nextGroupEn = node.getAttribute("en")
         nested.forEach { child ->
-            collectProducts(child, kind, groupLabel = nextGroup, out)
+            collectProducts(child, kind, groupLabel = nextGroup, groupLabelEn = nextGroupEn, out)
         }
     }
 

@@ -3,8 +3,13 @@ package com.danesh.topup.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import com.danesh.api.ChargeCatalog
 import com.danesh.api.ChargeKind
+import com.danesh.api.displayName
 import com.danesh.api.ChargeProduct
+import com.danesh.api.displayGroupLabel
+import com.danesh.api.displayLabel
 import com.danesh.common.strings.AppStrings
+import com.danesh.common.locale.AppLanguage
+import com.danesh.common.locale.LocalePreferences
 import com.danesh.topup.ChargeOperatorOption
 import com.danesh.topup.MobileOperator
 import com.danesh.topup.operatorCode
@@ -38,7 +43,11 @@ data class TopUpUiState(
 class TopUpViewModel @Inject constructor(
     private val appStrings: AppStrings,
     private val chargeCatalog: ChargeCatalog,
+    localePreferences: LocalePreferences,
 ) : ViewModel() {
+
+    /** نام‌های ChargeList: انگلیسی (`en`) در زبان انگلیسی، فارسی (`fn`) در بقیه. */
+    private val english = localePreferences.getLanguage() == AppLanguage.English
 
     private val catalogOperators = chargeCatalog.operators(ChargeKind.TOPUP)
     private val useCatalog = catalogOperators.isNotEmpty()
@@ -47,7 +56,7 @@ class TopUpViewModel @Inject constructor(
         TopUpUiState(
             operators = if (useCatalog) {
                 catalogOperators.map {
-                    ChargeOperatorOption(it.providerId, it.nameFa, sadadOperatorLogo(it.providerId))
+                    ChargeOperatorOption(it.providerId, it.displayName(english), sadadOperatorLogo(it.providerId))
                 }
             } else {
                 MobileOperator.entries.map {
@@ -182,8 +191,8 @@ class TopUpViewModel @Inject constructor(
     }
 
     private fun ChargeProduct.groupKey(): String {
-        if (groupLabelFa.isNotBlank()) return groupLabelFa
-        if (amountRials == null) return labelFa
+        if (groupLabelFa.isNotBlank() || groupLabelEn.isNotBlank()) return displayGroupLabel(english)
+        if (amountRials == null) return displayLabel(english)
         return ""
     }
 }

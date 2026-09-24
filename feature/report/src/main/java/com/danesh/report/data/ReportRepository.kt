@@ -159,8 +159,11 @@ class ReportRepository @Inject constructor(
     private fun revealStoredVoucherPin(stored: String?): String {
         val value = stored.orEmpty().trim()
         if (LocalSecretCipher.isEncrypted(value)) {
-            return LocalSecretCipher.decrypt(value).orEmpty()
+            val pin = LocalSecretCipher.decrypt(value).orEmpty()
+            Log.d(VOUCHER_PIN_TAG, "report decrypt stored=$value -> pin=$pin ok=${pin.isNotEmpty()}")
+            return pin
         }
+        Log.d(VOUCHER_PIN_TAG, "report stored pin is not keystore-encrypted: $value")
         // رکوردهای قدیمی (رمز با کلید دیتای PED)
         val hex = value.replace(" ", "")
         if (hex.isEmpty()) return ""
@@ -278,4 +281,8 @@ class ReportRepository @Inject constructor(
 
     private fun formatAmount(amount: Long): String =
         NumberFormat.getNumberInstance(Locale.US).format(amount)
+
+    private companion object {
+        const val VOUCHER_PIN_TAG = "sharjHoma"
+    }
 }

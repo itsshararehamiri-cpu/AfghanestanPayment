@@ -57,6 +57,7 @@ class SadadLogonWorkingKeyInjector @Inject constructor(
             device.writeMacKey(plainMac, index = workingIndex)
             device.writeDataKey(plainData, index = workingIndex)
             wrappingKeys.storeWorkingMacKey(plainMac)
+            wrappingKeys.storeWorkingDataKey(plainData)
             workingMacState.markWorkingMacLoaded()
             Log.d(
                 "LOGON",

@@ -9,6 +9,12 @@ import android.util.Log
  * Pin_Count(n2) + Serial_Length(n2) + Pin_Length(n2) + Data(Serial سپس Pin، به تعداد Pin_Count).
  * باقیماندهٔ کوتاه بعد از خواندن کامل جفت‌ها مجاز است.
  *
+ * Pin_Length طول رمز شارژ واقعی (رقم) است، ولی میزبان رمز را به‌صورت BCD با 3DES زیر کلید
+ * DATA رمز می‌کند؛ پس در Data به‌جای Pin_Length کاراکتر، بلوک رمزشده به طول
+ * `roundUp8(ceil(Pin_Length / 2)) * 2` کاراکتر hex می‌آید (مثلاً طول ۱۵ → ۱۶ hex).
+ * در این حالت [SadadChargePins.pinEncrypted] true است و [SadadChargePins.pin] همان hex رمزشده است؛
+ * رمزگشایی در [SadadChargePinCipher] انجام می‌شود.
+ *
  * اگر سرآیند عددی نباشد یا طول‌ها در Data جا نشود، جداسازی فاصله / بایت `00` به‌کار می‌رود.
  */
 data class SadadChargePins(
@@ -16,6 +22,10 @@ data class SadadChargePins(
     val pin: String,
     val ussd: String = "",
     val pinCount: Int = 1,
+    /** true یعنی [pin] بلوک hex رمزشده است، نه رمز شارژ قابل نمایش. */
+    val pinEncrypted: Boolean = false,
+    /** طول رمز شارژ اعلام‌شده در سرآیند (Pin_Length)؛ 0 اگر نامشخص. */
+    val pinLength: Int = 0,
 )
 
 object SadadChargeField62Parser {
@@ -51,26 +61,57 @@ object SadadChargeField62Parser {
         val pinCount = field.substring(0, 2).toIntOrNull() ?: return null
         val serialLen = field.substring(2, 4).toIntOrNull() ?: return null
         val pinLen = field.substring(4, 6).toIntOrNull() ?: return null
-        if (pinCount <= 0 || serialLen < 0 || pinLen < 0) return null
-        val pairLen = serialLen + pinLen
-        if (pairLen <= 0) return null
+        if (pinCount <= 0 || serialLen < 0 || pinLen <= 0) return null
         val data = field.substring(HEADER_LEN)
-        val needed = pinCount * pairLen
-        if (data.length < needed) return null
-        val serial = data.substring(0, serialLen)
-        val pin = data.substring(serialLen, pairLen)
-        val remainderLen = data.length - needed
+        val serial = data.take(serialLen)
         Log.d(
             TAG,
-            "4) counted pinCount=$pinCount serialLen=$serialLen pinLen=$pinLen " +
-                "remainder=$remainderLen",
+            "4) counted header pinCount=$pinCount serialLen=$serialLen pinLen=$pinLen " +
+                "dataLen=${data.length}",
         )
-        Log.d(TAG, "5) counted serial=$serial pin=$pin")
+
+        val cipherLen = encryptedPinHexLength(pinLen)
+        val encryptedPairLen = serialLen + cipherLen
+        if (data.length >= pinCount * encryptedPairLen) {
+            val cipherHex = data.substring(serialLen, encryptedPairLen)
+            if (cipherHex.all { it.isHex() }) {
+                Log.d(
+                    TAG,
+                    "5) counted ENCRYPTED serial=$serial pinCipherHex=$cipherHex " +
+                        "(cipherLen=$cipherLen for pinLen=$pinLen) " +
+                        "remainder=${data.length - pinCount * encryptedPairLen}",
+                )
+                return SadadChargePins(
+                    serial = serial,
+                    pin = cipherHex,
+                    pinCount = pinCount,
+                    pinEncrypted = true,
+                    pinLength = pinLen,
+                )
+            }
+        }
+
+        val plainPairLen = serialLen + pinLen
+        if (data.length < pinCount * plainPairLen) return null
+        val pin = data.substring(serialLen, plainPairLen)
+        Log.d(
+            TAG,
+            "5) counted PLAIN serial=$serial pin=$pin " +
+                "remainder=${data.length - pinCount * plainPairLen}",
+        )
         return SadadChargePins(
             serial = serial,
             pin = pin,
             pinCount = pinCount,
+            pinLength = pinLen,
         )
+    }
+
+    /** طول hex بلوک 3DES رمز BCD با طول [pinLen] رقم. */
+    internal fun encryptedPinHexLength(pinLen: Int): Int {
+        val bcdBytes = (pinLen + 1) / 2
+        val blockBytes = ((bcdBytes + 7) / 8) * 8
+        return blockBytes * 2
     }
 
     private fun splitCharge(text: String): SadadChargePins? {

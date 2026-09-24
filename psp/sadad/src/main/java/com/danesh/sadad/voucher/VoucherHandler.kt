@@ -20,6 +20,7 @@ class VoucherHandler @Inject constructor(
     private val builder: SadadVoucherMessageBuilder,
     private val messages: SadadTransactionMessages,
     private val transport: SadadIsoHandlerSupport,
+    private val pinCipher: SadadChargePinCipher,
 ) : HandlerTransaction<VoucherUserInput, SadadTxnResult, IsoMessage>() {
 
     override val isReversible: Boolean = true
@@ -154,7 +155,7 @@ class VoucherHandler @Inject constructor(
             null
         }
         val serial = pins?.serial.orEmpty().ifBlank { detail.voucherSerial }
-        val pin = pins?.pin.orEmpty().ifBlank { detail.voucherPin }
+        val pin = pins?.let(pinCipher::reveal).orEmpty().ifBlank { detail.voucherPin }
         val ussd = pins?.ussd.orEmpty().ifBlank { detail.voucherMethod.orEmpty() }
         Log.d(TAG, "6) written voucherSerial=$serial voucherPin=$pin voucherUssd=$ussd")
         logField64(response)

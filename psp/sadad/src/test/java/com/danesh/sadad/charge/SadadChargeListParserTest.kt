@@ -1,6 +1,8 @@
 package com.danesh.sadad.charge
 
 import com.danesh.api.ChargeKind
+import com.danesh.api.displayGroupLabel
+import com.danesh.api.displayName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -35,5 +37,20 @@ class SadadChargeListParserTest {
         assertEquals(220_000L, snapshot.topUpOperators.first { it.providerId == "935" }.minChargeAmount)
 
         assertNull(snapshot.products.firstOrNull { it.providerId == "932" })
+
+        val mci = snapshot.voucherOperators.first { it.providerId == "919" }
+        assertEquals("همراه اول", mci.nameFa)
+        assertEquals("IRMCI", mci.nameEn)
+        assertEquals("IRMCI", mci.displayName(english = true))
+        assertEquals("همراه اول", mci.displayName(english = false))
+        assertEquals("Normal Charge", irancellTopUp[0].labelEn)
+        assertEquals("شارژ معمولی", irancellTopUp[0].labelFa)
+
+        val rightelIncredible = snapshot.products.filter {
+            it.kind == ChargeKind.TOPUP && it.providerId == "921" && it.groupLabelEn.isNotBlank()
+        }
+        assertEquals("Incredible Charge", rightelIncredible.first().displayGroupLabel(english = true))
+        assertEquals("شارژ شگفت انگیز", rightelIncredible.first().displayGroupLabel(english = false))
+        assertEquals(6, rightelIncredible.size)
     }
 }

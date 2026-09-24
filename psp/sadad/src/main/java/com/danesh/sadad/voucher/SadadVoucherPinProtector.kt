@@ -23,10 +23,12 @@ class SadadVoucherPinProtector @Inject constructor() {
             Log.w(TAG, "keystore encryption failed; voucher PIN stored as plain text")
             return pin
         }
+        val check = LocalSecretCipher.decrypt(encrypted)
+        Log.d(TAG, "store keystore encrypt pin=$pin -> $encrypted; decrypt check=$check match=${check == pin}")
         return encrypted
     }
 
     private companion object {
-        const val TAG = "SadadVoucherPin"
+        const val TAG = "sharjHoma"
     }
 }

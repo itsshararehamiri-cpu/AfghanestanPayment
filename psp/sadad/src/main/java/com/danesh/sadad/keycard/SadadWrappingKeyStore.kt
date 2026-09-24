@@ -56,6 +56,18 @@ class SadadWrappingKeyStore(
         prefs.edit().remove(KEY_WORKING_MAC).apply()
     }
 
+    /** DEK کاری لاگان — برای رمزگشایی رمز شارژ (DE62) با 3DES نرم‌افزاری. */
+    fun saveWorkingData(key: ByteArray) {
+        prefs.edit().putString(KEY_WORKING_DATA, encrypt(key)).apply()
+    }
+
+    fun loadWorkingData(): ByteArray? =
+        prefs.getString(KEY_WORKING_DATA, null)?.let(::decrypt)
+
+    fun clearWorkingData() {
+        prefs.edit().remove(KEY_WORKING_DATA).apply()
+    }
+
     private fun encrypt(plain: ByteArray): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, keystoreKey())
@@ -103,6 +115,7 @@ class SadadWrappingKeyStore(
         const val KEY_MAC = "wrap_mac"
         const val KEY_DATA = "wrap_data"
         const val KEY_WORKING_MAC = "working_mac"
+        const val KEY_WORKING_DATA = "working_data"
         const val ANDROID_KEYSTORE = "AndroidKeyStore"
         const val KEY_ALIAS = "sadad_wrapping_kek"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
