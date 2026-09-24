@@ -1,3 +1,4 @@
+
 package com.danesh.core
 
 import android.content.Context
@@ -18,10 +19,22 @@ interface Device {
   suspend fun writeMasterKey(masterKey: ByteArray, index: Int = INDEX_TMK)
   suspend fun writeMacKey(macKey: ByteArray, index: Int = INDEX_MAC, wrappingTmk: ByteArray? = null)
   suspend fun writeDataKey(dataKey: ByteArray)
+  suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
+      writeDataKey(dataKey)
+  }
   suspend fun writePinKey(pinKey: ByteArray)
+  suspend fun writePinKey(pinKey: ByteArray, index: Int) {
+      writePinKey(pinKey)
+  }
   suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int = INDEX_MAC)
   suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray)
+  suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) {
+      loadTmkEncryptedPinKey(encryptedKey)
+  }
   suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray)
+  suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) {
+      loadTmkEncryptedDataKey(encryptedKey)
+  }
   fun clearMasterKeyCache() {}
 
   fun hasWorkingMacKeyOnPed(): Boolean = false

@@ -28,12 +28,19 @@ interface KeyCardLoadingService {
     /** مرحله ۱: خواندن و ذخیره‌ی امن جفت کلید RSA از کارت A. */
     suspend fun loadKeyPairFromCardA(pin: String, keyIndex: Int): Result<Unit>
 
-    /** مرحله ۲: خواندن، رمزگشایی و تزریق کلیدهای کاری از کارت B یا C. */
+    /** مرحله ۲: خواندن کلیدهای کارت B/C با [keyIndex]، رمزگشایی با RSA ذخیره‌شده در [rsaKeyIndex]. */
     suspend fun loadAndInjectMasterKeys(
         card: KeyCardType,
         pin: String,
         keyIndex: Int,
+        rsaKeyIndex: Int,
     ): Result<KeyCardKcvSummary>
+
+    /** اندیس ذخیره‌شدهٔ جفت RSA کارت A؛ null اگر هنوز خوانده نشده. */
+    fun persistedRsaKeyIndex(): Int? = null
+
+    /** اندیس ذخیره‌شدهٔ کارت C (اسلات PED قبل از لاگان)؛ null اگر هنوز تزریق نشده. */
+    fun persistedCardCIndex(): Int? = null
 }
 
 /**
@@ -52,6 +59,7 @@ object UnsupportedKeyCardLoadingService : KeyCardLoadingService {
         card: KeyCardType,
         pin: String,
         keyIndex: Int,
+        rsaKeyIndex: Int,
     ): Result<KeyCardKcvSummary> =
         Result.failure(UnsupportedOperationException("Key card loading is not supported for this PSP"))
 }

@@ -24,18 +24,16 @@ import com.danesh.ui.button.GradientActionButton
 import com.danesh.ui.theme.AppColors
 import com.danesh.ui.theme.appTextStyle
 import com.danesh.ui.toolbar.Toolbar
-import com.danesh.voucher.model.MobileOperator
-import com.danesh.voucher.ui.AmountQuickSelectRow
+import com.danesh.voucher.model.ChargeOperatorOption
+import com.danesh.voucher.ui.AmountQuickSelectGrid
 import com.danesh.voucher.ui.OperatorSelectionRow
 import com.danesh.voucher.ui.theme.TopUpColors
-
-private val presetAmounts = listOf(200_000, 500_000, 1_000_000)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoucherScreen( viewModel: VoucherViewModel ,
     onBackClick: () -> Unit = {},
-    onConfirmClick: ( operator: MobileOperator, amount: Int) -> Unit,
+    onConfirmClick: (operatorId: String, productId: String, amount: Int) -> Unit,
 
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,7 +52,7 @@ fun VoucherScreen( viewModel: VoucherViewModel ,
 private fun VoucherContent(
     uiState: VoucherUiState,
     onBackClick: () -> Unit,
-    onOperatorSelected: (MobileOperator) -> Unit,
+    onOperatorSelected: (ChargeOperatorOption) -> Unit,
     onPresetAmountSelected: (Int) -> Unit,
     onConfirmClick: () -> Unit,
 ) {
@@ -76,7 +74,8 @@ private fun VoucherContent(
 
 
                 OperatorSelectionRow(
-                    selectedOperator = uiState.selectedOperator,
+                    operators = uiState.operators,
+                    selectedOperatorId = uiState.selectedOperatorId,
                     onOperatorSelected = onOperatorSelected,
                 )
 
@@ -104,8 +103,8 @@ private fun VoucherContent(
                 )
                                Spacer(modifier = Modifier.height(8.dp))
 
-                AmountQuickSelectRow(
-                    presetAmounts = presetAmounts,
+                AmountQuickSelectGrid(
+                    presetAmounts = uiState.presetAmounts,
                     selectedAmount = uiState.selectedAmount,
                     onAmountSelected = onPresetAmountSelected,
                 )

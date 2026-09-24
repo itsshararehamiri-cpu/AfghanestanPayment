@@ -10,7 +10,10 @@ import com.danesh.common.strings.AppStrings
 import com.example.bill.BillInquiryResultDetails
 import com.example.bill.R
 import com.example.bill.domain.BillInquiryUseCase
+import com.example.bill.iconRes
 import com.example.bill.navigation.BillNavArgs
+import com.example.bill.parseBillInquiryKind
+import com.example.bill.titleRes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +41,10 @@ class BillInquiryViewModel @Inject constructor(
 
     private val billId: String = savedStateHandle.get<String>(BillNavArgs.BILL_ID).orEmpty()
     private val payId: String = savedStateHandle.get<String>(BillNavArgs.PAY_ID).orEmpty()
+    private val amount: String = savedStateHandle.get<String>(BillNavArgs.AMOUNT).orEmpty()
     private val pan: String = savedStateHandle.get<String>(SwipeCardNavArgs.PAN).orEmpty()
     private val track2: String = savedStateHandle.get<String>(SwipeCardNavArgs.TRACK_2).orEmpty()
+    private val billType: String = savedStateHandle.get<String>(BillNavArgs.BILL_TYPE).orEmpty()
 
     private val _uiState = MutableStateFlow(
         BillInquiryUiState(
@@ -62,6 +67,7 @@ class BillInquiryViewModel @Inject constructor(
                     payId = payId,
                     pan = pan,
                     track2 = track2,
+                    amount = amount,
                 )
             }.getOrElse { error ->
                val v= BillInquiryOutput(
@@ -96,6 +102,7 @@ class BillInquiryViewModel @Inject constructor(
                     amount = amount,
                     requestId = result.requestId,
                     billId = result.billId.ifBlank { billId },
+                    payId = result.payId.ifBlank { payId },
                     details = result.toUiDetails(),
                 )
             }
@@ -104,13 +111,11 @@ class BillInquiryViewModel @Inject constructor(
 
     private fun BillInquiryOutput.toUiDetails(): BillInquiryResultDetails {
         val amountLabel = amount.filter { it.isDigit() }.ifBlank { "0" }
-        val title =""
-        /*payerName.ifBlank {
-            companyCode.ifBlank { appStrings.billTypeGeneric() }
-        }*/
+        val kind = parseBillInquiryKind(billType)
+        val title = kind?.let { appStrings.get(it.titleRes()) }.orEmpty()
         return BillInquiryResultDetails(
             billTypeTitle = title,
-            billTypeIcon = R.drawable.ic_water_drop,
+            billTypeIcon = kind?.iconRes() ?: R.drawable.ic_water_drop,
             billId = billId.ifBlank { this@BillInquiryViewModel.billId },
             debtAmount = amountLabel,
             taxAmount = "—",

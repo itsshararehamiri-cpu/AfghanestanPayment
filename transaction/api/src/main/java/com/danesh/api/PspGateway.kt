@@ -29,6 +29,7 @@ data class BillInquiryInput(
     val payId: String,
     val track2: String = "",
     val pan: String = "",
+    val amount: String = "",
 )
 
 //data class BillInquiryOutput(
@@ -63,6 +64,7 @@ data class VoucherInput(
     val amount: Long ,
     val pan: String ,
     val operatorCode: String,
+    val productId: String = "",
 )
 data class TopUpInput(
     val track2: String,
@@ -71,6 +73,7 @@ data class TopUpInput(
     val pan: String = "",
     val mobileNumber: String,
     val operatorCode: String,
+    val productId: String = "",
 )
 
 typealias VoucherOutput = TransactionResultDetail

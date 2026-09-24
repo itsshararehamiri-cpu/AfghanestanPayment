@@ -2,20 +2,21 @@ package com.danesh.iso
 
 
 import android.util.Log
-import com.danesh.iso.field48.Field48Tlv
+import org.jpos.iso.ISOBasePackager
 import org.jpos.iso.ISOException
 import org.jpos.iso.ISOMsg
 import org.jpos.iso.ISOPackager
+import org.jpos.iso.ISOUtil
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.charset.Charset
 import java.util.Date
+import javax.inject.Inject
 
 private val CP1256 = Charset.forName("cp1256")
 private const val LOG_TAG = "SadadIsoMessage"
 
-class SadadIsoMessage(
-    private val field48: Field48Tlv,
+class SadadIsoMessage @Inject constructor(
 ) : IsoMessage {
     private var isoMsg = ISOMsg()
 
@@ -133,7 +134,13 @@ class SadadIsoMessage(
 
     override var additionalAmounts: String
         set(value) = isoMsg.set(54, value)
-        get() = isoMsg.getString(54) ?: ""
+        get() {
+            val bytes = isoMsg.getBytes(54)
+            if (bytes != null && bytes.isNotEmpty()) {
+                return String(bytes, Charsets.ISO_8859_1)
+            }
+            return isoMsg.getString(54).orEmpty()
+        }
 
     override var field55: String
         set(value) = isoMsg.set(55, value)
@@ -170,57 +177,60 @@ class SadadIsoMessage(
     }
 
     override fun setField48(packer: () -> Unit) {
-        packer()
-        isoMsg.set(48, field48.packText())
+     //   field48.clear()
+      //  packer()
+       // isoMsg.set(48, field48.packText())
+    }
+
+    /**
+     * DE48 سداد وقتی TLV/LTV نیست.
+     * پرداخت و استعلام قبض: Bill_ID سیزده رقم + Payment_ID سیزده رقم، بدون تگ.
+     * [setField48] این مقدار را با [field48] بازنویسی می‌کند؛ این مسیر همان رشته را روی پیام می‌گذارد.
+     */
+    fun setPlainField48(value: String) {
+        isoMsg.set(48, value)
     }
 
     override fun unpackField48(data: ByteArray?) {
-        when {
-            data != null -> field48.unpack(data)
-            else -> {
-                val bytes = isoMsg.getBytes(48) ?: return
-                if (bytes.isEmpty()) return
-                field48.unpack(bytes)
-            }
-        }
+
     }
 
-    override fun getField48Tag(tag: String): String? = field48.getNode(tag)
+    override fun getField48Tag(tag: String): String? = null//field48.getNode(tag)
 
     override fun setRrn(rrn: String) {
         isoMsg.set(37, rrn)
     }
 
     override fun setSerial(serial: String) {
-        field48.addNode("001", serial)
+       // field48.addNode("001", serial)
     }
 
     override fun setTransactionType(type: String) {
-        field48.addNode("002", type)
+        //field48.addNode("002", type)
     }
 
     override fun setTerminalType(type: String) {
-        field48.addNode("012", type)
+   //     field48.addNode("012", type)
     }
 
     override fun setCard2NNumber(account: String) {
-        field48.addNode("021", account)
+        //field48.addNode("021", account)
     }
 
     override fun setFinancialTransactionIndicator(indicator: String) {
-        field48.addNode("040", indicator)
+       // field48.addNode("040", indicator)
     }
 
     override fun setProjectCode(projectCode: String) {
-        field48.addNode("007", projectCode)
+        //field48.addNode("007", projectCode)
     }
 
     override fun setTicketCode(ticket: String) {
-        field48.addNode("008", ticket)
+       // field48.addNode("008", ticket)
     }
 
     override fun setField48Tag(tag: String, value: String) {
-        field48.addNode(tag, value)
+        //field48.addNode(tag, value)
     }
 
     override var additionalResponseData: String
@@ -262,13 +272,64 @@ class SadadIsoMessage(
     fun packForMac(): ByteArray {
         val clone = cloneForMac()
         val packed = clone.pack()
-        check(packed.size >= MAC_FIELD_LENGTH)
+        check(packed.size >= MAC_FIELD_LENGTH) {
+            "packed کوتاه‌تر از MAC است: ${packed.size}"
+        }
+        val tail = packed.copyOfRange(packed.size - MAC_FIELD_LENGTH, packed.size)
+        val tailIsZeroMac = tail.all { it == 0.toByte() }
+        if (!tailIsZeroMac) {
+            Log.e(
+                LOG_TAG,
+                "۸ بایت آخر packed صفر نیست tail=${tail.toHex()} — " +
+                    "فرض «Field 64 دقیقاً ۸ بایت انتهای پیام است» برقرار نیست",
+            )
+        }
         val macInput = packed.copyOf(packed.size - MAC_FIELD_LENGTH)
         assertPrimaryBitmapBit64Set(macInput)
         return macInput
     }
 
     fun packIsoBody(): ByteArray = isoMsg.pack()
+
+    /**
+     * macInput را با همان packager فیلد به فیلد می‌برد تا طول و هگز هر DE مشخص شود.
+     * فیلد ۶۴ داخل macInput نیست؛ بیت آن فقط در bitmap روشن است.
+     */
+    fun macInputFieldSlices(macInput: ByteArray): List<MacInputSlice> {
+        val base = isoMsg.packager as? ISOBasePackager ?: return emptyList()
+        val slices = mutableListOf<MacInputSlice>()
+        var offset = 0
+        fun take(name: String, length: Int) {
+            if (length < 0 || offset + length > macInput.size) {
+                slices += MacInputSlice(name, 0, byteArrayOf(), overflow = true)
+                offset = macInput.size
+                return
+            }
+            val bytes = macInput.copyOfRange(offset, offset + length)
+            slices += MacInputSlice(name, length, bytes, overflow = false)
+            offset += length
+        }
+        if (isoMsg.hasField(0)) {
+            val mtiPacked = runCatching {
+                base.getFieldPackager(0).pack(isoMsg.getComponent(0))
+            }.getOrNull()
+            if (mtiPacked != null) take("DE0", mtiPacked.size)
+        }
+        val bitmapLength = if (isoMsg.maxField > 64) 16 else PRIMARY_BITMAP_BYTES
+        take("bitmap", bitmapLength)
+        for (field in 2..isoMsg.maxField) {
+            if (field == 64 || field == 128) continue
+            if (!isoMsg.hasField(field)) continue
+            val packed = runCatching {
+                base.getFieldPackager(field)?.pack(isoMsg.getComponent(field))
+            }.getOrNull() ?: continue
+            take("DE$field", packed.size)
+        }
+        if (offset < macInput.size) {
+            take("tail", macInput.size - offset)
+        }
+        return slices
+    }
 
     fun primaryBitmapHex(macInput: ByteArray): String {
         require(macInput.size >= MTI_BYTES + PRIMARY_BITMAP_BYTES) {
@@ -377,9 +438,15 @@ class SadadIsoMessage(
             isoMsg.packager?.let { clone.setPackager(it) }
         }
         val macField = resolveMacField(clone)
+        Log.d("TAG", "cloneForMac: ddddddddd$macField")
+        Log.d("TAG", "cloneForMac: dddddddddd${ISOUtil.hexString(ByteArray(MAC_FIELD_LENGTH))}")
+
         clone.set(macField, ByteArray(MAC_FIELD_LENGTH))
         return clone
     }
+
+    private fun ByteArray.toHex(): String =
+        joinToString(separator = "") { byte -> "%02X".format(byte.toInt() and 0xFF) }
 
     private fun dumpIsoMsg(msg: ISOMsg): String {
         val baos = ByteArrayOutputStream()
@@ -388,9 +455,16 @@ class SadadIsoMessage(
     }
 
     override fun getFieldByTag(tag: String): String {
-        return  getField48Tag(tag)?:""
+        return getField48Tag(tag) ?: ""
     }
     override fun getIsoMessage(): ISOMsg = isoMsg
+
+    data class MacInputSlice(
+        val name: String,
+        val length: Int,
+        val bytes: ByteArray,
+        val overflow: Boolean,
+    )
 
     companion object {
         const val MAC_FIELD_LENGTH = 8

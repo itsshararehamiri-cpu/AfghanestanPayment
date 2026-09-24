@@ -22,7 +22,7 @@ class BuildConfigIsoMessageCreator @Inject constructor(
         "BP" -> BpIsoMessage(BpField48Tlv()).also { it.setPackager(packager) }
         // فیلد ۴۸ سداد از تگ‌های ۳ کاراکتری استفاده می‌کند (مثل 018/019)، مطابق HpField48Tlv؛
         // BpField48Tlv تگ ۲ کاراکتری فرض می‌کند و آن‌ها را قطع می‌کرد.
-        "SADAD" -> SadadIsoMessage(HpField48Tlv()).also { it.setPackager(packager) }
+        "SADAD" -> SadadIsoMessage().also { it.setPackager(packager) }
         else -> hpIsoMessageProvider.get().also { it.setPackager(packager) }
     }
 }

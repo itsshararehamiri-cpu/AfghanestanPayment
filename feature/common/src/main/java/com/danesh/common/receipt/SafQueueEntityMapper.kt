@@ -37,6 +37,8 @@ internal fun StoreForwardQueueEntity.toQueueItem(): QueueItem {
         functionCode = functionCode,
         reverseDestTag = reverseDestTag,
         reverseDestValue = reverseDestValue,
+        track2 = track2,
+        originalField63 = originalField63,
         status = effectiveStatus,
         queueOperation = QueueOperations.fromSafStatus(effectiveStatus),
     )

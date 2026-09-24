@@ -145,6 +145,7 @@ class SadadGateway @Inject constructor(
                     payId = input.payId,
                     track2 = input.track2,
                     pan = input.pan,
+                    amount = input.amount,
                 ),
                 handler = billInquiryHandler,
             ).inquiry!!
@@ -200,6 +201,7 @@ class SadadGateway @Inject constructor(
                 amount = input.amount.toString(),
                 pan = input.pan,
                 operatorCode = input.operatorCode,
+                productId = input.productId,
             ),
             handler = voucherHandler,
         ).detail
@@ -214,6 +216,7 @@ class SadadGateway @Inject constructor(
                 pan = input.pan,
                 mobileNumber = input.mobileNumber,
                 operatorCode = input.operatorCode,
+                productId = input.productId,
             ),
             handler = topUpHandler,
         ).detail

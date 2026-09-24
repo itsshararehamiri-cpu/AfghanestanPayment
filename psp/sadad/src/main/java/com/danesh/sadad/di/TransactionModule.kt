@@ -6,6 +6,7 @@ import com.danesh.api.PspConfigurationChecker
 import com.danesh.api.PspGateway
 import com.danesh.api.QueueRemovalPolicy
 import com.danesh.api.SafQueueFlusher
+import com.danesh.api.ChargeCatalog
 import com.danesh.api.SupportCatalog
 import com.danesh.api.TransferFlowPolicy
 import com.danesh.api.TransactionFeeCalculator
@@ -16,6 +17,7 @@ import com.danesh.engine.QueueProcessor
 import com.danesh.engine.TransactionStore
 import com.danesh.iso.IsoMessage
 import com.danesh.sadad.SadadGateway
+import com.danesh.sadad.charge.SadadChargeCatalog
 import com.danesh.sadad.SadadTransactionStore
 import com.danesh.sadad.bill.SadadBillFlowPolicy
 import com.danesh.sadad.config.SadadConfigurationChecker
@@ -60,6 +62,11 @@ abstract class TransactionModule {
     abstract fun bindSupportCatalog(
         impl: EmptySupportCatalog,
     ): SupportCatalog
+
+    @Binds
+    abstract fun bindChargeCatalog(
+        impl: SadadChargeCatalog,
+    ): ChargeCatalog
 
     @Binds
     abstract fun bindHostTimeSynchronizer(

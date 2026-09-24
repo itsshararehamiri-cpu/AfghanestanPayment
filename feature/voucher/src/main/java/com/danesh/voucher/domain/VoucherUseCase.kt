@@ -17,6 +17,7 @@ class VoucherUseCase @Inject constructor(
         amount: String,
         pan: String,
         operatorCode: String,
+        productId: String = "",
     ): TransactionResultDetail {
         return withContext(Dispatchers.IO) {
             val amountValue = amount.replace(",", "").toLongOrNull() ?: 0L
@@ -27,6 +28,7 @@ class VoucherUseCase @Inject constructor(
                     amount = amountValue,
                     pan = pan,
                     operatorCode = operatorCode,
+                    productId = productId,
                 ),
             ).copy(transactionType = TransactionType.VOUCHER)
         }

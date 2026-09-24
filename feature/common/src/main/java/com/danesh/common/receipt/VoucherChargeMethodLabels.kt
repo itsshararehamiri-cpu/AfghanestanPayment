@@ -9,6 +9,7 @@ import com.danesh.common.R
 fun voucherOperatorNameRes(operatorCode: String, brand: ReceiptPspBrand = ReceiptPspBrand.BP): Int? =
     when (brand) {
         ReceiptPspBrand.HP -> hpVoucherOperatorNameRes(operatorCode)
+        ReceiptPspBrand.SADAD -> sadadVoucherOperatorNameRes(operatorCode)
         else -> bpVoucherOperatorNameRes(operatorCode)
     }
 
@@ -27,6 +28,15 @@ private fun hpVoucherOperatorNameRes(operatorCode: String): Int? = when (operato
     "2" -> R.string.voucher_operator_mtn
     "3" -> R.string.voucher_operator_awcc
     "4" -> R.string.voucher_operator_etisalat
+    else -> null
+}
+
+@StringRes
+private fun sadadVoucherOperatorNameRes(operatorCode: String): Int? = when (operatorCode.trim()) {
+    "919", "1" -> R.string.voucher_operator_hamrah_e_aval
+    "935", "2" -> R.string.voucher_operator_irancell
+    "921", "3" -> R.string.voucher_operator_rightel
+    "932", "4" -> R.string.voucher_operator_talia
     else -> null
 }
 

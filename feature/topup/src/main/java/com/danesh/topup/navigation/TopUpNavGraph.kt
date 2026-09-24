@@ -17,22 +17,28 @@ import com.danesh.topup.GetPinViewModel
 import com.danesh.topup.SuccessTopUpResultScreen
 import com.danesh.topup.TopUpScreen
 import com.danesh.topup.UnSuccessTopUpResultScreen
-import com.danesh.topup.operatorCode
 
 private object TopUpRoutes {
     const val TOP_UP = "top_up"
     const val SWIPE_CARD =
-        "top_up_swipe_card/{${TopUpNavArgs.AMOUNT}}/{${TopUpNavArgs.MOBILE}}/{${TopUpNavArgs.OPERATOR_CODE}}"
+        "top_up_swipe_card/{${TopUpNavArgs.AMOUNT}}/{${TopUpNavArgs.MOBILE}}/{${TopUpNavArgs.OPERATOR_CODE}}/{${TopUpNavArgs.PRODUCT_ID}}"
     const val GET_PIN =
-        "top_up_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${TopUpNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${TopUpNavArgs.MOBILE}}/{${TopUpNavArgs.OPERATOR_CODE}}"
+        "top_up_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${TopUpNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${TopUpNavArgs.MOBILE}}/{${TopUpNavArgs.OPERATOR_CODE}}/{${TopUpNavArgs.PRODUCT_ID}}"
     const val SUCCESS_RESULT = "top_up_success_result/{${TopUpNavArgs.RESPONSE}}"
     const val UNSUCCESS_RESULT = "top_up_unsuccess_result/{${TopUpNavArgs.RESPONSE}}"
 
-    fun swipeCard(amount: String, mobile: String, operatorCode: String): String =
-        "top_up_swipe_card/${Uri.encode(amount)}/${Uri.encode(mobile)}/${Uri.encode(operatorCode)}"
+    fun swipeCard(amount: String, mobile: String, operatorCode: String, productId: String): String =
+        "top_up_swipe_card/${Uri.encode(amount)}/${Uri.encode(mobile)}/${Uri.encode(operatorCode)}/${Uri.encode(productId.ifBlank { "_" })}"
 
-    fun getPin(track2: String, amount: String, pan: String, mobile: String, operatorCode: String): String =
-        "top_up_get_pin/${Uri.encode(track2)}/${Uri.encode(amount)}/$pan/${Uri.encode(mobile)}/${Uri.encode(operatorCode)}"
+    fun getPin(
+        track2: String,
+        amount: String,
+        pan: String,
+        mobile: String,
+        operatorCode: String,
+        productId: String,
+    ): String =
+        "top_up_get_pin/${Uri.encode(track2)}/${Uri.encode(amount)}/$pan/${Uri.encode(mobile)}/${Uri.encode(operatorCode)}/${Uri.encode(productId.ifBlank { "_" })}"
 
     fun successResult(response: String): String =
         "top_up_success_result/${Uri.encode(response)}"
@@ -54,12 +60,13 @@ fun TopUpNavHost(onFlowComplete: () -> Unit) {
             TopUpScreen(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
-                onConfirmClick = { mobile, operator, amount ->
+                onConfirmClick = { mobile, operatorId, productId, amount ->
                     navController.navigate(
                         TopUpRoutes.swipeCard(
                             amount = amount.toString(),
                             mobile = mobile,
-                            operatorCode = operator.operatorCode(),
+                            operatorCode = operatorId,
+                            productId = productId,
                         ),
                     )
                 },
@@ -71,11 +78,13 @@ fun TopUpNavHost(onFlowComplete: () -> Unit) {
                 navArgument(TopUpNavArgs.AMOUNT) { type = NavType.StringType },
                 navArgument(TopUpNavArgs.MOBILE) { type = NavType.StringType },
                 navArgument(TopUpNavArgs.OPERATOR_CODE) { type = NavType.StringType },
+                navArgument(TopUpNavArgs.PRODUCT_ID) { type = NavType.StringType },
             ),
         ) { backStackEntry ->
             val amount = backStackEntry.arguments?.getString(TopUpNavArgs.AMOUNT).orEmpty()
             val mobile = backStackEntry.arguments?.getString(TopUpNavArgs.MOBILE).orEmpty()
             val operatorCode = backStackEntry.arguments?.getString(TopUpNavArgs.OPERATOR_CODE).orEmpty()
+            val productId = backStackEntry.arguments?.getString(TopUpNavArgs.PRODUCT_ID).orEmpty()
             SwipeCardScreen(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
@@ -87,6 +96,7 @@ fun TopUpNavHost(onFlowComplete: () -> Unit) {
                             pan = pan,
                             mobile = mobile,
                             operatorCode = operatorCode,
+                            productId = productId,
                         ),
                     )
                 },
@@ -102,6 +112,7 @@ fun TopUpNavHost(onFlowComplete: () -> Unit) {
                 navArgument(SwipeCardNavArgs.PAN) { type = NavType.StringType },
                 navArgument(TopUpNavArgs.MOBILE) { type = NavType.StringType },
                 navArgument(TopUpNavArgs.OPERATOR_CODE) { type = NavType.StringType },
+                navArgument(TopUpNavArgs.PRODUCT_ID) { type = NavType.StringType },
             ),
         ) {
             GetPinScreen(

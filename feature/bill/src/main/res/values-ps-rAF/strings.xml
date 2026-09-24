@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="bill_inquiry_title">د بل پوښتنه</string>
+    <string name="bill_inquiry_select_type">د بل ډول وټاکئ</string>
+    <string name="bill_inquiry_type_mobile">د موبایل بل</string>
+    <string name="bill_inquiry_type_telecom">مخابرات</string>
+    <string name="bill_inquiry_type_utility">د اوبو او برېښنا بل</string>
+    <string name="bill_inquiry_enter_mobile">د موبایل شمیره ولیکئ</string>
+    <string name="bill_inquiry_enter_line">د کرښې شمیره ولیکئ</string>
+    <string name="bill_inquiry_enter_bill_id">د بل پیژندنه ولیکئ</string>
+    <string name="bill_inquiry_mobile_label">د موبایل شمیره</string>
+    <string name="bill_inquiry_line_label">د کرښې شمیره</string>
+    <string name="bill_inquiry_mobile_placeholder">د موبایل شمیره ولیکئ</string>
+    <string name="bill_inquiry_line_placeholder">د کرښې شمیره ولیکئ</string>
+    <string name="bill_inquiry_bill_id_placeholder">د بل پیژندنه ولیکئ</string>
+    <string name="bill_inquiry_continue">ادامه</string>
+    <string name="bill_id_invalid">د بل پیژندنه ناسمه ده</string>
+    <string name="bill_id_check_digit">د بل د کنټرول عدد ناسم دی</string>
+    <string name="bill_id_invalid_type">د بل ډول ناسم دی</string>
+    <string name="payment_id_invalid">د تادیې پیژندنه ناسمه ده</string>
+    <string name="payment_id_check_digit">د تادیې د کنټرول عدد ناسم دی</string>
+    <string name="payment_id_pair_mismatch">د بل او تادیې پیژندنه سره نه لګیږي</string>
     <string name="bill_inquiry_result_title">د بل پوښتنې پایله</string>
     <string name="bill_label_bill_id">د بل پیژندنه</string>
     <string name="bill_label_debt_amount">د پور مبلغ</string>

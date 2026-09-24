@@ -105,33 +105,34 @@ internal class K9KeyManager(
             readPedKcv(device, KeyType.MAK, index)?.let { pedKcv ->
                 DeviceTrace.step(KEY_SDK, "writePlaintextMacKey PED MAK KCV@$index=$pedKcv")
             }
+            cacheWorkingMak(key)
         }
     }
 
-    suspend fun writePlaintextDataKey(dataKey: ByteArray) {
+    suspend fun writePlaintextDataKey(dataKey: ByteArray, index: Int = indexData) {
         val device = requirePinpad("writePlaintextDataKey")
         preparePinpad(device)
         val tmkIndex = activeTmkIndex
         val encrypted = encryptWithMasterKey(normalizeDesKey(dataKey), tmkIndex)
         withEcbForKeyLoading(device) {
-            val ok = device.loadTmkEncryptedDek(tmkIndex, indexData, encrypted)
+            val ok = device.loadTmkEncryptedDek(tmkIndex, index, encrypted)
             Log.d("TAG", "writePlaintexddtDataKey: dd$ok")
-            DeviceTrace.debug(KEY_SDK, "writePlaintextDataKey tmkIndex=$tmkIndex dekIndex=$indexData result=$ok")
-            check(ok) { "PED loadTmkEncryptedDek failed tmkIndex=$tmkIndex dekIndex=$indexData" }
-            requirePedKcvMatches(device, KeyType.DEK, indexData, dataKey, "DEK")
+            DeviceTrace.debug(KEY_SDK, "writePlaintextDataKey tmkIndex=$tmkIndex dekIndex=$index result=$ok")
+            check(ok) { "PED loadTmkEncryptedDek failed tmkIndex=$tmkIndex dekIndex=$index" }
+            requirePedKcvMatches(device, KeyType.DEK, index, dataKey, "DEK")
         }
     }
 
-    suspend fun writePlaintextPinKey(pinKey: ByteArray) {
+    suspend fun writePlaintextPinKey(pinKey: ByteArray, index: Int = indexPin) {
         val device = requirePinpad("writePlaintextPinKey")
         preparePinpad(device)
-        val tmkIndex = activeTmkIndex
+        val tmkIndex = 16//activeTmkIndex
         val encrypted = encryptWithMasterKey(normalizeDesKey(pinKey), tmkIndex)
         withEcbForKeyLoading(device) {
-            val ok = device.loadTmkEncryptedPik(tmkIndex, indexPin, encrypted)
-            DeviceTrace.debug(KEY_SDK, "writePlaintextPinKey tmkIndex=$tmkIndex pikIndex=$indexPin result=$ok")
-            check(ok) { "PED loadTmkEncryptedPik failed tmkIndex=$tmkIndex pikIndex=$indexPin" }
-            requirePedKcvMatches(device, KeyType.PIK, indexPin, pinKey, "PIK")
+            val ok = device.loadTmkEncryptedPik(tmkIndex, index, encrypted)
+            DeviceTrace.debug(KEY_SDK, "writePlaintextPinKey tmkIndex=$tmkIndex pikIndex=$index result=$ok")
+            check(ok) { "PED loadTmkEncryptedPik failed tmkIndex=$tmkIndex pikIndex=$index" }
+            requirePedKcvMatches(device, KeyType.PIK, index, pinKey, "PIK")
         }
     }
 
@@ -164,7 +165,7 @@ internal class K9KeyManager(
         }
     }
 
-    suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) {
+    suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int = indexPin) {
         val device = requirePinpad("loadTmkEncryptedPinKey")
         preparePinpad(device)
         val tmkIndex = workingTmkIndex
@@ -176,7 +177,7 @@ internal class K9KeyManager(
             label = "PIK",
             encryptedKey = encryptedKey,
             tmkIndex = tmkIndex,
-            targetIndex = indexPin,
+            targetIndex = index,
             device = device,
         )
         withEcbForKeyLoading(device) {
@@ -185,14 +186,14 @@ internal class K9KeyManager(
                 label = "PIK",
                 encryptedKey = encryptedKey,
                 tmkIndex = tmkIndex,
-                targetIndex = indexPin,
+                targetIndex = index,
                 keyType = KeyType.PIK,
-                loadFn = { tmk, _, cipher -> device.loadTmkEncryptedPik(tmk, indexPin, cipher) },
+                loadFn = { tmk, target, cipher -> device.loadTmkEncryptedPik(tmk, target, cipher) },
             )
         }
     }
 
-    suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) {
+    suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int = indexData) {
         val device = requirePinpad("loadTmkEncryptedDataKey")
         preparePinpad(device)
         val tmkIndex = workingTmkIndex
@@ -204,7 +205,7 @@ internal class K9KeyManager(
             label = "DEK",
             encryptedKey = encryptedKey,
             tmkIndex = tmkIndex,
-            targetIndex = indexData,
+            targetIndex = index,
             device = device,
         )
         withEcbForKeyLoading(device) {
@@ -213,9 +214,9 @@ internal class K9KeyManager(
                 label = "DEK",
                 encryptedKey = encryptedKey,
                 tmkIndex = tmkIndex,
-                targetIndex = indexData,
+                targetIndex = index,
                 keyType = KeyType.DEK,
-                loadFn = { tmk, _, cipher -> device.loadTmkEncryptedDek(tmk, indexData, cipher) },
+                loadFn = { tmk, target, cipher -> device.loadTmkEncryptedDek(tmk, target, cipher) },
             )
         }
     }
@@ -379,11 +380,21 @@ internal class K9KeyManager(
                 "getMac calc PED macType=$macType makIndex=$index macMode=$macMode " +
                         "inputLen=${data.size} cbc=false",
             )
-            val macInfo = PinPadMacInfo.builder(index, data)
+            val macInfo = PinPadMacInfo.builder(17, data)
                 .setMacMode(macMode)
                 .setMacType(macType)
                 .build()
             val mac = device.getMac(macInfo)
+            Log.d(
+                "TAG", "getCheckValCuedmac->${
+                    HexUtils.bytesToHexString(
+                        getCheckValue(
+                            17, keyType = KeyType.MAK
+                        )
+                    )
+                }"
+            )
+            Log.d("TAG", "calcPedMac: ddddd->${HexUtils.bytesToHexString(mac)}")
             if (mac != null && mac.isNotEmpty()) {
                 DeviceTrace.step(KEY_SDK, "getMac ok macType=$macType macLen=${mac.size}")
                 mac

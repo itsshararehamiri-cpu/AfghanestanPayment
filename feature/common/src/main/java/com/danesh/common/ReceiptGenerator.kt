@@ -619,7 +619,7 @@ fun AddBalance(
             .fillMaxWidth(),
     ) {
         Text(
-            text = stringResource(com.danesh.common.R.string.label_available_balance),
+            text = stringResource(com.danesh.common.R.string.label_balance),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(end =0.dp )
@@ -694,7 +694,38 @@ fun AddAvailableBalance(
     balance: String, textColor: Color,
     isPaperReceipt: Boolean = false
 ) {
- //
+    val context = LocalContext.current
+    Row(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = stringResource(com.danesh.common.R.string.label_available_balance),
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(end = 0.dp)
+                .layoutId("first"),
+            color = textColor,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontSize = getFontSize(isPaperReceipt, context),
+                fontWeight = getFontWeight(isPaperReceipt, context),
+            ).withAppFont(),
+            textAlign = TextAlign.End,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = amountWithCurrency(receiptAmountText(balance)),
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(start = 0.dp)
+                .layoutId("second"),
+            color = textColor,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontSize = getFontSize(isPaperReceipt, context),
+                fontWeight = FontWeight.Medium,
+            ),
+            textAlign = TextAlign.Start,
+        )
+    }
 }
 
 @Composable

@@ -25,7 +25,7 @@ class BillInquiryHandler @Inject constructor(
     override val needAdvice: Boolean = false
 
     override fun buildMessage(request: BillInquiryRequest): IsoMessage =
-        billInquiryMessageBuilder.build(request)
+        kotlinx.coroutines.runBlocking { billInquiryMessageBuilder.build(request) }
 
     override fun queueFailure(request: BillInquiryRequest): SadadBillInquiryResult {
         val message = buildMessage(request)
@@ -36,9 +36,10 @@ class BillInquiryHandler @Inject constructor(
             isSuccess = false,
             responseMessage = messages.queueFailed(),
         ).copy(responseCode = TransactionTransportCodes.QUEUE_BLOCKED)
+        val enriched = overlayBill(detail, request, response = null)
         return SadadBillInquiryResult(
-            inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
-            detail = detail,
+            inquiry = enriched,
+            detail = enriched,
         )
     }
 
@@ -50,17 +51,18 @@ class BillInquiryHandler @Inject constructor(
         sentMessage: IsoMessage,
         response: IsoMessage?,
     ): SadadBillInquiryResult {
-        val detail = transport.map(
-            transactionType = TransactionType.BILL,
-            request = sentMessage,
-            response = response,
-            isSuccess = false,
-            responseMessage = messages.failed(),
+        val detail = overlayBill(
+            transport.map(
+                transactionType = TransactionType.BILL,
+                request = sentMessage,
+                response = response,
+                isSuccess = false,
+                responseMessage = messages.failed(),
+            ),
+            request,
+            response,
         )
-        return SadadBillInquiryResult(
-            inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
-            detail = detail,
-        )
+        return SadadBillInquiryResult(inquiry = detail, detail = detail)
     }
 
     override fun success(
@@ -68,23 +70,18 @@ class BillInquiryHandler @Inject constructor(
         sentMessage: IsoMessage,
         response: IsoMessage?,
     ): SadadBillInquiryResult {
-        val detail = transport.map(
-            transactionType = TransactionType.BILL,
-            request = sentMessage,
-            response = response,
-            isSuccess = true,
-            responseMessage = messages.success(),
-        )
-        return SadadBillInquiryResult(
-            inquiry = mapInquiry(
-                request = request,
+        val detail = overlayBill(
+            transport.map(
+                transactionType = TransactionType.BILL,
+                request = sentMessage,
                 response = response,
                 isSuccess = true,
-                responseMessage = detail.responseMessage,
-                responseCode = detail.responseCode,
+                responseMessage = messages.success(),
             ),
-            detail = detail,
+            request,
+            response,
         )
+        return SadadBillInquiryResult(inquiry = detail, detail = detail)
     }
 
     override fun connectFailure(
@@ -99,10 +96,8 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.CONNECT_FAILED,
             responseMessage = transport.connectFailedMessage(error),
         )
-        return SadadBillInquiryResult(
-            inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
-            detail = detail,
-        )
+        val enriched = overlayBill(detail, request, response = null)
+        return SadadBillInquiryResult(inquiry = enriched, detail = enriched)
     }
 
     override fun sendFailure(
@@ -117,10 +112,8 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.SEND_FAILED,
             responseMessage = transport.sendFailedMessage(error),
         )
-        return SadadBillInquiryResult(
-            inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
-            detail = detail,
-        )
+        val enriched = overlayBill(detail, request, response = null)
+        return SadadBillInquiryResult(inquiry = enriched, detail = enriched)
     }
 
     override fun receiveFailure(
@@ -135,10 +128,8 @@ class BillInquiryHandler @Inject constructor(
             responseCode = TransactionTransportCodes.RECEIVE_FAILED,
             responseMessage = transport.receiveFailedMessage(error),
         )
-        return SadadBillInquiryResult(
-            inquiry = failureOutput(request, detail.responseCode, detail.responseMessage),
-            detail = detail,
-        )
+        val enriched = overlayBill(detail, request, response = null)
+        return SadadBillInquiryResult(inquiry = enriched, detail = enriched)
     }
 
     override fun networkError(
@@ -147,36 +138,28 @@ class BillInquiryHandler @Inject constructor(
         e: Exception,
     ): SadadBillInquiryResult = receiveFailure(request, sentMessage, e)
 
-    private fun mapInquiry(
+    /**
+     * مبلغ قبض از DE4 پاسخ استعلام می‌آید. اگر سوئیچ مبلغی نداد، از شناسه پرداخت استخراج می‌شود.
+     */
+    private fun overlayBill(
+        detail: com.danesh.api.TransactionResultDetail,
         request: BillInquiryRequest,
         response: IsoMessage?,
-        isSuccess: Boolean,
-        responseMessage: String,
-        responseCode: String,
     ): BillInquiryOutput {
-        response?.unpackField48()
-        val amountFromTag = response?.getField48Tag("857")?.filter { it.isDigit() }.orEmpty()
-        val amountFromDe4 = response?.amount?.filter { it.isDigit() }.orEmpty()
-        val billAmount = (amountFromTag.ifBlank { amountFromDe4 })
-            .trimStart('0')
-            .ifBlank { "0" }
-        return BillInquiryOutput(
-            isSuccess = isSuccess,
-            responseCode = responseCode.ifBlank { response?.responseCode.orEmpty() },
-            responseMessage = responseMessage,
-            billId = response?.getField48Tag("850")?.ifBlank { request.billId } ?: request.billId,
-            amount = billAmount,
+        val fromSwitch = response?.amount?.filter(Char::isDigit).orEmpty().trimStart('0')
+        val parsedIds = response?.let { message ->
+            runCatching { SadadBillFields.parseField48(message.getIsoMessage().getString(48)) }
+                .getOrNull()
+        }
+        val billId = parsedIds?.first?.ifBlank { request.billId } ?: request.billId
+        val payId = parsedIds?.second?.ifBlank { request.payId } ?: request.payId
+        val amount = fromSwitch.ifBlank {
+            SadadBillFields.amountFromPaymentId(payId).trimStart('0')
+        }.ifBlank { "0" }
+        return detail.copy(
+            billId = billId,
+            payId = payId,
+            amount = amount,
         )
     }
-
-    private fun failureOutput(
-        request: BillInquiryRequest,
-        responseCode: String,
-        responseMessage: String,
-    ): BillInquiryOutput = BillInquiryOutput(
-        isSuccess = false,
-        responseCode = responseCode,
-        responseMessage = responseMessage,
-        billId = request.billId,
-    )
 }

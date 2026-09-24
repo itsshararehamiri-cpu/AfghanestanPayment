@@ -12,6 +12,7 @@
     <string name="menu_report">گزارشات</string>
     <string name="menu_balance">استعلام موجودی</string>
     <string name="menu_bill">پرداخت قبض</string>
+    <string name="menu_bill_inquiry">استعلام قبض</string>
     <string name="menu_topup">شارژ موبایل</string>
     <string name="menu_voucher">کد شارژ</string>
     <string name="menu_support">پشتیبانی</string>

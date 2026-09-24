@@ -7,3 +7,6 @@ internal fun String.decodeHexKey(): ByteArray {
         clean.substring(index * 2, index * 2 + 2).toInt(16).toByte()
     }
 }
+
+internal fun ByteArray.encodeHexKey(): String =
+    joinToString(separator = "") { byte -> "%02X".format(byte.toInt() and 0xFF) }

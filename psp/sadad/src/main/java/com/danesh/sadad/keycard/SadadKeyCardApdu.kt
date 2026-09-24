@@ -71,6 +71,18 @@ internal object SadadKeyCardApdu {
     }
 
     const val SW_OK = 0x9000
+    const val SW1_MORE_DATA = 0x61
+
+    fun getResponse(length: Int): ByteArray {
+        val le = if (length <= 0) 0x80 else length.coerceAtMost(0xFF)
+        return byteArrayOf(0x00, 0xC0.toByte(), 0x00, 0x00, le.toByte())
+    }
+
+    fun moreDataLength(sw: Int): Int? {
+        if ((sw shr 8) != SW1_MORE_DATA) return null
+        val le = sw and 0xFF
+        return if (le == 0) 0x80 else le
+    }
 
     /** بررسی SW و در صورت خطا پرتاب [SadadKeyCardException] با پیام قابل فهم. */
     fun requireSuccess(response: ByteArray, operation: String): ByteArray {

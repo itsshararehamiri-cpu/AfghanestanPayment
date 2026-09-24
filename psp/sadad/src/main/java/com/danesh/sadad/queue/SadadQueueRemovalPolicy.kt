@@ -8,6 +8,8 @@ import javax.inject.Singleton
 
 @Singleton
 class SadadQueueRemovalPolicy @Inject constructor() : QueueRemovalPolicy {
-    override fun shouldRemoveFromQueue(result: AdviceReverseResult): Boolean =
-        DefaultQueueRemovalPolicy.shouldRemoveFromQueue(result)
+    override fun shouldRemoveFromQueue(result: AdviceReverseResult): Boolean {
+        if (SadadSafResponseCodes.isSuccess(result.responseCode)) return true
+        return DefaultQueueRemovalPolicy.shouldRemoveFromQueue(result)
+    }
 }

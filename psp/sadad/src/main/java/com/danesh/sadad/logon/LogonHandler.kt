@@ -1,5 +1,6 @@
 package com.danesh.sadad.logon
 
+import android.util.Log
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.IsoResponseCodes
 import com.danesh.api.LogonRequest
@@ -25,6 +26,7 @@ class LogonHandler @Inject constructor(
     private val deviceWorkflow: SadadDeviceWorkflow,
     private val configurationStore: DeviceConfigurationStore,
     private val contextProvider: TransactionContextProvider,
+    private val workingKeyInjector: SadadLogonWorkingKeyInjector,
 ) : HandlerTransaction<LogonRequest, SadadNetworkResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -32,7 +34,7 @@ class LogonHandler @Inject constructor(
     override val skipQueueFlush: Boolean = true
 
     override fun buildMessage(request: LogonRequest): IsoMessage =
-        logonMessageBuilder.build()
+         kotlinx.coroutines.runBlocking {  logonMessageBuilder.build()}
 
     override fun queueFailure(request: LogonRequest): SadadNetworkResult {
         val message = buildMessage(request)
@@ -73,10 +75,7 @@ class LogonHandler @Inject constructor(
         return try {// TODO:
             if (response != null) {
                 persistTerminalIds(response)
-                kotlinx.coroutines.runBlocking {
-//                    deviceOperations.completeLogon(deviceWorkflow.hardcodedWorkingKeys())
-//                    configurationStore.markConfigured()
-                }
+                parseAndApplyField48(response)
             }
             SadadNetworkResult(
                 detail = transport.map(
@@ -88,6 +87,7 @@ class LogonHandler @Inject constructor(
                 ),
             )
         } catch (error: Exception) {
+            Log.e("LOGON", "logon success path failed (field48 inject)", error)
             SadadNetworkResult(
                 detail = transport.failureDetail(
                     transactionType = TransactionType.LOGON,
@@ -147,6 +147,32 @@ class LogonHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): SadadNetworkResult = receiveFailure(request, sentMessage, e)
+
+    /**
+     * DE48 پاسخ LOGON: TMS NEED + CHANGE_KEY NEED و در صورت نیاز کلیدهای 3-DES.
+     */
+    private fun parseAndApplyField48(response: IsoMessage) {
+        val raw = response.getIsoMessage().getString(48).orEmpty()
+        Log.d("LOGON", "DE48 raw='$raw' len=${raw.length}")
+        val parsed = SadadLogonField48Parser.parse(raw)
+        if (parsed == null) {
+            Log.w("LOGON", "DE48 missing or not TMS/CHANGE_KEY layout")
+            return
+        }
+        Log.d("LOGON", "TMS NEED=${if (parsed.tmsNeed) 1 else 0}")
+        Log.d("LOGON", "CHANGE_KEY NEED=${if (parsed.changeKeyNeed) 1 else 0}")
+        if (!parsed.changeKeyNeed) {
+            Log.d("LOGON", "CHANGE_KEY NEED=0 — encryption keys not present")
+            return
+        }
+        Log.d("LOGON", "PIN 3-DES=${parsed.pinKey}")
+        Log.d("LOGON", "MAC 3-DES=${parsed.macKey}")
+        Log.d("LOGON", "DATA 3-DES=${parsed.dataKey}")
+        if (!SadadLogonField48Parser.hasFullKeys(parsed)) {
+            error("CHANGE_KEY NEED=1 but keys shorter than ${SadadLogonField48Parser.EXPECTED_KEYS_LENGTH}")
+        }
+        kotlinx.coroutines.runBlocking { workingKeyInjector.inject(parsed) }
+    }
 
     /**
      * DE41/DE42 پاسخ LOGON — سوئیچ شماره ترمینال/پذیرنده را برمی‌گرداند و باید

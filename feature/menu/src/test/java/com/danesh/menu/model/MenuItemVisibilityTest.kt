@@ -35,6 +35,7 @@ class MenuItemVisibilityTest {
             MenuItemType.PURCHASE,
             MenuItemType.BALANCE,
             MenuItemType.BILL,
+            MenuItemType.BILL_INQUIRY,
             MenuItemType.TOPUP,
             MenuItemType.VOUCHER,
             MenuItemType.SUPPORT,
@@ -44,6 +45,48 @@ class MenuItemVisibilityTest {
         ).forEach { item ->
             assertTrue(item.requiresTerminalConfiguration)
         }
+    }
+
+    @Test
+    fun `sadad features show bill inquiry and hide transfer`() {
+        val visible = visibleHomeMenuItems(
+            enabledFeatures = setOf(
+                "PURCHASE",
+                "TOPUP",
+                "BILL",
+                "BILL_INQUIRY",
+                "BALANCE",
+                "SETTINGS",
+                "REPORT",
+                "VOUCHER",
+            ),
+            disabledFeatures = emptySet(),
+        )
+
+        assertTrue(visible.contains(MenuItemType.BILL_INQUIRY))
+        assertTrue(visible.contains(MenuItemType.BILL))
+        assertFalse(visible.contains(MenuItemType.TRANSFER))
+    }
+
+    @Test
+    fun `hamrahPay features keep transfer and hide bill inquiry`() {
+        val visible = visibleHomeMenuItems(
+            enabledFeatures = setOf(
+                "TRANSFER",
+                "CASH_DEPOSIT",
+                "CASH_OUT",
+                "SETTINGS",
+                "REPORT",
+                "PURCHASE",
+                "BALANCE",
+                "BILL",
+            ),
+            disabledFeatures = emptySet(),
+        )
+
+        assertTrue(visible.contains(MenuItemType.TRANSFER))
+        assertTrue(visible.contains(MenuItemType.BILL))
+        assertFalse(visible.contains(MenuItemType.BILL_INQUIRY))
     }
 
     @Test

@@ -3,8 +3,11 @@ package com.danesh.sadad.balance
 import com.danesh.api.BalanceUserInput
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.iso.packager.SadadIso93BPackager
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
+import com.danesh.sadad.logon.buildField59
+import com.danesh.sadad.mac.SadadMacCalculator
 import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,10 +31,10 @@ import javax.inject.Singleton
 @Singleton
 class SadadBalanceMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
-    private val messageProvider: IsoMessageProvider,
+    private val messageProvider: IsoMessageProvider,private val macCalculator: SadadMacCalculator,
 ) {
-    fun build(request: BalanceUserInput): IsoMessage {
-        return messageProvider.create().apply {
+    suspend fun build(request: BalanceUserInput): IsoMessage {
+        val message= messageProvider.create().apply {
             mti = SadadKeyConfig.BALANCE_MTI
             processingCode = SadadKeyConfig.BALANCE_PROCESSING_CODE
             stan = messageSupport.nextStan()
@@ -41,13 +44,14 @@ class SadadBalanceMessageBuilder @Inject constructor(
 //            messageReasonCode = SadadKeyConfig.BALANCE_POS_CONDITION_CODE
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
-            merchantId = messageSupport.merchantIdOrDefault()
+            merchantId =messageSupport.merchantIdOrDefault()
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
-            transportData=""
-            messageSupport.run { setSadadTransportData(transportData()) }
-            privateUseField63 = messageSupport.functionCode040Field63()
-            mac = SadadKeyConfig.EMPTY_MAC
+            transportData = messageSupport.initTransportData()
         }
+        message.setPackager(SadadIso93BPackager())
+        macCalculator.applyTransactionMac(message)
+        return message
+
     }
 }
 /*

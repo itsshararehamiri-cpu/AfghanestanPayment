@@ -44,15 +44,23 @@ class LoggingDevice(
     }
 
     override suspend fun writeDataKey(dataKey: ByteArray) {
-        DeviceTrace.step("writeDataKey", "bytes=${dataKey.size}")
-        delegate.writeDataKey(dataKey)
-        DeviceTrace.step("writeDataKey", "completed")
+        writeDataKey(dataKey, INDEX_DATA)
+    }
+
+    override suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
+        DeviceTrace.step("writeDataKey", "bytes=${dataKey.size} index=$index")
+        delegate.writeDataKey(dataKey, index)
+        DeviceTrace.step("writeDataKey", "inject index=$index نتیجه=موفق")
     }
 
     override suspend fun writePinKey(pinKey: ByteArray) {
-        DeviceTrace.step("writePinKey", "bytes=${pinKey.size}")
-        delegate.writePinKey(pinKey)
-        DeviceTrace.step("writePinKey", "completed")
+        writePinKey(pinKey, INDEX_PIN)
+    }
+
+    override suspend fun writePinKey(pinKey: ByteArray, index: Int) {
+        DeviceTrace.step("writePinKey", "bytes=${pinKey.size} index=$index")
+        delegate.writePinKey(pinKey, index)
+        DeviceTrace.step("writePinKey", "inject index=$index نتیجه=موفق")
     }
 
     override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) {
@@ -65,29 +73,36 @@ class LoggingDevice(
     }
 
     override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) {
+        loadTmkEncryptedPinKey(encryptedKey, INDEX_PIN)
+    }
+
+    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) {
         DeviceTrace.step(
             "loadTmkEncryptedPinKey",
-            "قبل از inject index=$INDEX_PIN encryptedBytes=${encryptedKey.size}",
+            "قبل از inject index=$index encryptedBytes=${encryptedKey.size}",
         )
-        delegate.loadTmkEncryptedPinKey(encryptedKey)
-        DeviceTrace.step("loadTmkEncryptedPinKey", "inject index=$INDEX_PIN نتیجه=موفق")
+        delegate.loadTmkEncryptedPinKey(encryptedKey, index)
+        DeviceTrace.step("loadTmkEncryptedPinKey", "inject index=$index نتیجه=موفق")
     }
 
     override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) {
+        loadTmkEncryptedDataKey(encryptedKey, INDEX_DATA)
+    }
+
+    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) {
         DeviceTrace.step(
             "loadTmkEncryptedDataKey",
-            "قبل از inject index=$INDEX_DATA encryptedBytes=${encryptedKey.size}",
+            "قبل از inject index=$index encryptedBytes=${encryptedKey.size}",
         )
-        delegate.loadTmkEncryptedDataKey(encryptedKey)
-        DeviceTrace.step("loadTmkEncryptedDataKey", "inject index=$INDEX_DATA نتیجه=موفق")
+        delegate.loadTmkEncryptedDataKey(encryptedKey, index)
+        DeviceTrace.step("loadTmkEncryptedDataKey", "inject index=$index نتیجه=موفق")
     }
 
     override fun clearMasterKeyCache() = delegate.clearMasterKeyCache()
 
     override fun hasWorkingMacKeyOnPed(): Boolean = delegate.hasWorkingMacKeyOnPed()
 
-    @Deprecated("Keys are not cached in app memory")
-    override fun peekWorkingMacKey(): ByteArray? = null
+    override fun peekWorkingMacKey(): ByteArray? = delegate.peekWorkingMacKey()
 
     @Deprecated("Keys are not cached in app memory")
     override fun clearWorkingMacKeyCache() = Unit

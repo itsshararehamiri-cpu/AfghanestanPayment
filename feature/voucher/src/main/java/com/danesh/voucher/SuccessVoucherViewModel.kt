@@ -2,10 +2,12 @@ package com.danesh.voucher
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.danesh.api.TransactionResultDetail
+import com.danesh.api.parseTransactionResultDetail
 import com.danesh.common.receipt.QueueCustomerReceiptPrintTracker
 import com.danesh.core.Device
 import com.google.gson.Gson
@@ -28,7 +30,15 @@ class SuccessTopUpViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun init(response: String) {
         viewModelScope.launch {
-            val result = Gson().fromJson(response, TransactionResultDetail::class.java)
+            val result = parseTransactionResultDetail(response)
+                ?: Gson().fromJson(response, TransactionResultDetail::class.java)
+            Log.d(
+                "sharjHoma",
+                "9) success screen serial='${result?.voucherSerial.orEmpty()}' " +
+                    "pin='${result?.voucherPin.orEmpty()}' " +
+                    "serialBlank=${result?.voucherSerial.isNullOrBlank()} " +
+                    "pinBlank=${result?.voucherPin.isNullOrBlank()}",
+            )
             _uiState.update {
                 it.copy(result = result)
             }

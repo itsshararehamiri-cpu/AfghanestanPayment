@@ -46,4 +46,8 @@ data class StoreForwardQueueEntity(
     var reverseDestTag: String? = null,
     /** مقدار مقصد DE48 برای Reverse — PAN مقصد یا کد کیف پول */
     var reverseDestValue: String? = null,
+    /** Track 2 تراکنش اصلی برای Reverse سداد */
+    var track2: String? = null,
+    /** فیلد ۶۳ تراکنش اصلی برای Advice/Reverse سداد */
+    var originalField63: String? = null,
 )

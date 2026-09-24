@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="bill_inquiry_title">استعلام قبض</string>
+    <string name="bill_inquiry_select_type">نوع قبض را انتخاب کنید</string>
+    <string name="bill_inquiry_type_mobile">قبض موبایل</string>
+    <string name="bill_inquiry_type_telecom">مخابرات</string>
+    <string name="bill_inquiry_type_utility">قبض آب و برق</string>
+    <string name="bill_inquiry_enter_mobile">شماره موبایل را وارد کنید</string>
+    <string name="bill_inquiry_enter_line">شماره خط را وارد کنید</string>
+    <string name="bill_inquiry_enter_bill_id">شناسه قبض را وارد کنید</string>
+    <string name="bill_inquiry_mobile_label">شماره موبایل</string>
+    <string name="bill_inquiry_line_label">شماره خط</string>
+    <string name="bill_inquiry_mobile_placeholder">شماره موبایل را وارد کنید</string>
+    <string name="bill_inquiry_line_placeholder">شماره خط را وارد کنید</string>
+    <string name="bill_inquiry_bill_id_placeholder">شناسه قبض را وارد کنید</string>
+    <string name="bill_inquiry_continue">ادامه</string>
     <string name="bill_inquiry_result_title">نتیجه استعلام قبض</string>
     <string name="bill_label_bill_id">شناسه قبض</string>
     <string name="bill_label_debt_amount">مبلغ بدهی</string>

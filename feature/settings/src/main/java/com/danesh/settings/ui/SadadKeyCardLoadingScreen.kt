@@ -39,7 +39,8 @@ import com.danesh.ui.toolbar.Toolbar
 fun SadadKeyCardLoadingScreen(
     uiState: SadadKeyCardLoadingUiState,
     onBackClick: () -> Unit,
-    onKeyIndexChange: (String) -> Unit,
+    onCardAIndexChange: (String) -> Unit,
+    onCardCIndexChange: (String) -> Unit,
     onCardAPinChange: (String) -> Unit,
     onCardBcPinChange: (String) -> Unit,
     onSelectCard: (KeyCardType) -> Unit,
@@ -64,10 +65,21 @@ fun SadadKeyCardLoadingScreen(
                 .padding(top = 8.dp, bottom = 24.dp),
         ) {
             SettingsTextField(
-                value = uiState.keyIndex,
-                onValueChange = onKeyIndexChange,
-                label = stringResource(R.string.settings_key_card_key_index_label),
-                placeholder = stringResource(R.string.settings_key_card_key_index_placeholder),
+                value = uiState.cardAIndex,
+                onValueChange = onCardAIndexChange,
+                label = stringResource(R.string.settings_key_card_index_a_label),
+                placeholder = stringResource(R.string.settings_key_card_index_a_placeholder),
+                enabled = !uiState.isLoading,
+                inputFilter = SettingsTextInputFilter.PositiveInteger,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            SettingsTextField(
+                value = uiState.cardCIndex,
+                onValueChange = onCardCIndexChange,
+                label = stringResource(R.string.settings_key_card_index_c_label),
+                placeholder = stringResource(R.string.settings_key_card_index_c_placeholder),
                 enabled = !uiState.isLoading,
                 inputFilter = SettingsTextInputFilter.PositiveInteger,
             )

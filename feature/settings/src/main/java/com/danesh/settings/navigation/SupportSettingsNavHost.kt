@@ -303,7 +303,8 @@ fun SupportSettingsNavHost(
                 SadadKeyCardLoadingScreen(
                     uiState = cardUiState,
                     onBackClick = { navController.popBackStack() },
-                    onKeyIndexChange = cardViewModel::updateKeyIndex,
+                    onCardAIndexChange = cardViewModel::updateCardAIndex,
+                    onCardCIndexChange = cardViewModel::updateCardCIndex,
                     onCardAPinChange = cardViewModel::updateCardAPin,
                     onCardBcPinChange = cardViewModel::updateCardBcPin,
                     onSelectCard = cardViewModel::selectCard,

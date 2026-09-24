@@ -13,6 +13,7 @@ import com.danesh.bp.config.BpConfigurationChecker
 import com.danesh.bp.config.BpInitialConfigurationPolicy
 import com.danesh.api.QueueRemovalPolicy
 import com.danesh.api.SupportCatalog
+import com.danesh.api.ChargeCatalog
 import com.danesh.bp.bill.BpBillFlowPolicy
 import com.danesh.bp.BpGateway
 import com.danesh.bp.BpTransactionStore
@@ -62,6 +63,11 @@ abstract class TransactionModule {
     abstract fun bindSupportCatalog(
         impl: BpSupportMenuStore,
     ): SupportCatalog
+
+    @Binds
+    abstract fun bindChargeCatalog(
+        impl: com.danesh.bp.voucher.EmptyChargeCatalog,
+    ): ChargeCatalog
 
     @Binds
     abstract fun bindSupportMenuPersister(

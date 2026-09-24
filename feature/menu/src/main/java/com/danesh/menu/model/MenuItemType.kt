@@ -11,6 +11,7 @@ enum class MenuItemType(
     PURCHASE(R.string.menu_purchase, R.drawable.ic_purchase),
     BALANCE(R.string.menu_balance, R.drawable.ic_balance),
     BILL(R.string.menu_bill, R.drawable.ic_bill),
+    BILL_INQUIRY(R.string.menu_bill_inquiry, R.drawable.ic_bill),
     TOPUP(R.string.menu_topup, R.drawable.ic_charge),
     VOUCHER(R.string.menu_voucher, R.drawable.ic_charge),
 
@@ -44,6 +45,7 @@ private val menuItemsAccessibleWithoutNetwork = setOf(
 
 val homeMenuItems = listOf(
     MenuItemType.BILL,
+    MenuItemType.BILL_INQUIRY,
     MenuItemType.BALANCE,
     MenuItemType.PURCHASE,
     MenuItemType.SUPPORT,

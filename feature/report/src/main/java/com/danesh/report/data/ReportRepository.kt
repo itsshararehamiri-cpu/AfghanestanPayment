@@ -8,6 +8,7 @@ import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionType
 import com.danesh.api.maskPanForDisplay
 import com.danesh.api.toTransactionResultDetail
+import com.danesh.core.Device
 import com.danesh.database.dao.TransactionReportDao
 import com.danesh.database.entity.TransactionReportEntity
 import com.danesh.report.model.AggregateInvoiceReport
@@ -33,6 +34,7 @@ class ReportRepository @Inject constructor(
     private val currencyDefaults: CurrencyDefaultsProvider,
     private val safQueueReader: SafQueueReader,
     private val contextProvider: TransactionContextProvider,
+    private val device: Device,
 ) {
     suspend fun getSummary(): ReportSummary = withContext(Dispatchers.IO) {
         val todayStart = startOfTodayMillis()
@@ -153,6 +155,22 @@ class ReportRepository @Inject constructor(
     private fun TransactionReportEntity.isLikelyTopUp(): Boolean =
         !mobileNumber.isNullOrBlank() || operatorCode != null
 
+    private fun revealStoredVoucherPin(stored: String?): String {
+        val hex = stored.orEmpty().trim().replace(" ", "")
+        if (hex.isEmpty()) return ""
+        if (hex.length < 16 || hex.length % 2 != 0) return stored.orEmpty()
+        if (!hex.all { it in '0'..'9' || it in 'A'..'F' || it in 'a'..'f' }) return stored.orEmpty()
+        val cipher = runCatching {
+            ByteArray(hex.length / 2) { index ->
+                hex.substring(index * 2, index * 2 + 2).toInt(16).toByte()
+            }
+        }.getOrNull() ?: return stored.orEmpty()
+        if (cipher.size % 8 != 0) return stored.orEmpty()
+        val decrypted = device.decrypt(cipher) ?: return stored.orEmpty()
+        val pin = String(decrypted, Charsets.US_ASCII).trimEnd('\u0000').trim()
+        return pin.ifEmpty { stored.orEmpty() }
+    }
+
     private fun TransactionReportEntity.toTransactionResultDetail(): TransactionResultDetail {
         val terminalConfig = contextProvider.getTerminalConfig()
         val transactionType = with(ReportFilterMatcher) { resolveTransactionType() }
@@ -187,7 +205,8 @@ class ReportRepository @Inject constructor(
             posCode = categoryTag,
             productCode = operatorCode?.toString().orEmpty(),
             voucherSerial = serialVoucher.orEmpty(),
-            voucherPin = pinVoucher.orEmpty(),
+            voucherPin = revealStoredVoucherPin(pinVoucher),
+            voucherMethod = serviceDesc,
             mobileNumber = mobileNumber.orEmpty(),
             billId = billId.orEmpty(),
             payId = payId.orEmpty(),

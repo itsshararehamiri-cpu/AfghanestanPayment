@@ -16,6 +16,7 @@ class TopUpUseCase @Inject constructor(
         pan: String,
         mobileNumber: String,
         operatorCode: String,
+        productId: String = "",
     ): TransactionResultDetail {
         return withContext(Dispatchers.IO) {
             val amountValue = amount.replace(",", "").toLongOrNull() ?: 0L
@@ -27,8 +28,9 @@ class TopUpUseCase @Inject constructor(
                     pan = pan,
                     mobileNumber = mobileNumber,
                     operatorCode = operatorCode,
+                    productId = productId,
                 ),
-            ).copy(transactionType = TransactionType.VOUCHER)
+            ).copy(transactionType = TransactionType.TOPUP)
         }
     }
 }

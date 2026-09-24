@@ -1,5 +1,7 @@
 package com.danesh.sadad
 
+import android.util.Log
+import com.danesh.api.IsoResponseCodes
 import com.danesh.api.QueueItem
 import com.danesh.api.QueueOperations
 import com.danesh.api.SafStatuses
@@ -16,6 +18,8 @@ import com.danesh.engine.TransactionStore
 import com.danesh.iso.IsoMessage
 import com.danesh.sadad.key.SadadKeyConfig
 import com.danesh.sadad.util.CardTrackUtils
+import com.danesh.sadad.voucher.SadadChargeField62Parser
+import com.danesh.sadad.voucher.SadadVoucherPinProtector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,6 +31,7 @@ class SadadTransactionStore @Inject constructor(
     private val reportDao: TransactionReportDao,
     private val reportStorageCleanup: TransactionReportStorageCleanup,
     private val sessionClock: TransactionSessionClock,
+    private val voucherPinProtector: SadadVoucherPinProtector,
 ) : TransactionStore<IsoMessage> {
 
     override suspend fun registerSaf(message: IsoMessage) {
@@ -38,7 +43,16 @@ class SadadTransactionStore @Inject constructor(
     }
 
     override suspend fun confirmTxn(request: IsoMessage, response: IsoMessage?) {
-        clearSaf(request)
+        withContext(Dispatchers.IO) {
+            val (date, time) = resolveDateTime(request)
+            queueDao.confirmByDateTime(
+                status = SafStatuses.NEEDS_ADVICE,
+                queueOperation = QueueOperations.ADVICE,
+                rrn = response?.rrn ?: request.rrn,
+                date = date,
+                time = time,
+            )
+        }
     }
 
     override suspend fun clearSaf(message: IsoMessage) {
@@ -53,6 +67,13 @@ class SadadTransactionStore @Inject constructor(
             reportStorageCleanup.cleanupIfNeeded()
             val (date, time) = resolveDateTime(request)
             val (destTag, destValue) = resolveReverseDestination(request)
+            val chargePins = request.processingCode
+                .takeIf { it == SadadKeyConfig.VOUCHER_PROCESSING_CODE }
+                ?.takeIf { IsoResponseCodes.isApproved(response?.responseCode) }
+                ?.let {
+                    SadadChargeField62Parser.parse(response?.privateUseField62)
+                        ?: SadadChargeField62Parser.parse(response?.privateUseField62Bytes())
+                }
             reportDao.insert(
                 TransactionReportEntity(
                     id = 0,
@@ -72,6 +93,20 @@ class SadadTransactionStore @Inject constructor(
                     destinationPan = destValue.takeIf { destTag == DEST_TAG_CARD },
                     walletCode = destValue.takeIf { destTag == DEST_TAG_WALLET },
                     terminalId = request.terminalId,
+                    serialVoucher = chargePins?.serial?.takeIf { it.isNotBlank() },
+                    pinVoucher = chargePins?.pin
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { pin ->
+                            Log.d(TAG, "7) encrypt input=$pin")
+                            val encrypted = voucherPinProtector.encryptToHex(pin).ifBlank { pin }
+                            Log.d(TAG, "7) encrypt hex output=$encrypted")
+                            encrypted
+                        }
+                        ?: run {
+                            Log.d(TAG, "7) encrypt skipped; plaintext pin blank")
+                            null
+                        },
+                    serviceDesc = chargePins?.ussd?.takeIf { it.isNotBlank() },
                 ),
             )
         }
@@ -138,6 +173,8 @@ class SadadTransactionStore @Inject constructor(
                     functionCode = resolveFunctionCode(message),
                     reverseDestTag = destTag,
                     reverseDestValue = destValue,
+                    track2 = message.track2.takeIf { it.isNotBlank() },
+                    originalField63 = message.privateUseField63.takeIf { it.isNotBlank() },
                 ),
             )
         }
@@ -177,6 +214,7 @@ class SadadTransactionStore @Inject constructor(
         "010000" -> TransactionType.CASH_OUT.ordinal
         SadadKeyConfig.VOUCHER_PROCESSING_CODE -> TransactionType.VOUCHER.ordinal
         SadadKeyConfig.TOPUP_PROCESSING_CODE -> TransactionType.TOPUP.ordinal
+        SadadKeyConfig.BILL_PROCESSING_CODE -> TransactionType.BILL.ordinal
         SadadKeyConfig.SUPPORT_PROCESSING_CODE -> TransactionType.SUPPORT.ordinal
         "500000" -> when (message.nii) {
             "689" -> TransactionType.CARD_TO_CARD.ordinal
@@ -235,12 +273,15 @@ class SadadTransactionStore @Inject constructor(
             functionCode = functionCode,
             reverseDestTag = reverseDestTag,
             reverseDestValue = reverseDestValue,
+            track2 = track2,
+            originalField63 = originalField63,
             status = effectiveStatus,
             queueOperation = QueueOperations.fromSafStatus(effectiveStatus),
         )
     }
 
     companion object {
+        private const val TAG = "sharjHoma"
         private const val DEST_TAG_CARD = "021"
         private const val DEST_TAG_WALLET = "045"
     }

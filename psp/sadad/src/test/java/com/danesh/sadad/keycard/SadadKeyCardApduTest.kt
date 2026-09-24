@@ -65,6 +65,15 @@ class SadadKeyCardApduTest {
     }
 
     @Test
+    fun getResponse_6180_matchesDocumentedCommand() {
+        assertArrayEquals(
+            SadadHex.decode("00C0000080"),
+            SadadKeyCardApdu.getResponse(0x80),
+        )
+        assertEquals(0x80, SadadKeyCardApdu.moreDataLength(0x6180))
+    }
+
+    @Test
     fun statusWord_parsesOkResponse() {
         val response = SadadHex.decode("01039000")
         assertEquals(SadadKeyCardApdu.SW_OK, SadadKeyCardApdu.statusWord(response))

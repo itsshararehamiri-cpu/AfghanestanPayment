@@ -1,0 +1,148 @@
+﻿<ChargeList>
+<MenuGroup class="sim_charge" enable="true" fn="Ø´Ø§Ø±Ú˜ Ø³ÛŒÙ…Ú©Ø§Ø±Øª" en="Sim Charge" id="310000">
+  <TopLevelMenu enable="true" fn="Ø®Ø±ÛŒØ¯ Ø´Ø§Ø±Ú˜" en="Charge" id="311000">
+   <MenuItem class="normal_charge" enable="true" fn="Ø´Ø§Ø±Ú˜ Ø§Ø¹ØªØ¨Ø§Ø±ÛŒ" en="Normal Charge" id="311100">
+    <MenuItem class="operator" enable="true" usssdChargeCommand="*140*#" fn="Ù‡Ù…Ø±Ø§Ù‡ Ø§ÙˆÙ„" en="IRMCI" id="311110" ussdGetSimNum="*780*2*1#" ussdGetSimCharge="*140*11#">
+     <MenuItem enable="false" fn="10000" en="10000" id="311111">
+      <ServiceDescriptor support="02164004" categoryId="1" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11111" serviceAmount="10000"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="20000" en="20000" id="311112">
+      <ServiceDescriptor support="02164004" categoryId="2" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11112" serviceAmount="20000"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="50000" en="50000" id="311113">
+      <ServiceDescriptor support="02164004" categoryId="3" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11113" serviceAmount="50000"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="100000" en="100000" id="311114">
+      <ServiceDescriptor support="02164004" categoryId="4" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11114" serviceAmount="100000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="200000" en="200000" id="311115">
+      <ServiceDescriptor support="02164004" categoryId="5" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11115" serviceAmount="200000"/>
+     </MenuItem>
+	 <MenuItem enable="true" fn="500000" en="500000" id="311116">
+	  <ServiceDescriptor support="02164004" categoryId="6" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11116" serviceAmount="500000"/>
+	 </MenuItem>
+	 <MenuItem enable="true" fn="1000000" en="1000000" id="311117">
+	  <ServiceDescriptor support="02164004" categoryId="7" providerId="919" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11117" serviceAmount="1000000"/>
+	 </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="true" usssdChargeCommand="*141*" fn="Ø§ÛŒØ±Ø§Ù†Ø³Ù„" en="Irancell" id="311120" ussdGetSimNum="*780*2*1#" ussdGetSimCharge="*141*1#">
+     <MenuItem enable="false" fn="20000" en="20000" id="311122">
+      <ServiceDescriptor support="02164004" categoryId="2" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11122" serviceAmount="20000"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="50000" en="50000" id="311123">
+      <ServiceDescriptor support="02164004" categoryId="3" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11123" serviceAmount="50000"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="100000" en="100000" id="311124">
+      <ServiceDescriptor support="02164004" categoryId="4" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11124" serviceAmount="100000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="200000" en="200000" id="311125">
+      <ServiceDescriptor support="02164004" categoryId="5" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11125" serviceAmount="200000"/>
+     </MenuItem>
+	 <MenuItem enable="true" fn="500000" en="500000" id="311126">
+      <ServiceDescriptor support="02164004" categoryId="10" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11126" serviceAmount="500000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="1000000" en="1000000" id="311127">
+      <ServiceDescriptor support="02164004" categoryId="11" providerId="935" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11127" serviceAmount="1000000"/>
+     </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="true" fn="Ø±Ø§ÙŠØªÙ„" en="Rightel" id="311130">
+     <MenuItem enable="true" fn="20000" en="20000" id="311131">
+      <ServiceDescriptor support="02164004" categoryId="2" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11131" serviceAmount="20000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="50000" en="50000" id="311132">
+      <ServiceDescriptor support="02164004" categoryId="3" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11132" serviceAmount="50000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="100000" en="100000" id="311133">
+      <ServiceDescriptor support="02164004" categoryId="4" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11133" serviceAmount="100000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="200000" en="200000" id="311134">
+      <ServiceDescriptor support="02164004" categoryId="5" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11134" serviceAmount="200000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="500000" en="500000" id="311135">
+      <ServiceDescriptor support="02164004" categoryId="6" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11135" serviceAmount="500000"/>
+     </MenuItem>
+	 <MenuItem enable="true" fn="1000000" en="1000000" id="311136">
+      <ServiceDescriptor support="02164004" categoryId="12" providerId="921" load="*141*Pin#" service="NormalCharge" hasCount="true" id="a11136" serviceAmount="1000000"/>
+     </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="false" fn="ØªØ§Ù„ÛŒØ§" en="Talia" id="311140">
+     <MenuItem enable="true" fn="20000" en="20000" id="311141">
+      <ServiceDescriptor support="02164004" categoryId="2" providerId="932" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11141" serviceAmount="20000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="50000" en="50000" id="311142">
+      <ServiceDescriptor support="02164004" categoryId="3" providerId="932" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11142" serviceAmount="50000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="100000" en="100000" id="311143">
+      <ServiceDescriptor support="02164004" categoryId="4" providerId="932" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11143" serviceAmount="100000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="200000" en="200000" id="311144">
+      <ServiceDescriptor support="02164004" categoryId="5" providerId="932" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11144" serviceAmount="200000"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="500000" en="500000" id="311145">
+      <ServiceDescriptor support="02164004" categoryId="6" providerId="932" load="*140*#Pin#" service="NormalCharge" hasCount="true" id="a11145" serviceAmount="500000"/>
+     </MenuItem>
+    </MenuItem>
+   </MenuItem>
+   <MenuItem class="topup_charge" enable="true" fn="Ø´Ø§Ø±Ú˜ Ù…Ø³ØªÙ‚ÛŒÙ…" en="Direct Charge" id="311200">
+    <MenuItem class="operator" enable="true" fn="Ù‡Ù…Ø±Ø§Ù‡ Ø§ÙˆÙ„" taxPercent="0" en="IRMCI" id="311210">
+     <MenuItem enable="false" fn="10000" en="10000" id="311211">
+      <ServiceDescriptor serviceTypeCode="01" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11211" serviceAmount="10000" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="20000" en="20000" id="311212">
+      <ServiceDescriptor serviceTypeCode="02" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11212" serviceAmount="20000" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="50000" en="50000" id="311213">
+      <ServiceDescriptor serviceTypeCode="03" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11213" serviceAmount="50000" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="false" fn="100000" en="100000" id="311214">
+      <ServiceDescriptor serviceTypeCode="04" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11214" serviceAmount="100000" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="200000" en="200000" id="311215">
+      <ServiceDescriptor serviceTypeCode="05" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11215" serviceAmount="200000" topUpCategoryType="1"/>
+     </MenuItem>
+	 <MenuItem enable="true" fn="500000" en="500000" id="311216">
+      <ServiceDescriptor serviceTypeCode="6" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11216" serviceAmount="500000" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="1000000" en="1000000" id="311217">
+      <ServiceDescriptor serviceTypeCode="7" support="02164004" providerId="919" load="*140*#Pin#" service="TopUpCharge" id="a11217" serviceAmount="1000000" topUpCategoryType="1"/>
+     </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="true" fn="Ø§ÛŒØ±Ø§Ù†Ø³Ù„" taxPercent="9" en="Irancell" minChargeAmount="220000" id="311220">
+     <MenuItem enable="true" fn="Ø´Ø§Ø±Ú˜ Ù…Ø¹Ù…ÙˆÙ„ÛŒ" en="Normal Charge" id="311221">
+      <ServiceDescriptor serviceTypeCode="01" support="02164004" providerId="935" load="*141*#Pin#" service="TopUpCharge" hasCount="false" id="a11221" serviceAmount="variable" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="Ø´Ø§Ø±Ú˜ Ø´Ú¯ÙØª Ø§Ù†Ú¯ÛŒØ²" en="Incredible Charge" id="311222">
+      <ServiceDescriptor serviceTypeCode="02" support="02164004" providerId="935" load="*141*#Pin#" service="TopUpCharge" hasCount="false" id="a11222" serviceAmount="variable" topUpCategoryType="1"/>
+     </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="true" fn="Ø±Ø§ÙŠØªÙ„" taxPercent="0" en="Rightel" minChargeAmount="10000" id="311230">
+     <MenuItem enable="true" fn="Ø´Ø§Ø±Ú˜ Ù…Ø¹Ù…ÙˆÙ„ÛŒ" en="Normal Charge" id="311231">
+      <ServiceDescriptor serviceTypeCode="11" support="02164004" providerId="921" load="*141*#Pin#" service="TopUpCharge" hasCount="false" id="a11231" serviceAmount="variable" topUpCategoryType="1"/>
+     </MenuItem>
+     <MenuItem enable="true" fn="Ø´Ø§Ø±Ú˜ Ø´Ú¯ÙØª Ø§Ù†Ú¯ÛŒØ²" en="Incredible Charge" id="311232">
+      <MenuItem enable="true" fn="10000" en="10000" id="a11232">
+       <ServiceDescriptor serviceTypeCode="06" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="aa1232" serviceAmount="10000" topUpCategoryType="1"/>
+      </MenuItem>
+      <MenuItem enable="true" fn="20000" en="20000" id="b11232">
+       <ServiceDescriptor serviceTypeCode="07" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="ba1232" serviceAmount="20000" topUpCategoryType="1"/>
+      </MenuItem>
+      <MenuItem enable="true" fn="50000" en="50000" id="c11232">
+       <ServiceDescriptor serviceTypeCode="08" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="ca1232" serviceAmount="50000" topUpCategoryType="1"/>
+      </MenuItem>
+      <MenuItem enable="true" fn="100000" en="100000" id="d11232">
+       <ServiceDescriptor serviceTypeCode="09" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="da1232" serviceAmount="100000" topUpCategoryType="1"/>
+      </MenuItem>
+      <MenuItem enable="true" fn="200000" en="200000" id="e11232">
+       <ServiceDescriptor serviceTypeCode="10" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="ea1232" serviceAmount="200000" topUpCategoryType="1"/>
+      </MenuItem>
+      <MenuItem enable="true" fn="500000" en="500000" id="f11232">
+       <ServiceDescriptor serviceTypeCode="12" support="02164004" providerId="921" load="*140*#Pin#" service="TopUpCharge" id="fa1232" serviceAmount="500000" topUpCategoryType="1"/>
+      </MenuItem>
+     </MenuItem>
+    </MenuItem>
+    <MenuItem class="operator" enable="false" fn="ØªØ§Ù„ÛŒØ§" en="Talia" id="e124"/>
+   </MenuItem>
+  </TopLevelMenu>
+ </MenuGroup>
+</ChargeList>
+

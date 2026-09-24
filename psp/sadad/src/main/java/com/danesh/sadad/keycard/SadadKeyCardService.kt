@@ -39,14 +39,15 @@ class SadadKeyCardService @Inject constructor(
         card: SadadKeyCard,
         pin: String,
         keyIndex: Int,
+        rsaKeyIndex: Int = keyIndex,
     ): Result<SadadKeyCardKcvSummary> = runCatching {
         Log.d("TAG", "loadAndInjectMasterKeys() calledcard$card")
         Log.d("TAG", "loadAndInjectMasterKeys() calledpin$pin")
-        Log.d("TAG", "loadAndInjectMasterKeys() calledkeyindex$keyIndex")
+        Log.d("TAG", "loadAndInjectMasterKeys() calledkeyindex$keyIndex rsa=$rsaKeyIndex")
 
         require(card != SadadKeyCard.CARD_A) { "این عملیات فقط برای کارت B یا C است" }
-        val stored = storage.load(5)// TODO: keyIndex
-            ?: error("ابتدا باید کارت A با همین اندیس کلید ($keyIndex) خوانده شود")
+        val stored = storage.load(rsaKeyIndex)
+            ?: error("ابتدا باید کارت A با اندیس کلید ($rsaKeyIndex) خوانده شود")
         val privateKey = SadadKeyCardCrypto.buildPrivateKey(stored.modulus, stored.privateExponent)
 
         val decrypted = withCard {
@@ -54,7 +55,7 @@ class SadadKeyCardService @Inject constructor(
             verifyPinOrThrow(pin)
             SadadKeyNumber.entries.associateWith { keyNumber ->
                 Log.d("TAG", "loadAndInjectMasterkeyIndexKeys: $keyIndex")
-                val encrypted = reader.readEncryptedKey(16, keyNumber)//5keyindex
+                val encrypted = reader.readEncryptedKey(keyIndex, keyNumber)
                 Log.d("TAG", "loadAndInjectMasterKeys: keyNumber$keyNumber")
                 Log.d("TAG", "loadAndInjectMasterKeys: encrypted${ISOUtil.hexString(encrypted)}")
 
@@ -81,7 +82,7 @@ class SadadKeyCardService @Inject constructor(
             initDataKey = decrypted.getValue(SadadKeyNumber.INIT_DATA),
         )
 
-        injector.inject(masterKeys)
+        injector.inject(masterKeys, keyIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
     }
 
     private suspend fun <T> withCard(block: suspend () -> T): T {

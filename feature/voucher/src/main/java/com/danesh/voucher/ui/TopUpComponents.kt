@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danesh.common.currency.currencyLabel
 import com.danesh.ui.theme.appTextStyle
-import com.danesh.voucher.model.MobileOperator
+import com.danesh.voucher.model.ChargeOperatorOption
 import com.danesh.voucher.ui.theme.TopUpColors
 
 private val cardShape = RoundedCornerShape(12.dp)
@@ -39,18 +39,19 @@ private val selectedBorder = Brush.horizontalGradient(
 
 @Composable
 fun OperatorSelectionRow(
-    selectedOperator: MobileOperator?,
-    onOperatorSelected: (MobileOperator) -> Unit,
+    operators: List<ChargeOperatorOption>,
+    selectedOperatorId: String?,
+    onOperatorSelected: (ChargeOperatorOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        MobileOperator.entries.forEach { operator ->
+        operators.forEach { operator ->
             OperatorCard(
                 operator = operator,
-                isSelected = operator == selectedOperator,
+                isSelected = operator.id == selectedOperatorId,
                 onClick = { onOperatorSelected(operator) },
                 modifier = Modifier.weight(1f),
             )
@@ -60,7 +61,7 @@ fun OperatorSelectionRow(
 
 @Composable
 private fun OperatorCard(
-    operator: MobileOperator,
+    operator: ChargeOperatorOption,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -96,6 +97,24 @@ private fun OperatorCard(
             modifier = Modifier.padding(top = 6.dp),
             style = MaterialTheme.typography.bodySmall,
         )
+    }
+}
+
+@Composable
+fun AmountQuickSelectGrid(
+    presetAmounts: List<Int>,
+    selectedAmount: Int?,
+    onAmountSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        presetAmounts.chunked(3).forEach { row ->
+            AmountQuickSelectRow(
+                presetAmounts = row,
+                selectedAmount = selectedAmount,
+                onAmountSelected = onAmountSelected,
+            )
+        }
     }
 }
 

@@ -32,6 +32,9 @@ val hpDefaultServerPort = 6232//50503//
 val bpDefaultServerIp = "212.16.73.141"
 val bpDefaultServerPort = 8585
 
+val sadadDefaultServerIp = "185.203.161.9"
+val sadadDefaultServerPort = 8050
+
 fun ApplicationProductFlavor.configureHamrahPayCurrency() {
     buildConfigField("String", "DEFAULT_CURRENCY", "\"971\"")
     buildConfigField("String", "CURRENCY_LABEL", "\"AFN\"")
@@ -67,7 +70,7 @@ fun ApplicationProductFlavor.configureSadadMenuFeatures() {
     buildConfigField(
         "String",
         "ENABLED_FEATURES",
-        "\"PURCHASE,TOPUP,BILL,BALANCE,SETTINGS,REPORT,VOUCHER,TRANSFER\"",
+        "\"PURCHASE,TOPUP,BILL,BILL_INQUIRY,BALANCE,SETTINGS,REPORT,VOUCHER\"",
     )
 }
 
@@ -124,8 +127,8 @@ android {
             isDefault = true
             resValue("string", "app_name", "سداد")
             buildConfigField("String", "ACTIVE_PSP", "\"SADAD\"")
-            buildConfigField("String", "DEFAULT_SERVER_IP", "\"$bpDefaultServerIp\"")
-            buildConfigField("int", "DEFAULT_SERVER_PORT", "$bpDefaultServerPort")
+            buildConfigField("String", "DEFAULT_SERVER_IP", "\"$sadadDefaultServerIp\"")
+            buildConfigField("int", "DEFAULT_SERVER_PORT", "$sadadDefaultServerPort")
             configureSadadCurrency()
             configureSadadMenuFeatures()
             configureSadadReceiptFee()

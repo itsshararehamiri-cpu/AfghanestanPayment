@@ -19,8 +19,10 @@ class TopUpHandler @Inject constructor(
     private val  transport: SadadIsoHandlerSupport,
 )  : HandlerTransaction<SadadTopUpRequest, SadadTopUpResult, IsoMessage>() {
 
-    override val isReversible: Boolean = false
-    override val needReport: Boolean = false
+    override val isReversible: Boolean = true
+    override val needReport: Boolean = true
+    override val needAdvice: Boolean = true
+    override val deferAdviceUntilReceipt: Boolean = true
 
     override fun buildMessage(request: SadadTopUpRequest): IsoMessage
     {
@@ -33,7 +35,7 @@ class TopUpHandler @Inject constructor(
         val message = buildMessage(request)
         return SadadTopUpResult(
             detail = transport.map(
-                transactionType = TransactionType.BALANCE,
+                transactionType = TransactionType.TOPUP,
                 request = message,
                 response = null,
                 isSuccess = false,
@@ -51,7 +53,7 @@ class TopUpHandler @Inject constructor(
         response: IsoMessage?,
     ): SadadTopUpResult = SadadTopUpResult(
         detail = transport.map(
-            transactionType = TransactionType.BALANCE,
+            transactionType = TransactionType.TOPUP,
             request = sentMessage,
             response = response,
             isSuccess = false,
@@ -65,7 +67,7 @@ class TopUpHandler @Inject constructor(
         response: IsoMessage?,
     ): SadadTopUpResult = SadadTopUpResult(
         detail = transport.map(
-            transactionType = TransactionType.BALANCE,
+            transactionType = TransactionType.TOPUP,
             request = sentMessage,
             response = response,
             isSuccess = true,
@@ -79,7 +81,7 @@ class TopUpHandler @Inject constructor(
         error: Exception,
     ): SadadTopUpResult = SadadTopUpResult(
         detail = transport.failureDetail(
-            transactionType = TransactionType.BALANCE,
+            transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
             response = null,
             responseCode = TransactionTransportCodes.CONNECT_FAILED,
@@ -93,7 +95,7 @@ class TopUpHandler @Inject constructor(
         error: Exception,
     ): SadadTopUpResult = SadadTopUpResult(
         detail = transport.failureDetail(
-            transactionType = TransactionType.BALANCE,
+            transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
             response = null,
             responseCode = TransactionTransportCodes.SEND_FAILED,
@@ -107,7 +109,7 @@ class TopUpHandler @Inject constructor(
         error: Exception,
     ): SadadTopUpResult = SadadTopUpResult(
         detail = transport.failureDetail(
-            transactionType = TransactionType.BALANCE,
+            transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
             response = null,
             responseCode = TransactionTransportCodes.RECEIVE_FAILED,

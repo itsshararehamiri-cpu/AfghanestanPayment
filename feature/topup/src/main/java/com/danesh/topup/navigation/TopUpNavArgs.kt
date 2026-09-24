@@ -4,5 +4,6 @@ object TopUpNavArgs {
     const val AMOUNT = "amount"
     const val MOBILE = "mobile"
     const val OPERATOR_CODE = "operatorCode"
+    const val PRODUCT_ID = "productId"
     const val RESPONSE = "response"
 }

@@ -28,8 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.danesh.common.currency.currencyLabel
-import com.danesh.topup.MobileOperator
-//import com.danesh.topup.model.MobileOperator
+import com.danesh.topup.ChargeOperatorOption
 import com.danesh.topup.ui.theme.TopUpColors
 import com.danesh.ui.theme.appTextStyle
 
@@ -40,18 +39,19 @@ private val selectedBorder = Brush.horizontalGradient(
 
 @Composable
 fun OperatorSelectionRow(
-    selectedOperator: MobileOperator?,
-    onOperatorSelected: (MobileOperator) -> Unit,
+    operators: List<ChargeOperatorOption>,
+    selectedOperatorId: String?,
+    onOperatorSelected: (ChargeOperatorOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        MobileOperator.entries.forEach { operator ->
+        operators.forEach { operator ->
             OperatorCard(
                 operator = operator,
-                isSelected = operator == selectedOperator,
+                isSelected = operator.id == selectedOperatorId,
                 onClick = { onOperatorSelected(operator) },
                 modifier = Modifier.weight(1f),
             )
@@ -61,7 +61,7 @@ fun OperatorSelectionRow(
 
 @Composable
 private fun OperatorCard(
-    operator: MobileOperator,
+    operator: ChargeOperatorOption,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -97,6 +97,64 @@ private fun OperatorCard(
             modifier = Modifier.padding(top = 6.dp),
             style = MaterialTheme.typography.bodySmall,
         )
+    }
+}
+
+@Composable
+fun ChargeGroupRow(
+    groups: List<String>,
+    selectedGroup: String?,
+    onGroupSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (groups.size <= 1) return
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        groups.forEach { group ->
+            val selected = group == selectedGroup
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+                    .clip(cardShape)
+                    .background(Color(0XFF000000).copy(alpha = 0.19f))
+                    .border(
+                        width = if (selected) 1.5.dp else 1.dp,
+                        color = if (selected) Color(0XFF00FFD4) else Color(0XFF144B5B),
+                        shape = cardShape,
+                    )
+                    .clickable { onGroupSelected(group) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = group,
+                    color = TopUpColors.TextPrimary,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AmountQuickSelectGrid(
+    presetAmounts: List<Int>,
+    selectedAmount: Int?,
+    onAmountSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        presetAmounts.chunked(3).forEach { row ->
+            AmountQuickSelectRow(
+                presetAmounts = row,
+                selectedAmount = selectedAmount,
+                onAmountSelected = onAmountSelected,
+            )
+        }
     }
 }
 

@@ -11,6 +11,7 @@
     <string name="menu_report">Reports</string>
     <string name="menu_balance">Balance inquiry</string>
     <string name="menu_bill">Bill payment</string>
+    <string name="menu_bill_inquiry">Bill inquiry</string>
     <string name="menu_topup">Mobile top-up</string>
     <string name="menu_voucher">Voucher</string>
     <string name="menu_support">Support</string>

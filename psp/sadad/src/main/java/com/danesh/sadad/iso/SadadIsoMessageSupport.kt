@@ -8,7 +8,11 @@ import com.danesh.common.app.AppVersionProvider
 import com.danesh.core.Device
 import com.danesh.iso.ByteUtil
 import com.danesh.iso.IsoMessage
+import com.danesh.sadad.bill.SadadBillFields
 import com.danesh.sadad.key.SadadKeyConfig
+import com.danesh.sadad.key.SadadWorkingMacState
+import com.danesh.sadad.util.Field63Generator
+import com.danesh.sadad.util.FunctionCodeData
 import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,6 +23,7 @@ class SadadIsoMessageSupport @Inject constructor(
     private val sessionClock: TransactionSessionClock,
     private val device: Device,
     private val appVersionProvider: AppVersionProvider,
+    private val workingMacState: SadadWorkingMacState,
 ) {
     data class Session(
         val currency: String,
@@ -35,7 +40,7 @@ class SadadIsoMessageSupport @Inject constructor(
         )
     }
 
-    fun nextStan(): String = contextProvider.nextStan()
+    fun nextStan(): String ="${contextProvider.nextStan().toInt()+2000}"
 
     fun merchantName(): String = contextProvider.getTerminalConfig().merchantName
 
@@ -143,9 +148,9 @@ class SadadIsoMessageSupport @Inject constructor(
             .ifBlank { SadadKeyConfig.DEFAULT_TERMINAL_ID }
         val serialLength = serial.length.coerceAtMost(99)
         val truncatedSerial = serial.take(serialLength)
-        val hw = Build.MODEL.orEmpty().take(5).padEnd(5, ' ')
-        val sw = appVersionProvider.versionName().take(6).padEnd(6, ' ')
-        val fw = Build.VERSION.RELEASE.orEmpty().take(6).padEnd(6, ' ')
+        val hw = "00016"//Build.MODEL.orEmpty().take(5).padEnd(5, ' ')
+        val sw = "010203"//appVersionProvider.versionName().take(6).padEnd(6, ' ')
+        val fw ="040506"// Build.VERSION.RELEASE.orEmpty().take(6).padEnd(6, ' ')
         return buildString {
             append(SadadKeyConfig.INIT_STRUCTURE_VERSION)
             append(SadadKeyConfig.INIT_CONNECTION_ATTEMPTS)
@@ -155,7 +160,7 @@ class SadadIsoMessageSupport @Inject constructor(
             append(fw)
             append(serialLength.toString().padStart(2, '0'))
             append(truncatedSerial)
-            append(SadadKeyConfig.INIT_MASTER_KEY_INDEX)
+            append(workingMacState.masterKeyIndexForDe59())
             append(SadadKeyConfig.INIT_RESERVE)
             append(SadadKeyConfig.INIT_ENC_METHOD)
         }
@@ -176,15 +181,8 @@ class SadadIsoMessageSupport @Inject constructor(
     /**
      * DE48 پرداخت قبض: Bill_ID ۱۳ رقم + Payment_ID ۱۳ رقم (چپ‌پد صفر).
      */
-    fun billPaymentField48(billId: String, paymentId: String): String {
-        val bill = billId.filter(Char::isDigit)
-            .padStart(SadadKeyConfig.BILL_ID_LENGTH, '0')
-            .takeLast(SadadKeyConfig.BILL_ID_LENGTH)
-        val payment = paymentId.filter(Char::isDigit)
-            .padStart(SadadKeyConfig.BILL_PAYMENT_ID_LENGTH, '0')
-            .takeLast(SadadKeyConfig.BILL_PAYMENT_ID_LENGTH)
-        return bill + payment
-    }
+    fun billPaymentField48(billId: String, paymentId: String): String =
+        SadadBillFields.field48(billId, paymentId)
 
     /** DE61 Mode 1: Mode=01 + merchant slot n2. */
     fun multiMerchantModeOne(): String =
@@ -197,5 +195,7 @@ class SadadIsoMessageSupport @Inject constructor(
      * نیست، طبق خود مستند («اگر سیم‌کارت ندارد یا داده‌ای برای ارسال نیست فقط ۰۱۰۴۰۰۰۰ بفرستید»)
      * مقدار امنِ Portable بدون داده فرستاده می‌شود.
      */
-    fun functionCode040Field63(): String = "01040000"
+    fun functionCode040Field63(): String = Field63Generator.generate(
+        listOf(FunctionCodeData(SadadKeyConfig.FUNCTION_CODE_CONNECTION, "")),
+    )
 }

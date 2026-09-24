@@ -15,6 +15,7 @@ class BillInquiryUseCase @Inject constructor(
         payId: String,
         pan: String,
         track2: String = "",
+        amount: String = "",
     ): BillInquiryOutput = withContext(Dispatchers.IO) {
         pspGateway.billInquiry(
             BillInquiryInput(
@@ -22,6 +23,7 @@ class BillInquiryUseCase @Inject constructor(
                 payId = payId,
                 pan = pan,
                 track2 = track2,
+                amount = amount,
             ),
         )
     }

@@ -1,6 +1,7 @@
 package com.danesh.sadad.queue
 
-import com.danesh.api.IsoResponseCodes
+import com.danesh.api.TransactionClock
+import com.danesh.api.TransactionSessionClock
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.engine.HandlerTransaction
 import com.danesh.iso.IsoMessage
@@ -10,20 +11,25 @@ import javax.inject.Singleton
 @Singleton
 class SadadAdviceHandler @Inject constructor(
     private val adviceMessageBuilder: SadadAdviceMessageBuilder,
+    private val sessionClock: TransactionSessionClock,
 ) : HandlerTransaction<SadadAdviceRequest, SadadAdviceResult, IsoMessage>() {
 
     override val needReport: Boolean = false
     override val isReversible: Boolean = false
     override val skipQueueFlush: Boolean = true
+    override val recordsLastSuccessReference: Boolean = false
 
-    override fun buildMessage(request: SadadAdviceRequest): IsoMessage =
-        adviceMessageBuilder.build(request.queueItem)
+    override fun buildMessage(request: SadadAdviceRequest): IsoMessage {
+        val item = request.queueItem
+        sessionClock.capture(TransactionClock(date = item.date, time = item.time))
+        return kotlinx.coroutines.runBlocking { adviceMessageBuilder.build(item) }
+    }
 
     override fun queueFailure(request: SadadAdviceRequest): SadadAdviceResult =
         SadadAdviceResult(isSuccess = false, responseCode = TransactionTransportCodes.QUEUE_BLOCKED)
 
     override fun isFailure(response: IsoMessage?): Boolean =
-        IsoResponseCodes.isFailure(response?.responseCode)
+        SadadSafResponseCodes.isFailure(response?.responseCode)
 
     override fun failure(
         request: SadadAdviceRequest,

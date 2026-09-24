@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -233,6 +234,14 @@ private fun VoucherPaperReceipt(
     val firstColor = if (isPaperReceipt) Color.Black else MaterialTheme.colorScheme.onSurface
     val modifierRowReceipt = Modifier.rowReceiptModifier(isPaperReceipt)
     val maskedPan = result.receiptPan()
+    LaunchedEffect(receiptType, result.voucherSerial, result.voucherPin) {
+        Log.d(
+            "sharjHoma",
+            "9) paper receiptType=$receiptType showDetails=${receiptType.showsVoucherChargeDetails()} " +
+                "serial='${result.voucherSerial}' serialBlank=${result.voucherSerial.isBlank()} " +
+                "pin='${result.voucherPin}' pinBlank=${result.voucherPin.isBlank()}",
+        )
+    }
 
     Column(modifier = Modifier.containerReceiptModifier(isPaperReceipt, context)) {
         PaperReceiptHeader(result, receiptType, isPaperReceipt, firstColor, modifierRowReceipt)

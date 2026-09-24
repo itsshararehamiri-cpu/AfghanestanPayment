@@ -3,6 +3,7 @@ package com.danesh.sadad.keycard
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.core.Device
 import com.danesh.core.SensitiveBytes
+import com.danesh.sadad.key.SadadWorkingMacState
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,27 +28,31 @@ data class SadadKeyCardKcvSummary(
  *
  * نگاشت شماره کلید مستند به اسلات دستگاه (به دلیل نبود مستندسازی رسمی سداد برای این بخش،
  * بر اساس نام‌گذاری کلیدها و مدل موجود Device انتخاب شده و باید در میدان تایید شود):
- * - TerminalMasterKey (01) → TMK (Device.INDEX_TMK)
- * - MAC (02)              → کلید کاری MAC (Device.INDEX_MAC)
- * - DATA (03)             → کلید کاری DATA
- * - Init Pin (04)         → کلید کاری PIN (تنها کاندید موجود برای رمزگذاری PIN block)
- * - Init Mac (05) و Init Data (06) فعلاً به هیچ اسلاتی تزریق نمی‌شوند چون در این کدبیس
- *   مصرف‌کننده‌ی شبکه‌ای مشخصی ندارند؛ فقط برای بازرسی/KCV در دسترس قرار می‌گیرند.
- *
- * نوشتن هر سه‌ی MAC/DATA/PIN از مسیر plaintext-write دستگاه (که خودش کلید را زیر TMK
- * فعال رمز و تزریق می‌کند) انجام می‌شود، نه از مسیر LoadTmkEncrypted*.
+ * - TerminalMasterKey / Init MAC / PIN / DATA کارت → اسلات PED همان اندیس کارت C
+ * - کلیدهای کاری LOGON (Field 48) → اسلات C+1
+ *   کلید پوشش MAC کارت فقط در حافظه می‌ماند تا کلیدهای Field 48 باز شوند و MAK روی PED
+ *   با Init Mac بازنویسی نشود.
  */
 @Singleton
 class SadadKeyCardInjector @Inject constructor(
     private val device: Device,
     private val configurationStore: DeviceConfigurationStore,
+    private val wrappingKeys: SadadWrappingKeyHolder,
+    private val workingMacState: SadadWorkingMacState,
 ) {
-    suspend fun inject(keys: SadadKeyCardMasterKeys): SadadKeyCardKcvSummary {
+    suspend fun inject(
+        keys: SadadKeyCardMasterKeys,
+        keyIndex: Int,
+        rsaKeyIndex: Int = keyIndex,
+    ): SadadKeyCardKcvSummary {
         try {
-            device.writeMasterKey(keys.terminalMasterKey, index = device.INDEX_TMK)
-            device.writeMacKey(keys.macKey, index = device.INDEX_MAC)
-            device.writeDataKey(keys.dataKey)
-            device.writePinKey(keys.pinKey)
+            wrappingKeys.storeFromCard(keys)
+            workingMacState.clearWorkingMac()
+            workingMacState.saveKeyIndices(cardCIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
+            device.writeMasterKey(keys.terminalMasterKey, index = keyIndex)
+            device.writeMacKey(keys.initMacKey, index = keyIndex)
+            device.writeDataKey(keys.dataKey, index = keyIndex)
+            device.writePinKey(keys.pinKey, index = keyIndex)
             configurationStore.markConfigured()
 
             val pedKcv = runCatching { device.getKCv() }.getOrNull()

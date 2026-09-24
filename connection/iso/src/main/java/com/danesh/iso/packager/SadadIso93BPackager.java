@@ -1,6 +1,7 @@
 package com.danesh.iso.packager;
 
 
+import org.jpos.iso.BCDInterpreter;
 import org.jpos.iso.IFB_AMOUNT;
 import org.jpos.iso.IFB_BINARY;
 import org.jpos.iso.IFB_BITMAP;
@@ -12,6 +13,9 @@ import org.jpos.iso.IFB_LLNUM;
 import org.jpos.iso.IFB_NUMERIC;
 import org.jpos.iso.IF_CHAR;
 import org.jpos.iso.ISOFieldPackager;
+import org.jpos.iso.ISOStringFieldPackager;
+import org.jpos.iso.LeftPadder;
+import org.jpos.iso.NullPrefixer;
 import org.jpos.iso.packager.ISO87BPackager;
 
 
@@ -21,7 +25,7 @@ import org.jpos.iso.packager.ISO87BPackager;
  * IFB = BCD/LLL-BCD روی wire؛ فیلدهای CHAR (37–42، 39) ASCII.
  * مرجع capture: Init 0800/900000، Logon 0800/920000، Balance 0200/310000.
  *
- * @see BpIso93BPackagerTest
+ * @see
  */
 public class SadadIso93BPackager extends ISO87BPackager {
     private static final boolean pad = false;
@@ -30,7 +34,7 @@ public class SadadIso93BPackager extends ISO87BPackager {
             /*001*/ new IFB_BITMAP  ( 8, "Bitmap"),
             /*002*/ new IFB_LLNUM   ( 19, "Primary Account number", pad),
             /*003*/ new IFB_NUMERIC(  6, "Processing Code",pad),
-            /*004*/ new IFB_NUMERIC ( 12, "Amount, Transaction", pad),
+            /*004*/ new IFB_NUMERIC ( 12, "Amount, Transaction", true),
             /*005*/ new IFB_NUMERIC ( 12, "Amount, Reconciliation", pad),
             /*006*/ new IFB_NUMERIC ( 12, "Amount, Cardholder billing", pad),
             /*007*/ new IFB_NUMERIC ( 12, "Date and time, transmission", pad),
@@ -38,8 +42,8 @@ public class SadadIso93BPackager extends ISO87BPackager {
             /*009*/ new IFB_NUMERIC (  8, "Conversion rate, Reconciliation", pad),
             /*010*/ new IFB_NUMERIC (  8, "Conversion rate, Cardholder billing", pad),
             /*011*/ new IFB_NUMERIC (  6, "Systems trace audit number",pad),
-            /*012*/ new IFB_NUMERIC ( 12, "Date and time, Local transaction",pad),
-            /*013*/ new IFB_NUMERIC (  4, "Date, Effective", pad),
+            /*012*/ new IFB_NUMERIC ( 6, "Date and time, Local transaction",true),
+            /*013*/ new IFB_NUMERIC (  4, "Date, Effective", true),
             /*014*/ new IFB_NUMERIC (  4, "Date, Expiration", pad),
             /*015*/ new IFB_NUMERIC (  6, "Date, Settlement", pad),
             /*016*/ new IFB_NUMERIC (  4, "Date, Conversion", pad),
@@ -48,10 +52,10 @@ public class SadadIso93BPackager extends ISO87BPackager {
             /*019*/ new IFB_NUMERIC (  3, "Country code, Acquiring institution", pad),
             /*020*/ new IFB_NUMERIC (  3, "Country code, Primary account number", pad),
             /*021*/ new IFB_NUMERIC (  3, "Country code, Forwarding institution", pad),
-            /*022*/ new IFB_NUMERIC     ( 3, "Point of service data code", pad),
+            new IFB_NUMERIC_RIGHT_F(3, "Point of service data code"),
 
             /*023*/ new IFB_NUMERIC (  3, "Card sequence number", pad),
-            /*024*/ new IFB_NUMERIC (  3, "Function code",pad),
+            /*024*/  new IFB_NUMERIC_RIGHT_F(3, "Function code"),
             /*025*/ new IFB_NUMERIC (  2, "Message reason code", pad),
             /*026*/ new IFB_NUMERIC (  2, "Card acceptor business code", pad),
             /*027*/ new IFB_NUMERIC (  1, "Authorizing identification response length", pad),
@@ -62,14 +66,15 @@ public class SadadIso93BPackager extends ISO87BPackager {
             /*032*/ new IFB_LLNUM   ( 11, "Acquiring institution identification code", pad),
             /*033*/ new IFB_LLNUM   ( 11, "Forwarding institution identification code", pad),
             /*034*/ new IFB_LLCHAR  ( 28, "Primary account number, extended"),
-            /*035*/ new IFB_LLNUM  ( 37, "Track 2 data", pad),
+       //     /*035*/ new IFB_LLNUM  ( 37, "Track 2 data", pad),
+            new IFB_NUMERIC_RIGHT_F(39, "Track 2 data"),
             /*036*/ new IFB_LLLNUM  (104, "Track 3 data", pad),
             /*037*/ new IF_CHAR     ( 12, "Retrieval reference number"),
             /*038*/ new IF_CHAR     (  6, "Authorization identification response"),
-            /*039*/ new IFB_NUMERIC     (  2, "Response code",pad),
+            /*039*/ new IF_CHAR     (  2, "Response code"),
             /*040*/ new IF_CHAR     (  3, "Service restriction code"),
-            /*041*/ new IFB_LLLCHAR     (  8, "Card acceptor terminal identification"),
-            /*042*/ new IFB_LLLCHAR     ( 15, "Card acceptor identification code"),
+            /*041*/ new IF_CHAR     (  8, "Card acceptor terminal identification"),
+            /*042*/ new IF_CHAR     ( 15, "Card acceptor identification code"),
             /*043*/ new IF_CHAR     ( 40, "Card acceptor name/location"),
             /*044*/ new IFB_LLCHAR  ( 25, "Additional response data"),
             /*045*/ new IFB_LLCHAR  ( 76, "Track 1 data"),

@@ -51,15 +51,37 @@ internal object SadadKeyCardCrypto {
      * کلیدهای 16 بایتی (double-length) برای DESede به 24 بایت بسط داده می‌شوند (K1|K2|K1).
      */
     fun kcvHex(key: ByteArray): String {
-        val expanded = when (key.size) {
-            8 -> key + key + key
-            16 -> key + key.copyOfRange(0, 8)
-            24 -> key
-            else -> return ""
-        }
+        val expanded = expandDesedeKey(key) ?: return ""
         val cipher = Cipher.getInstance("DESede/ECB/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(expanded, "DESede"))
         val encryptedZeros = cipher.doFinal(ByteArray(8))
         return SadadHex.encode(encryptedZeros.copyOfRange(0, 3))
+    }
+
+    /** رمزگشایی کلید کاری LOGON زیر کلید کارت با 3DES-ECB: PIN←TMK، MAC←MAC، DATA←DATA. */
+    fun decrypt3DesEcb(cipherText: ByteArray, wrappingKey: ByteArray): ByteArray {
+        val expanded = expandDesedeKey(wrappingKey)
+            ?: error("طول کلید پوشش 3DES نامعتبر است: ${wrappingKey.size}")
+        require(cipherText.isNotEmpty() && cipherText.size % 8 == 0) {
+            "طول ciphertext 3DES باید مضرب ۸ باشد: ${cipherText.size}"
+        }
+        val cipher = Cipher.getInstance("DESede/ECB/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(expanded, "DESede"))
+        return cipher.doFinal(cipherText)
+    }
+
+    fun encrypt3DesEcb(plain: ByteArray, wrappingKey: ByteArray): ByteArray {
+        val expanded = expandDesedeKey(wrappingKey)
+            ?: error("طول کلید پوشش 3DES نامعتبر است: ${wrappingKey.size}")
+        val cipher = Cipher.getInstance("DESede/ECB/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(expanded, "DESede"))
+        return cipher.doFinal(plain)
+    }
+
+    private fun expandDesedeKey(key: ByteArray): ByteArray? = when (key.size) {
+        8 -> key + key + key
+        16 -> key + key.copyOfRange(0, 8)
+        24 -> key
+        else -> null
     }
 }

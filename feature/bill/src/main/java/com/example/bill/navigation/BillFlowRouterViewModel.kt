@@ -2,6 +2,7 @@ package com.example.bill.navigation
 
 import androidx.lifecycle.ViewModel
 import com.danesh.api.BillFlowPolicy
+import com.danesh.api.BillInquiryKind
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -10,4 +11,6 @@ class BillFlowRouterViewModel @Inject constructor(
     billFlowPolicy: BillFlowPolicy,
 ) : ViewModel() {
     val requiresInquiry: Boolean = billFlowPolicy.requiresInquiry
+    val hasStandaloneInquiryTransaction: Boolean = billFlowPolicy.hasStandaloneInquiryTransaction
+    val standaloneInquiryTypes: List<BillInquiryKind> = billFlowPolicy.standaloneInquiryTypes
 }

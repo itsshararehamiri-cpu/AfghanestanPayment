@@ -21,10 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-//import com.danesh.topup.model.MobileOperator
 import com.danesh.topup.presentation.viewmodel.TopUpUiState
 import com.danesh.topup.presentation.viewmodel.TopUpViewModel
-import com.danesh.topup.ui.AmountQuickSelectRow
+import com.danesh.topup.ui.AmountQuickSelectGrid
+import com.danesh.topup.ui.ChargeGroupRow
 import com.danesh.topup.ui.OperatorSelectionRow
 import com.danesh.topup.ui.theme.TopUpColors
 import com.danesh.ui.button.GradientActionButton
@@ -33,14 +33,12 @@ import com.danesh.ui.theme.AppColors
 import com.danesh.ui.theme.appTextStyle
 import com.danesh.ui.toolbar.Toolbar
 
-private val presetAmounts = listOf(5_000, 10_000, 20_000, 50_000)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopUpScreen( viewModel: TopUpViewModel ,
-    onBackClick: () -> Unit ,
-    onConfirmClick: (mobile: String, operator: MobileOperator, amount: Int) -> Unit ,
-
+fun TopUpScreen(
+    viewModel: TopUpViewModel,
+    onBackClick: () -> Unit,
+    onConfirmClick: (mobile: String, operatorId: String, productId: String, amount: Int) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -49,6 +47,7 @@ fun TopUpScreen( viewModel: TopUpViewModel ,
         onBackClick = onBackClick,
         onMobileChange = viewModel::onMobileChange,
         onOperatorSelected = viewModel::onOperatorSelected,
+        onGroupSelected = viewModel::onGroupSelected,
         onAmountChange = viewModel::onAmountChange,
         onPresetAmountSelected = viewModel::onPresetAmountSelected,
         onConfirmClick = { viewModel.validateAndProceed(onConfirmClick) },
@@ -61,7 +60,8 @@ private fun TopUpContent(
     uiState: TopUpUiState,
     onBackClick: () -> Unit,
     onMobileChange: (String) -> Unit,
-    onOperatorSelected: (MobileOperator) -> Unit,
+    onOperatorSelected: (ChargeOperatorOption) -> Unit,
+    onGroupSelected: (String) -> Unit,
     onAmountChange: (String) -> Unit,
     onPresetAmountSelected: (Int) -> Unit,
     onConfirmClick: () -> Unit,
@@ -94,7 +94,8 @@ private fun TopUpContent(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 OperatorSelectionRow(
-                    selectedOperator = uiState.selectedOperator,
+                    operators = uiState.operators,
+                    selectedOperatorId = uiState.selectedOperatorId,
                     onOperatorSelected = onOperatorSelected,
                 )
 
@@ -105,6 +106,15 @@ private fun TopUpContent(
                         fontSize = 12.sp,
                         modifier = Modifier.padding(top = 8.dp),
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                if (uiState.groups.size > 1) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ChargeGroupRow(
+                        groups = uiState.groups,
+                        selectedGroup = uiState.selectedGroup,
+                        onGroupSelected = onGroupSelected,
                     )
                 }
 
@@ -121,12 +131,25 @@ private fun TopUpContent(
                     ),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                AmountQuickSelectRow(
-                    presetAmounts = presetAmounts,
-                    selectedAmount = uiState.selectedAmount,
-                    onAmountSelected = onPresetAmountSelected,
-                )
-                if (uiState.amountError != null) {
+                if (uiState.variableAmount) {
+                    TransactionField(
+                        label = stringResource(R.string.topup_amount_label),
+                        value = uiState.amountText,
+                        onValueChange = onAmountChange,
+                        placeholder = stringResource(R.string.topup_amount_placeholder),
+                        iconRes = R.drawable.ic_payable_amount,
+                        keyboardType = KeyboardType.Number,
+                        errorMessage = uiState.amountError,
+                    )
+                }
+                if (uiState.presetAmounts.isNotEmpty()) {
+                    AmountQuickSelectGrid(
+                        presetAmounts = uiState.presetAmounts,
+                        selectedAmount = uiState.selectedAmount,
+                        onAmountSelected = onPresetAmountSelected,
+                    )
+                }
+                if (!uiState.variableAmount && uiState.amountError != null) {
                     Text(
                         text = uiState.amountError,
                         color = Color(0xFFFF5252),
@@ -159,6 +182,7 @@ private fun TopUpScreenPreview() {
         onBackClick = {},
         onMobileChange = {},
         onOperatorSelected = {},
+        onGroupSelected = {},
         onAmountChange = {},
         onPresetAmountSelected = {},
         onConfirmClick = {},

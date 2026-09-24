@@ -16,22 +16,21 @@ import com.danesh.voucher.GetPinViewModel
 import com.danesh.voucher.SuccessVoucherResultScreen
 import com.danesh.voucher.UnSuccessVoucherResultScreen
 import com.danesh.voucher.VoucherScreen
-import com.danesh.voucher.model.operatorCode
 
 private object VoucherRoutes {
     const val VOUCHER = "voucher"
     const val SWIPE_CARD =
-        "voucher_swipe_card/{${VoucherNavArgs.AMOUNT}}/{${VoucherNavArgs.OPERATOR_CODE}}"
+        "voucher_swipe_card/{${VoucherNavArgs.AMOUNT}}/{${VoucherNavArgs.OPERATOR_CODE}}/{${VoucherNavArgs.PRODUCT_ID}}"
     const val GET_PIN =
-        "voucher_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${VoucherNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${VoucherNavArgs.OPERATOR_CODE}}"
+        "voucher_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${VoucherNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${VoucherNavArgs.OPERATOR_CODE}}/{${VoucherNavArgs.PRODUCT_ID}}"
     const val SUCCESS_RESULT = "voucher_success_result/{${VoucherNavArgs.RESPONSE}}"
     const val UNSUCCESS_RESULT = "voucher_unsuccess_result/{${VoucherNavArgs.RESPONSE}}"
 
-    fun swipeCard(amount: String,  operatorCode: String): String =
-        "voucher_swipe_card/${Uri.encode(amount)}/${Uri.encode(operatorCode)}"
+    fun swipeCard(amount: String,  operatorCode: String, productId: String): String =
+        "voucher_swipe_card/${Uri.encode(amount)}/${Uri.encode(operatorCode)}/${Uri.encode(productId.ifBlank { "_" })}"
 
-    fun getPin(track2: String, amount: String, pan: String, operatorCode: String): String =
-        "voucher_get_pin/${Uri.encode(track2)}/${Uri.encode(amount)}/$pan/${Uri.encode(operatorCode)}"
+    fun getPin(track2: String, amount: String, pan: String, operatorCode: String, productId: String): String =
+        "voucher_get_pin/${Uri.encode(track2)}/${Uri.encode(amount)}/$pan/${Uri.encode(operatorCode)}/${Uri.encode(productId.ifBlank { "_" })}"
 
     fun successResult(response: String): String =
         "voucher_success_result/${Uri.encode(response)}"
@@ -53,11 +52,12 @@ fun VoucherNavHost(onFlowComplete: () -> Unit) {
             VoucherScreen(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
-                onConfirmClick = {  operator, amount ->
+                onConfirmClick = { operatorId, productId, amount ->
                     navController.navigate(
                         VoucherRoutes.swipeCard(
                             amount = amount.toString(),
-                            operatorCode = operator.operatorCode(),
+                            operatorCode = operatorId,
+                            productId = productId,
                         ),
                     )
                 },
@@ -68,10 +68,12 @@ fun VoucherNavHost(onFlowComplete: () -> Unit) {
             arguments = listOf(
                 navArgument(VoucherNavArgs.AMOUNT) { type = NavType.StringType },
                 navArgument(VoucherNavArgs.OPERATOR_CODE) { type = NavType.StringType },
+                navArgument(VoucherNavArgs.PRODUCT_ID) { type = NavType.StringType },
             ),
         ) { backStackEntry ->
             val amount = backStackEntry.arguments?.getString(VoucherNavArgs.AMOUNT).orEmpty()
             val operatorCode = backStackEntry.arguments?.getString(VoucherNavArgs.OPERATOR_CODE).orEmpty()
+            val productId = backStackEntry.arguments?.getString(VoucherNavArgs.PRODUCT_ID).orEmpty()
             SwipeCardScreen(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
@@ -82,6 +84,7 @@ fun VoucherNavHost(onFlowComplete: () -> Unit) {
                             amount = amount,
                             pan = pan,
                             operatorCode = operatorCode,
+                            productId = productId,
                         ),
                     )
                 },
@@ -96,6 +99,7 @@ fun VoucherNavHost(onFlowComplete: () -> Unit) {
                 navArgument(VoucherNavArgs.AMOUNT) { type = NavType.StringType },
                 navArgument(SwipeCardNavArgs.PAN) { type = NavType.StringType },
                 navArgument(VoucherNavArgs.OPERATOR_CODE) { type = NavType.StringType },
+                navArgument(VoucherNavArgs.PRODUCT_ID) { type = NavType.StringType },
             ),
         ) {
             GetPinScreen(

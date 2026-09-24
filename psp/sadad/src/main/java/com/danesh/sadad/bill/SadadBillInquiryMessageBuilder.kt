@@ -1,48 +1,71 @@
 package com.danesh.sadad.bill
 
 import com.danesh.api.BillInquiryRequest
-import com.danesh.api.TransactionIsoProfile
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.iso.packager.SadadIso93BPackager
+import com.danesh.iso.requireSadad
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
-import org.jpos.iso.ISOUtil
+import com.danesh.sadad.mac.SadadMacCalculator
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * استعلام قبض سداد — درخواست به سوئیچ (6-BILL INQUIRY).
+ *
+ * MTI 0100 (پاسخ 0110)
+ * DE3  170000
+ * DE4  مبلغ ۱۲ رقمی (مبلغ واردشده در صفحه قبض)
+ * DE11 STAN
+ * DE22 021
+ * DE24 007 NII
+ * DE25 14
+ * DE35 Track 2
+ * DE41 Terminal Id
+ * DE42 Acceptor Id
+ * DE48 Bill_ID(13) + Payment_ID(13)
+ * DE59 Transport data
+ * DE63 Function Code 008
+ * DE64 MAC
+ */
 @Singleton
 class SadadBillInquiryMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
     private val messageProvider: IsoMessageProvider,
+    private val macCalculator: SadadMacCalculator,
 ) {
-    fun build(request: BillInquiryRequest): IsoMessage {
-        return messageProvider.create().apply {
+    suspend fun build(request: BillInquiryRequest): IsoMessage {
+        val message = messageProvider.create().apply {
             mti = SadadKeyConfig.BILL_INQUIRY_MTI
             processingCode = SadadKeyConfig.BILL_INQUIRY_PROCESSING_CODE
-           // amount = messageSupport.formatIsoAmount(request.amount)
+            amount = inquiryAmount(request)
             stan = messageSupport.nextStan()
             pointOfServiceEntryMode = SadadKeyConfig.POS_ENTRY_MODE
             nii = SadadKeyConfig.SADAD_NII
-            posConditionCode= SadadKeyConfig.POS_CONDITION_CODE
-
-            track2 = messageSupport.normalizeTrack2(request.track2)
+            posConditionCode = SadadKeyConfig.POS_CONDITION_CODE
+            if (request.track2.isNotBlank()) {
+                track2 = messageSupport.normalizeTrack2(request.track2)
+            }
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
-            getIsoMessage().set(
-                48,
-                messageSupport.billPaymentField48(request.billId, request.payId),
-            )
-            //pinBlock = ISOUtil.hex2byte(request.pinBlock)
-            messageSupport.run { setSadadTransportData(transportData()) }
-
-            mac = SadadKeyConfig.EMPTY_MAC
+            transportData = messageSupport.initTransportData()
+            //privateUseField63 = SadadBillFields.inquiryField63()
         }
+        message.requireSadad().setPlainField48(
+            SadadBillFields.field48(request.billId, request.payId),
+        )
+   //     message.requireSadad().unsetFields(60, 61)
+        message.setPackager(SadadIso93BPackager())
+        macCalculator.applyTransactionMac(message)
+        return message
     }
 
-    companion object {
-        private const val FUNCTION_CODE = "511"
-        private const val TERMINAL_TYPE_POS = "2"
-        private const val NON_FINANCIAL = "0"
-        private const val ZERO_AMOUNT = "000000000000"
+    private fun inquiryAmount(request: BillInquiryRequest): String {
+        val entered = request.amount.filter(Char::isDigit)
+        if (entered.isNotBlank() && entered.any { it != '0' }) {
+            return messageSupport.formatIsoAmount(request.amount)
+        }
+        return SadadBillFields.amountFromPaymentId(request.payId)
     }
 }

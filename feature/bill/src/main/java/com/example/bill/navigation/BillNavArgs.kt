@@ -8,4 +8,5 @@ object BillNavArgs {
     const val REQUEST_ID = "request_id"
     /** inquiry | payment — برای تشخیص کارت‌کشی قبل از استعلام / قبل از پرداخت */
     const val SWIPE_PURPOSE = "swipe_purpose"
+    const val BILL_TYPE = "bill_type"
 }

@@ -52,6 +52,7 @@ data class BillInquiryRequest(
     val payId: String,
     val track2: String = "",
     val pan: String = "",
+    val amount: String = "",
 ) : TransactionRequest
 
 data class CashDepositUserInput(
@@ -112,6 +113,7 @@ data class VoucherUserInput(
     override val pan: String,
     val amount: String,
     val operatorCode: String,
+    val productId: String = "",
 ) : UserTransactionInput
 
 data class TopUpUserInput(
@@ -121,6 +123,7 @@ data class TopUpUserInput(
     val amount: String,
     val mobileNumber: String,
     val operatorCode: String,
+    val productId: String = "",
 ) : UserTransactionInput
 
 data class SupportUserInput(

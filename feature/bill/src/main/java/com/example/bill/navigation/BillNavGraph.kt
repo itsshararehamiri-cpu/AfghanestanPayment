@@ -15,11 +15,15 @@ import com.danesh.api.TransactionType
 import com.danesh.common.SwipeCardNavArgs
 import com.danesh.common.SwipeCardScreen
 import com.danesh.common.pin.GetPinScreen
+import com.danesh.api.BillInquiryKind
 import com.example.bill.BillInfoScreen
+import com.example.bill.BillInquiryIdentifierScreen
 import com.example.bill.BillInquiryRoute
+import com.example.bill.BillInquiryTypeSelectScreen
 import com.example.bill.GetPinViewModel
 import com.example.bill.SuccessBillResultScreen
 import com.example.bill.UnSuccessBillResultScreen
+import com.example.bill.presentation.viewmodel.BillInquiryIdentifierViewModel
 import com.google.gson.Gson
 
 private object BillRoutes {
@@ -27,10 +31,15 @@ private object BillRoutes {
     const val PURPOSE_PAYMENT = "payment"
 
     const val BILL_INFO = "bill_info"
+    const val TYPE_SELECT = "bill_inquiry_type"
+    const val IDENTIFIER =
+        "bill_inquiry_identifier/{${BillNavArgs.BILL_TYPE}}"
+    const val STANDALONE_INQUIRY =
+        "bill_standalone_inquiry/{${BillNavArgs.BILL_ID}}/{${BillNavArgs.PAY_ID}}/{${BillNavArgs.AMOUNT}}/{${BillNavArgs.BILL_TYPE}}"
     const val SWIPE_CARD =
         "bill_swipe_card/{${BillNavArgs.BILL_ID}}/{${BillNavArgs.PAY_ID}}/{${BillNavArgs.AMOUNT}}/{${BillNavArgs.REQUEST_ID}}/{${BillNavArgs.SWIPE_PURPOSE}}"
     const val INQUIRY =
-        "bill_inquiry/{${BillNavArgs.BILL_ID}}/{${BillNavArgs.PAY_ID}}/{${SwipeCardNavArgs.PAN}}/{${SwipeCardNavArgs.TRACK_2}}"
+        "bill_inquiry/{${BillNavArgs.BILL_ID}}/{${BillNavArgs.PAY_ID}}/{${BillNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${SwipeCardNavArgs.TRACK_2}}"
     const val GET_PIN =
         "bill_get_pin/{${SwipeCardNavArgs.TRACK_2}}/{${BillNavArgs.AMOUNT}}/{${SwipeCardNavArgs.PAN}}/{${BillNavArgs.BILL_ID}}/{${BillNavArgs.PAY_ID}}/{${BillNavArgs.REQUEST_ID}}"
     const val SUCCESS_RESULT = "bill_success_result/{${BillNavArgs.RESPONSE}}"
@@ -46,8 +55,26 @@ private object BillRoutes {
         "bill_swipe_card/${Uri.encode(billId)}/${Uri.encode(paymentId)}/" +
             "${Uri.encode(amount)}/${Uri.encode(requestId)}/${Uri.encode(purpose)}"
 
-    fun inquiry(billId: String, paymentId: String, pan: String, track2: String): String =
-        "bill_inquiry/${Uri.encode(billId)}/${Uri.encode(paymentId)}/" +
+    fun identifier(type: BillInquiryKind): String =
+        "bill_inquiry_identifier/${Uri.encode(type.name)}"
+
+    fun standaloneInquiry(
+        billId: String,
+        paymentId: String,
+        amount: String,
+        billType: String,
+    ): String =
+        "bill_standalone_inquiry/${Uri.encode(billId)}/${Uri.encode(paymentId)}/" +
+            "${Uri.encode(amount)}/${Uri.encode(billType)}"
+
+    fun inquiry(
+        billId: String,
+        paymentId: String,
+        amount: String,
+        pan: String,
+        track2: String,
+    ): String =
+        "bill_inquiry/${Uri.encode(billId)}/${Uri.encode(paymentId)}/${Uri.encode(amount)}/" +
             "${Uri.encode(pan)}/${Uri.encode(track2)}"
 
     fun getPin(
@@ -70,9 +97,18 @@ private object BillRoutes {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BillNavHost(onFlowComplete: () -> Unit) {
+fun BillNavHost(
+    onFlowComplete: () -> Unit,
+    startInquiry: Boolean = false,
+) {
     val navController = rememberNavController()
     val flowRouter: BillFlowRouterViewModel = hiltViewModel()
+    val startDestination =
+        if (startInquiry && flowRouter.hasStandaloneInquiryTransaction) {
+            BillRoutes.TYPE_SELECT
+        } else {
+            BillRoutes.BILL_INFO
+        }
 
     fun navigateAfterBillInfo(billId: String, paymentId: String, amount: String) {
         if (flowRouter.requiresInquiry) {
@@ -80,7 +116,7 @@ fun BillNavHost(onFlowComplete: () -> Unit) {
                 BillRoutes.swipeCard(
                     billId = billId,
                     paymentId = paymentId,
-                    amount = "0",
+                    amount = amount,
                     purpose = BillRoutes.PURPOSE_INQUIRY,
                 ),
             )
@@ -98,8 +134,76 @@ fun BillNavHost(onFlowComplete: () -> Unit) {
 
     NavHost(
         navController = navController,
-        startDestination = BillRoutes.BILL_INFO,
+        startDestination = startDestination,
     ) {
+        composable(BillRoutes.TYPE_SELECT) {
+            BillInquiryTypeSelectScreen(
+                types = flowRouter.standaloneInquiryTypes,
+                onBackClick = onFlowComplete,
+                onTypeSelected = { type ->
+                    navController.navigate(BillRoutes.identifier(type))
+                },
+            )
+        }
+        composable(
+            route = BillRoutes.IDENTIFIER,
+            arguments = listOf(
+                navArgument(BillNavArgs.BILL_TYPE) { type = NavType.StringType },
+            ),
+        ) { backStackEntry ->
+            val billType = backStackEntry.arguments?.getString(BillNavArgs.BILL_TYPE).orEmpty()
+            BillInquiryIdentifierScreen(
+                viewModel = hiltViewModel<BillInquiryIdentifierViewModel>(),
+                onBackClick = { navController.popBackStack() },
+                onContinue = { billId, payId ->
+                    navController.navigate(
+                        BillRoutes.standaloneInquiry(
+                            billId = billId,
+                            paymentId = payId.ifBlank { "0" },
+                            amount = "0",
+                            billType = billType,
+                        ),
+                    )
+                },
+            )
+        }
+        composable(
+            route = BillRoutes.STANDALONE_INQUIRY,
+            arguments = listOf(
+                navArgument(BillNavArgs.BILL_ID) { type = NavType.StringType },
+                navArgument(BillNavArgs.PAY_ID) { type = NavType.StringType },
+                navArgument(BillNavArgs.AMOUNT) { type = NavType.StringType },
+                navArgument(BillNavArgs.BILL_TYPE) { type = NavType.StringType },
+            ),
+        ) {
+            BillInquiryRoute(
+                viewModel = hiltViewModel(),
+                onBackClick = onFlowComplete,
+                onConfirmAndPay = { billId, payId, amount, requestId ->
+                    navController.navigate(
+                        BillRoutes.swipeCard(
+                            billId = billId,
+                            paymentId = payId,
+                            amount = amount,
+                            requestId = requestId,
+                            purpose = BillRoutes.PURPOSE_PAYMENT,
+                        ),
+                    )
+                },
+                onInquiryFailed = { message ->
+                    val payload = Gson().toJson(
+                        TransactionResultDetail(
+                            isSuccess = false,
+                            responseMessage = message,
+                            transactionType = TransactionType.BILL,
+                        ),
+                    )
+                    navController.navigate(BillRoutes.unsuccessResult(payload)) {
+                        popUpTo(BillRoutes.TYPE_SELECT) { inclusive = false }
+                    }
+                },
+            )
+        }
         composable(BillRoutes.BILL_INFO) {
             BillInfoScreen(
                 viewModel = hiltViewModel(),
@@ -144,6 +248,7 @@ fun BillNavHost(onFlowComplete: () -> Unit) {
                             BillRoutes.inquiry(
                                 billId = billId,
                                 paymentId = payId,
+                                amount = amount,
                                 pan = pan,
                                 track2 = track2,
                             ),
@@ -170,6 +275,7 @@ fun BillNavHost(onFlowComplete: () -> Unit) {
             arguments = listOf(
                 navArgument(BillNavArgs.BILL_ID) { type = NavType.StringType },
                 navArgument(BillNavArgs.PAY_ID) { type = NavType.StringType },
+                navArgument(BillNavArgs.AMOUNT) { type = NavType.StringType },
                 navArgument(SwipeCardNavArgs.PAN) { type = NavType.StringType },
                 navArgument(SwipeCardNavArgs.TRACK_2) { type = NavType.StringType },
             ),

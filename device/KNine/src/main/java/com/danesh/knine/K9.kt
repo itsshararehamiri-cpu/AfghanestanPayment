@@ -53,19 +53,19 @@ class K9 @Inject constructor(
     private var mIcCardDevice: IcCardDevice? = null
     private val cardType: Byte = 0
     override val INDEX_DATA: Int
-        get() = 1
+        get() = 16
     override val INDEX_MAC: Int
-        get() = 1
+        get() = 16
     override val INDEX_TMK: Int
-        get() = 1
+        get() = 16
     override val INDEX_BOOTSTRAP_TMK: Int
-        get() = 2
+        get() = 16
     override val INDEX_BOOTSTRAP_MAC: Int
-        get() = 2
+        get() = 16
     override val INDEX_PIN: Int
-        get() = 1
+        get() = 16
     override val INDEX_TEK: Int
-        get() = 1
+        get() = 16
     override val hasKeyboard: Boolean
         get() = false
 
@@ -115,27 +115,33 @@ class K9 @Inject constructor(
         // دقیقاً مشابه writeDataKey/writePinKey.
         keyManager.writePlaintextMacKey(macKey, index)
         Log.d(
-            "TAG", "K9K9K9>-writeMacKey${HexUtils.bytesToHexString(macKey)},index=$index"
+            "TAG", "nnN${HexUtils.bytesToHexString(macKey)},index=$index"
         )
         Log.d("TAG", "writeMacKey: dddd${getCheckValue()}")
     }
 
     override suspend fun writeDataKey(dataKey: ByteArray) {
-        keyManager.writePlaintextDataKey(dataKey)
+        writeDataKey(dataKey, INDEX_DATA)
+    }
+
+    override suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
+        keyManager.writePlaintextDataKey(dataKey, index)
         Log.d(
-            "TAG", "K9K9K9>-writeDataKey${HexUtils.bytesToHexString(dataKey)}"
+            "TAG", "K9K9K9>-writeDataKey${HexUtils.bytesToHexString(dataKey)},index=$index"
         )
         Log.d("TAG", "writeDataKey: ${getCheckValue()}")
-
     }
 
     override suspend fun writePinKey(pinKey: ByteArray) {
-        keyManager.writePlaintextPinKey(pinKey)
+        writePinKey(pinKey, INDEX_PIN)
+    }
+
+    override suspend fun writePinKey(pinKey: ByteArray, index: Int) {
+        keyManager.writePlaintextPinKey(pinKey, index)
         Log.d(
-            "TAG", "K9K9K9>-writePinKey${HexUtils.bytesToHexString(pinKey)}"
+            "TAG", "K9K9K9>-writePinKey${HexUtils.bytesToHexString(pinKey)},index=$index"
         )
         Log.d("TAG", "writePinKey: ${getCheckValue()}")
-
     }
 
     override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) {
@@ -149,21 +155,29 @@ class K9 @Inject constructor(
     }
 
     override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) {
-        keyManager.loadTmkEncryptedPinKey(encryptedKey)
+        loadTmkEncryptedPinKey(encryptedKey, INDEX_PIN)
+    }
+
+    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) {
+        keyManager.loadTmkEncryptedPinKey(encryptedKey, index)
         Log.d(
-            "TAG", "K9K9K9>-loadTmkEncryptedPinKey${HexUtils.bytesToHexString(encryptedKey)}"
+            "TAG",
+            "K9K9K9>-loadTmkEncryptedPinKey${HexUtils.bytesToHexString(encryptedKey)},index=$index"
         )
         Log.d("TAG", "loadTmkEncryptedPinKey: ${getCheckValue()}")
-
     }
 
     override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) {
-        keyManager.loadTmkEncryptedDataKey(encryptedKey)
+        loadTmkEncryptedDataKey(encryptedKey, INDEX_DATA)
+    }
+
+    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) {
+        keyManager.loadTmkEncryptedDataKey(encryptedKey, index)
         Log.d(
-            "TAG", "K9K9K9>-loadTmkEncryptedDataKey${HexUtils.bytesToHexString(encryptedKey)}"
+            "TAG",
+            "K9K9K9>-loadTmkEncryptedDataKey${HexUtils.bytesToHexString(encryptedKey)},index=$index"
         )
         Log.d("TAG", "loadTmkEncryptedDataKey: ${getCheckValue()}")
-
     }
 
     override fun clearMasterKeyCache() {
@@ -264,9 +278,10 @@ class K9 @Inject constructor(
                     override fun onSwipeCardSuccess(trackData: TrackData?) {
                         if (trackData != null) {
                             val track2 = decodeTrack2("${trackData.secondTrackData}")
+                            Log.d("TAG", "track2: ->$track2")
 //
-                           /*      onSuccess(track2, trackData.cardno)*/
-                            onSuccess("9004230100000027=31042210000000000000","9004230100000027")
+                                 onSuccess("38$track2", trackData.cardno)
+                           // onSuccess("9004230100000027=31042210000000000000","9004230100000027")
                         } else onError(
                             errorMessage(
                                 context,
@@ -326,8 +341,9 @@ class K9 @Inject constructor(
             )
             return
         }
+        Log.d("TAG", "getPifnBlock: $INDEX_PIN")
         preparePinpad(pinPad)
-        val pinPadInfo = PinPadInfo.builder(pan).setPikId(INDEX_PIN).setShowInputBox(true)
+        val pinPadInfo = PinPadInfo.builder(pan).setPikId(17).setShowInputBox(true)
             .setUseRandomKeybord(false).setMinLength(4).setMaxLength(4)// TODO:  
             .setPinLengthFilter(byteArrayOf(4)).setBeep(true).setCancelable(true)
             .setEncrpyMode(PinPadInfo.EncrpyMode.MODE_ZERO).setShowMask(true)
@@ -354,7 +370,7 @@ class K9 @Inject constructor(
                 }
                 Log.d("TAG", "onReadPidddnSuccess: ${HexUtils.bytesToHexString(pinBlock)}")
               //  onConfirm("3CFDDD66DF58AB70")
-                onConfirm(HexUtils.bcd2str(pinBlock))
+                onConfirm(HexUtils.bytesToHexString(pinBlock))
             }
 
             override fun onError(code: Int, message: String?) {
@@ -519,7 +535,12 @@ class K9 @Inject constructor(
             return null
         }
         preparePinpad(pinpad)
-        val encrypted = pinpad.encryptDataByDek(INDEX_DATA, data, dataCbcMode)
+        val encrypted = pinpad.encryptDataByDek(INDEX_MAC, data, true)//INDEX_DATA
+        Log.d("K9", "ENCRYPTED PIN = [$encrypted]")
+
+        val decrypted = pinpad.decryptDataByDek(17, encrypted, true)
+
+        Log.d("K9", "DECRYPTED PIN = [$decrypted]")
         if (encrypted == null || encrypted.isEmpty()) {
             DeviceTrace.warn(SDK, "encryptDataByDek returned empty")
             return null
@@ -541,7 +562,7 @@ class K9 @Inject constructor(
             return null
         }
         preparePinpad(pinpad)
-        val decrypted = pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode)
+        val decrypted = pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode)//INDEX_DATA
         if (decrypted == null || decrypted.isEmpty()) {
             DeviceTrace.warn(SDK, "decryptDataByDek returned empty")
             return null

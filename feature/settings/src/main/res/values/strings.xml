@@ -163,8 +163,12 @@
     <string name="settings_ticket_scan_qr">اسکن QR</string>
 
     <string name="settings_key_card_title">کلیدگذاری با کارت</string>
-    <string name="settings_key_card_key_index_label">اندیس کلید</string>
-    <string name="settings_key_card_key_index_placeholder">مثلاً 1</string>
+    <string name="settings_key_card_index_a_label">اندیس کارت A</string>
+    <string name="settings_key_card_index_c_label">اندیس کارت C</string>
+    <string name="settings_key_card_index_a_placeholder">اندیس جفت RSA کارت A</string>
+    <string name="settings_key_card_index_c_placeholder">مثلاً 16</string>
+    <string name="settings_key_card_error_index_a_required">اندیس کارت A را وارد کنید</string>
+    <string name="settings_key_card_error_index_c_required">اندیس کارت C را وارد کنید</string>
     <string name="settings_key_card_step1_title">مرحله ۱ — کارت A</string>
     <string name="settings_key_card_step1_stored">جفت کلید کارت A برای این اندیس ذخیره شده است.</string>
     <string name="settings_key_card_step1_not_stored">هنوز جفت کلید کارت A برای این اندیس خوانده نشده است.</string>

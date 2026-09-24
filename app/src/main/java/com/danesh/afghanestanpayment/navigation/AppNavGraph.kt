@@ -49,6 +49,7 @@ object AppRoutes {
     const val BALANCE = "balance"
     const val PURCHASE = "purchase"
     const val BILL = "bill"
+    const val BILL_INQUIRY = "bill_inquiry"
     const val CARD_TO_CARD = "card_to_card"
     const val WALLET_TO_WALLET = "wallet_to_wallet"
     const val TOP_UP = "top_up"
@@ -133,6 +134,7 @@ private fun AppNavHostContent(onExitClick:()-> Unit) {
                         MenuItemType.BALANCE -> navController.navigate(AppRoutes.BALANCE)
                         MenuItemType.PURCHASE -> navController.navigate(AppRoutes.PURCHASE)
                         MenuItemType.BILL -> navController.navigate(AppRoutes.BILL)
+                        MenuItemType.BILL_INQUIRY -> navController.navigate(AppRoutes.BILL_INQUIRY)
                         MenuItemType.TRANSFER -> navController.navigate(AppRoutes.CARD_TO_CARD)
                         MenuItemType.WALLET_TO_WALLET -> navController.navigate(AppRoutes.WALLET_TO_WALLET)
                         MenuItemType.TOPUP -> navController.navigate(AppRoutes.TOP_UP)
@@ -173,6 +175,12 @@ private fun AppNavHostContent(onExitClick:()-> Unit) {
         composable(AppRoutes.BILL) {
             BillNavHost(
                 onFlowComplete = { navController.popBackStackIfAvailable() },
+            )
+        }
+        composable(AppRoutes.BILL_INQUIRY) {
+            BillNavHost(
+                onFlowComplete = { navController.popBackStackIfAvailable() },
+                startInquiry = true,
             )
         }
         composable(AppRoutes.CARD_TO_CARD) {

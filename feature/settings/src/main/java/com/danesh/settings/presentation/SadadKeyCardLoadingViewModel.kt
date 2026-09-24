@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.danesh.api.InitInput
 import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.KeyCardPinRejectedException
 import com.danesh.api.KeyCardType
@@ -35,28 +36,54 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
     val uiState: StateFlow<SadadKeyCardLoadingUiState> = _uiState.asStateFlow()
 
     init {
-      viewModelScope.launch {
-          Log.d("TAG", "kkjkkjkjjjf: ")
-          pspGateway.logon("")
-          refreshStoredCardAState()
-      }
+        restorePersistedIndices()
+        viewModelScope.launch {
+            Log.d("TAG", "kkjkkjkjjjf: ")
+            pspGateway.init(InitInput())
+            pspGateway.logon("")
+            refreshStoredCardAState()
+        }
+    }
+
+    private fun restorePersistedIndices() {
+        val rsa = service.persistedRsaKeyIndex()?.toString().orEmpty()
+        val cardC = service.persistedCardCIndex()?.toString().orEmpty()
+        if (rsa.isEmpty() && cardC.isEmpty()) return
+        _uiState.update { state ->
+            state.copy(
+                cardAIndex = rsa.ifEmpty { state.cardAIndex },
+                cardCIndex = cardC.ifEmpty { state.cardCIndex },
+            )
+        }
     }
 
     private fun refreshStoredCardAState() {
         viewModelScope.launch {
-            val keyIndex = _uiState.value.keyIndex.toIntOrNull() ?: return@launch
+            val keyIndex = _uiState.value.cardAIndex.toIntOrNull() ?: return@launch
             val hasStored = runCatching { service.hasStoredKeyPair(keyIndex) }.getOrDefault(false)
             _uiState.update { it.copy(hasStoredCardAPair = hasStored) }
         }
     }
 
-    fun updateKeyIndex(value: String) {
+    fun updateCardAIndex(value: String) {
         if (_uiState.value.isLoading) return
         val filtered = SettingsTextInputFilters
             .apply(SettingsTextInputFilter.PositiveInteger, value)
             .take(MAX_KEY_INDEX_LENGTH)
-        _uiState.update { it.copy(keyIndex = filtered, resultMessage = null, isSuccess = false) }
+        _uiState.update {
+            it.copy(cardAIndex = filtered, resultMessage = null, isSuccess = false)
+        }
         refreshStoredCardAState()
+    }
+
+    fun updateCardCIndex(value: String) {
+        if (_uiState.value.isLoading) return
+        val filtered = SettingsTextInputFilters
+            .apply(SettingsTextInputFilter.PositiveInteger, value)
+            .take(MAX_KEY_INDEX_LENGTH)
+        _uiState.update {
+            it.copy(cardCIndex = filtered, resultMessage = null, isSuccess = false)
+        }
     }
 
     fun updateCardAPin(value: String) {
@@ -83,10 +110,10 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
 
     fun readCardA() {
         if (_uiState.value.isLoading) return
-        val keyIndex = _uiState.value.keyIndex.toIntOrNull()
+        val keyIndex = _uiState.value.cardAIndex.toIntOrNull()
         if (keyIndex == null) {
             _uiState.update {
-                it.copy(resultMessage = appContext.getString(R.string.settings_key_card_error_key_index_required))
+                it.copy(resultMessage = appContext.getString(R.string.settings_key_card_error_index_a_required))
             }
             return
         }
@@ -128,10 +155,17 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
 
     fun readCardBOrC() {
         if (_uiState.value.isLoading) return
-        val keyIndex = _uiState.value.keyIndex.toIntOrNull()
-        if (keyIndex == null) {
+        val cardAIndex = _uiState.value.cardAIndex.toIntOrNull()
+        if (cardAIndex == null) {
             _uiState.update {
-                it.copy(resultMessage = appContext.getString(R.string.settings_key_card_error_key_index_required))
+                it.copy(resultMessage = appContext.getString(R.string.settings_key_card_error_index_a_required))
+            }
+            return
+        }
+        val cardCIndex = _uiState.value.cardCIndex.toIntOrNull()
+        if (cardCIndex == null) {
+            _uiState.update {
+                it.copy(resultMessage = appContext.getString(R.string.settings_key_card_error_index_c_required))
             }
             return
         }
@@ -148,7 +182,12 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
             _uiState.update {
                 it.copy(isCardBcStepLoading = true, resultMessage = null, isSuccess = false, kcvSummary = null)
             }
-            val result = service.loadAndInjectMasterKeys(card, pin, 15)// TODO:  
+            val result = service.loadAndInjectMasterKeys(
+                card = card,
+                pin = pin,
+                keyIndex = cardCIndex,
+                rsaKeyIndex = cardAIndex,
+            )
             _uiState.update { state ->
                 result.fold(
                     onSuccess = { summary ->

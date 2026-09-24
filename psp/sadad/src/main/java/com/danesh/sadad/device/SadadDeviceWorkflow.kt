@@ -17,15 +17,7 @@ class SadadDeviceWorkflow @Inject constructor(
     override fun initCompletionSteps(
         request: InitRequest,
         terminalKey: ByteArray,
-    ): List<PspKeyLoadStep> {
-        val tmkIndex = device.INDEX_TMK + 1
-        return listOf(
-            PspKeyLoadStep.WriteMasterKey(
-                key = terminalKey,
-                index = tmkIndex,
-            ),
-        )
-    }
+    ): List<PspKeyLoadStep> = emptyList()
 
     override fun logonCompletionSteps(workingKeys: PspLogonWorkingKeys): List<PspKeyLoadStep> =
         emptyList()

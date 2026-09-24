@@ -13,6 +13,7 @@ import com.danesh.hp.config.HpConfigurationChecker
 import com.danesh.hp.config.HpInitialConfigurationPolicy
 import com.danesh.api.QueueRemovalPolicy
 import com.danesh.api.SupportCatalog
+import com.danesh.api.ChargeCatalog
 import com.danesh.engine.HostTimeSynchronizer
 import com.danesh.engine.NoOpHostTimeSynchronizer
 import com.danesh.engine.QueueAdviceExecutor
@@ -62,6 +63,11 @@ abstract class TransactionModule {
     abstract fun bindSupportCatalog(
         impl: EmptySupportCatalog,
     ): SupportCatalog
+
+    @Binds
+    abstract fun bindChargeCatalog(
+        impl: com.danesh.hp.voucher.EmptyChargeCatalog,
+    ): ChargeCatalog
 
     @Binds
     abstract fun bindHostTimeSynchronizer(

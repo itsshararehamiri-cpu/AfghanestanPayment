@@ -8,6 +8,9 @@ object SadadKeyConfig {
    const val INIT_MTI: String="0800"
     const val INIT__PROCESSING_CODE: String="930000"
 
+    /** اسلات PED برای Init MAC (کلید 04) — INIT و LOGON فقط با این کلید MAC می‌شوند. */
+    const val INIT_MAC_PED_INDEX = 4
+
     const val MASTER_KEY_HEX = "3132333435363738393A3B3C3D3E3F20"
     const val ENCRYPTED_PIN_KEY_HEX = "5C8A22317AD2DC5A03F674BACDB2BC37"
     const val ENCRYPTED_MAC_KEY_HEX = "F7C6D4AFD6C3832AA16C07D1BA9F62DD"
@@ -62,7 +65,7 @@ object SadadKeyConfig {
     const val INIT_MASTER_KEY_INDEX = "016"
     const val INIT_RESERVE = "000"
     /** طبق مستند PosTrans-Final.pdf باید ۳ باشد. */
-    const val INIT_ENC_METHOD = "3"
+    const val INIT_ENC_METHOD = "4"
 
     const val PURCHASE_PROCESSING_CODE = "000000"
     /** DE61 Mode 1: one terminal one merchant — Mode n2 + MID n2 */
@@ -73,7 +76,13 @@ object SadadKeyConfig {
     const val BILL_MTI = "0200"
     const val BILL_PROCESSING_CODE = "170000"
     const val BILL_ID_LENGTH = 13
+    /** شناسه پرداخت ۶ تا ۱۳ رقم است و در DE48 تا ۱۳ رقم از چپ با صفر پر می‌شود. */
     const val BILL_PAYMENT_ID_LENGTH = 13
+    /**
+     * استعلام قبض — پاورقی سند: Using function code 8.
+     * در DE63 به‌صورت n3 می‌رود.
+     */
+    const val BILL_INQUIRY_FUNCTION_CODE = "008"
 
     /** 5-CHARGE سند: MTI 0200 (پاسخ 0210) — قبلاً به‌اشتباه 1100 بود. */
     const val VOUCHER_MTI = "0200"
@@ -82,6 +91,8 @@ object SadadKeyConfig {
 
     const val TOPUP_MTI = "0200"
     const val TOPUP_PROCESSING_CODE = "230000"
+    /** DE63 Function Code شارژ مستقیم — operator/category/service + موبایل. */
+    const val TOPUP_FUNCTION_CODE = "006"
 
     const val SUPPORT_MTI = "1100"
     const val SUPPORT_PROCESSING_CODE = "100000"
@@ -167,4 +178,10 @@ object SadadKeyConfig {
     const val FUEL_STATION_INQUIRY_PROCESSING_CODE = "240000"
 
     val EMPTY_MAC: ByteArray = ByteArray(8)
+
+    /** DE63 Client/Host: Portable بدون داده — مقدمهٔ پروتکل (`01040000`). */
+    const val FUNCTION_CODE_CONNECTION: String = "040"
+
+    /** DE63 Host: Terminal initializer (اطلاعات پایه پایانه/پذیرنده در پاسخ INIT). */
+    const val FUNCTION_CODE_TERMINAL_INITIALIZER: String = "013"
 }

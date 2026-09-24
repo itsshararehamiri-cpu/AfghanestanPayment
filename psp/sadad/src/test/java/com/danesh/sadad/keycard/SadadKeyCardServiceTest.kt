@@ -5,6 +5,7 @@ import com.danesh.api.DeviceConfigurationStore
 import com.danesh.api.DeviceConfigurationSummary
 import com.danesh.core.Device
 import com.danesh.core.KCV
+import com.danesh.sadad.key.SadadWorkingMacState
 import kotlinx.coroutines.runBlocking
 import org.jpos.iso.ISOUtil
 import org.junit.Assert.assertArrayEquals
@@ -60,8 +61,10 @@ private class FakeDevice : Device {
     override val hasKeyboard = false
     val writtenMasterKeys = mutableMapOf<Int, ByteArray>()
     val writtenMacKeys = mutableMapOf<Int, ByteArray>()
-    var writtenDataKey: ByteArray? = null
-    var writtenPinKey: ByteArray? = null
+    val writtenDataKeys = mutableMapOf<Int, ByteArray>()
+    val writtenPinKeys = mutableMapOf<Int, ByteArray>()
+    val writtenDataKey: ByteArray? get() = writtenDataKeys.values.singleOrNull()
+    val writtenPinKey: ByteArray? get() = writtenPinKeys.values.singleOrNull()
 
     override suspend fun getModel() = "TEST"
     override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) {
@@ -71,17 +74,23 @@ private class FakeDevice : Device {
         writtenMacKeys[index] = macKey.copyOf()
     }
     override suspend fun writeDataKey(dataKey: ByteArray) {
-        writtenDataKey = dataKey.copyOf()
+        writeDataKey(dataKey, INDEX_DATA)
+    }
+    override suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
+        writtenDataKeys[index] = dataKey.copyOf()
     }
     override suspend fun writePinKey(pinKey: ByteArray) {
-        writtenPinKey = pinKey.copyOf()
+        writePinKey(pinKey, INDEX_PIN)
+    }
+    override suspend fun writePinKey(pinKey: ByteArray, index: Int) {
+        writtenPinKeys[index] = pinKey.copyOf()
     }
     override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) = Unit
     override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) = Unit
     override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) = Unit
     override suspend fun getMac(data: ByteArray, index: Int, keyType: com.danesh.core.MacKeyType) = ByteArray(8)
     override suspend fun readCard(context: android.content.Context, onSuccess: (String, String) -> Unit, onError: (String) -> Unit, onTimeOut: () -> Unit) = Unit
-    override suspend fun getPinBlock(context: android.content.Context, pan: String, onError: (String) -> Unit, onInput: (Int) -> Unit, onConfirm: (String) -> Unit, onCancel: () -> Unit, onTimeOut: () -> Unit) = Unit
+    override suspend fun getPinBlock(title: String, context: android.content.Context, pan: String, onError: (String) -> Unit, onInput: (Int) -> Unit, onConfirm: (String) -> Unit, onCancel: () -> Unit, onTimeOut: () -> Unit) = Unit
     override fun getSerial() = "SERIAL"
     override suspend fun decryptData(data: ByteArray, onSuccess: (ByteArray) -> Unit, onError: (String) -> Unit) = Unit
     override suspend fun print(bitmap: android.graphics.Bitmap, context: android.content.Context, onSuccess: () -> Unit, onFailed: (String) -> Unit, reportErrorToUi: Boolean) = Unit
@@ -146,7 +155,12 @@ class SadadKeyCardServiceTest {
         val service = SadadKeyCardService(
             reader = SadadKeyCardReader(transport),
             storage = store,
-            injector = SadadKeyCardInjector(FakeDevice(), FakeConfigurationStore()),
+            injector = SadadKeyCardInjector(
+                FakeDevice(),
+                FakeConfigurationStore(),
+                SadadWrappingKeyHolder.inMemoryForTests(),
+                SadadWorkingMacState.inMemoryForTests(),
+            ),
         )
 
         val result = service.loadKeyPairFromCardA(pin = "1234", keyIndex = 1)
@@ -163,7 +177,12 @@ class SadadKeyCardServiceTest {
         val service = SadadKeyCardService(
             reader = SadadKeyCardReader(transport),
             storage = InMemoryKeyPairStore(),
-            injector = SadadKeyCardInjector(FakeDevice(), FakeConfigurationStore()),
+            injector = SadadKeyCardInjector(
+                FakeDevice(),
+                FakeConfigurationStore(),
+                SadadWrappingKeyHolder.inMemoryForTests(),
+                SadadWorkingMacState.inMemoryForTests(),
+            ),
         )
 
         val result = service.loadKeyPairFromCardA(pin = "0000", keyIndex = 1)
@@ -179,7 +198,12 @@ class SadadKeyCardServiceTest {
         val service = SadadKeyCardService(
             reader = SadadKeyCardReader(FakeSadadIccTransport()),
             storage = InMemoryKeyPairStore(),
-            injector = SadadKeyCardInjector(FakeDevice(), FakeConfigurationStore()),
+            injector = SadadKeyCardInjector(
+                FakeDevice(),
+                FakeConfigurationStore(),
+                SadadWrappingKeyHolder.inMemoryForTests(),
+                SadadWorkingMacState.inMemoryForTests(),
+            ),
         )
 
         val result = service.loadAndInjectMasterKeys(SadadKeyCard.CARD_C, pin = "1234", keyIndex = 1)
@@ -221,7 +245,12 @@ class SadadKeyCardServiceTest {
         val serviceForA = SadadKeyCardService(
             reader = SadadKeyCardReader(cardATransport),
             storage = store,
-            injector = SadadKeyCardInjector(device, configStore),
+            injector = SadadKeyCardInjector(
+                device,
+                configStore,
+                SadadWrappingKeyHolder.inMemoryForTests(),
+                SadadWorkingMacState.inMemoryForTests(),
+            ),
         )
         assertTrue(serviceForA.loadKeyPairFromCardA(pin = "1234", keyIndex = 1).isSuccess)
 
@@ -230,16 +259,88 @@ class SadadKeyCardServiceTest {
         val serviceForC = SadadKeyCardService(
             reader = SadadKeyCardReader(cardCTransport),
             storage = store,
-            injector = SadadKeyCardInjector(device, configStore),
+            injector = SadadKeyCardInjector(
+                device,
+                configStore,
+                SadadWrappingKeyHolder.inMemoryForTests(),
+                SadadWorkingMacState.inMemoryForTests(),
+            ),
         )
         val result = serviceForC.loadAndInjectMasterKeys(SadadKeyCard.CARD_C, pin = "1234", keyIndex = 1)
 
         assertTrue(result.exceptionOrNull()?.stackTraceToString() ?: "no error", result.isSuccess)
-        assertArrayEquals(terminalMasterKey, device.writtenMasterKeys[device.INDEX_TMK])
-        assertArrayEquals(macKey, device.writtenMacKeys[device.INDEX_MAC])
-        assertArrayEquals(dataKey, device.writtenDataKey)
-        assertArrayEquals(pinKey, device.writtenPinKey)
+        assertArrayEquals(terminalMasterKey, device.writtenMasterKeys[1])
+        assertArrayEquals(initMacKey, device.writtenMacKeys[1])
+        assertArrayEquals(dataKey, device.writtenDataKeys[1])
+        assertArrayEquals(pinKey, device.writtenPinKeys[1])
         assertTrue(configStore.configured)
         assertFalse(cardCTransport.poweredOn)
+    }
+
+    @Test
+    fun loadAndInjectMasterKeys_usesSeparateRsaAndCardCIndices() = runBlocking {
+        val generator = KeyPairGenerator.getInstance("RSA").apply { initialize(1024) }
+        val keyPair = generator.generateKeyPair()
+        val publicKey = keyPair.public as RSAPublicKey
+        val privateKey = keyPair.private as RSAPrivateKey
+        val modulus = toFixedLength(privateKey.modulus.toByteArray(), 128)
+        val exponent = toFixedLength(privateKey.privateExponent.toByteArray(), 128)
+
+        val terminalMasterKey = ByteArray(16) { 0xA1.toByte() }
+        val macKey = ByteArray(16) { 0xB2.toByte() }
+        val dataKey = ByteArray(16) { 0xC3.toByte() }
+        val pinKey = ByteArray(16) { 0xD4.toByte() }
+        val initMacKey = ByteArray(16) { 0xE5.toByte() }
+        val initDataKey = ByteArray(16) { 0xF6.toByte() }
+
+        val encryptedByNumber = mapOf(
+            SadadKeyNumber.TERMINAL_MASTER_KEY.number to rsaEncrypt(publicKey, terminalMasterKey),
+            SadadKeyNumber.MAC.number to rsaEncrypt(publicKey, macKey),
+            SadadKeyNumber.DATA.number to rsaEncrypt(publicKey, dataKey),
+            SadadKeyNumber.INIT_PIN.number to rsaEncrypt(publicKey, pinKey),
+            SadadKeyNumber.INIT_MAC.number to rsaEncrypt(publicKey, initMacKey),
+            SadadKeyNumber.INIT_DATA.number to rsaEncrypt(publicKey, initDataKey),
+        )
+
+        val store = InMemoryKeyPairStore()
+        val device = FakeDevice()
+        val macState = SadadWorkingMacState.inMemoryForTests()
+        val injector = SadadKeyCardInjector(
+            device,
+            FakeConfigurationStore(),
+            SadadWrappingKeyHolder.inMemoryForTests(),
+            macState,
+        )
+        SadadKeyCardService(
+            reader = SadadKeyCardReader(
+                FakeSadadIccTransport(publicModulus = modulus, privateExponent = exponent),
+            ),
+            storage = store,
+            injector = injector,
+        ).loadKeyPairFromCardA(pin = "1234", keyIndex = 5).getOrThrow()
+
+        val result = SadadKeyCardService(
+            reader = SadadKeyCardReader(
+                FakeSadadIccTransport(encryptedKeysByNumber = encryptedByNumber),
+            ),
+            storage = store,
+            injector = injector,
+        ).loadAndInjectMasterKeys(
+            card = SadadKeyCard.CARD_C,
+            pin = "1234",
+            keyIndex = 16,
+            rsaKeyIndex = 5,
+        )
+
+        assertTrue(result.exceptionOrNull()?.stackTraceToString() ?: "no error", result.isSuccess)
+        assertArrayEquals(terminalMasterKey, device.writtenMasterKeys[16])
+        assertArrayEquals(initMacKey, device.writtenMacKeys[16])
+        assertArrayEquals(dataKey, device.writtenDataKeys[16])
+        assertArrayEquals(pinKey, device.writtenPinKeys[16])
+        assertEquals(16, macState.initMacIndex())
+        assertEquals(17, macState.workingKeyIndex())
+        assertEquals(5, macState.rsaKeyIndex())
+        assertTrue(device.writtenMasterKeys.containsKey(5).not())
+        assertTrue(device.writtenMacKeys.containsKey(5).not())
     }
 }

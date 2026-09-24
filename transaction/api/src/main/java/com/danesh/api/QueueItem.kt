@@ -40,4 +40,8 @@ open class QueueItem(
      * [QueueOperations.ADVICE] یا [QueueOperations.REVERSE]
      */
     open val queueOperation: Char = QueueOperations.REVERSE,
+    /** Track 2 تراکنش اصلی — فقط برای Reverse سداد (DE35). */
+    open val track2: String? = null,
+    /** Private4 تراکنش اصلی — اگر خالی باشد advice/reverse کد تابع 040 می‌فرستد. */
+    open val originalField63: String? = null,
 )

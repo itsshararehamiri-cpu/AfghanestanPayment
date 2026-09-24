@@ -69,11 +69,21 @@ object DataBaseModule {
                 )
             }
         }
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE store_forward_queue_table ADD COLUMN track2 TEXT",
+                )
+                database.execSQL(
+                    "ALTER TABLE store_forward_queue_table ADD COLUMN originalField63 TEXT",
+                )
+            }
+        }
         return Room.databaseBuilder(
             context,
             PayAppDatabase::class.java, PAY_DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 

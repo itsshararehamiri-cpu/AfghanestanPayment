@@ -26,6 +26,8 @@ class GetPinViewModel @Inject constructor(
 
     private val operatorCode: String =
         savedStateHandle.get<String>(VoucherNavArgs.OPERATOR_CODE).orEmpty()
+    private val productId: String =
+        savedStateHandle.get<String>(VoucherNavArgs.PRODUCT_ID).orEmpty().let { if (it == "_") "" else it }
 
     override suspend fun executeTransaction(
         pinBlock: String,
@@ -38,6 +40,7 @@ class GetPinViewModel @Inject constructor(
             amount = amount,
             pan = pan,
             operatorCode = operatorCode,
+            productId = productId,
         )
     }
 }

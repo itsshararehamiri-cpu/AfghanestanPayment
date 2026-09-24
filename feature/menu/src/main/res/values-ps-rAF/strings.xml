@@ -12,6 +12,7 @@
     <string name="menu_report">راپورونه</string>
     <string name="menu_balance">د موجودي پوښتنه</string>
     <string name="menu_bill">بل تادیه</string>
+    <string name="menu_bill_inquiry">د بل پوښتنه</string>
     <string name="menu_topup">موبایل چارج</string>
     <string name="menu_voucher">کد شارژ</string>
     <string name="menu_support">ملاتړ</string>

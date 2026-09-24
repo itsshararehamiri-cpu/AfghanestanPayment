@@ -3,8 +3,11 @@ package com.danesh.sadad.purchase
 import com.danesh.api.PurchaseUserInput
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.iso.packager.SadadIso93BPackager
+import com.danesh.iso.requireSadad
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
+import com.danesh.sadad.mac.SadadMacCalculator
 import org.jpos.iso.ISOUtil
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,18 +28,17 @@ import javax.inject.Singleton
  * DE48 Additional Data – Private (اجباری)
  * DE52 PIN block
  * DE59 Transport data
- * DE61 Mode 1: 01 + slot 01 (یک ترمینال / یک پذیرنده)
- * DE64 MAC (8 بایت خالی)
- *
- * DE60 و DE63 در فروش ساده ارسال نمی‌شوند.
+ * DE60 و DE61 و DE63 در فروش ساده ارسال نمی‌شوند.
+ * پاسخ خرید: فیلدهای ۶۱ و ۶۲ و ۶۳ استفاده نمی‌شوند.
  */
 @Singleton
 class SadadPurchaseMessageBuilder @Inject constructor(
     private val messageSupport: SadadIsoMessageSupport,
-    private val messageProvider: IsoMessageProvider,
+    private val messageProvider: IsoMessageProvider,private val macCalculator: SadadMacCalculator,
 ) {
-    fun build(request: PurchaseUserInput): IsoMessage {
-        return messageProvider.create().apply {
+  suspend  fun build(request: PurchaseUserInput): IsoMessage {
+        messageSupport.beginSession()
+        val message= messageProvider.create().apply {
             mti = SadadKeyConfig.PURCHASE_MTI
             processingCode = SadadKeyConfig.PURCHASE_PROCESSING_CODE
             amount = messageSupport.formatIsoAmount(request.amount)
@@ -47,14 +49,16 @@ class SadadPurchaseMessageBuilder @Inject constructor(
             track2 = messageSupport.normalizeTrack2(request.track2)
             terminalId = messageSupport.terminalIdOrDefault()
             merchantId = messageSupport.merchantIdOrDefault()
-            getIsoMessage().set(48, messageSupport.additionalPrivateData())
+            //getIsoMessage().set(48, messageSupport.additionalPrivateData())
             pinBlock = ISOUtil.hex2byte(request.pinBlock)
-            messageSupport.run { setSadadTransportData(transportData()) }
-            privateUseField61 = messageSupport.multiMerchantModeOne()
-            privateUseField63 = messageSupport.functionCode040Field63()
-
-            mac = SadadKeyConfig.EMPTY_MAC
+          //  messageSupport.run { setSadadTransportData(transportData()) }
+            //privateUseField61 = messageSupport.multiMerchantModeOne()
+            transportData = messageSupport.initTransportData()
         }
+      message.requireSadad().unsetFields(60, 61, 63)
+      message.setPackager(SadadIso93BPackager())
+      macCalculator.applyTransactionMac(message)
+        return message
     }
 }
 /*

@@ -150,6 +150,14 @@ class SadadKeyCardCryptoTest {
         )
     }
 
+    @Test
+    fun decrypt3DesEcb_unwrapsWorkingMacUnderCardMacKey() {
+        val cardMac = SadadHex.decode("00112233445566778899AABBCCDDEEFF")
+        val workingMac = SadadHex.decode("112233445566778899AABBCCDDEEFF00")
+        val cipher = SadadKeyCardCrypto.encrypt3DesEcb(workingMac, cardMac)
+        assertArrayEquals(workingMac, SadadKeyCardCrypto.decrypt3DesEcb(cipher, cardMac))
+    }
+
     private fun toFixedLengthBytes(signedBytes: ByteArray, length: Int): ByteArray {
         val unsigned = if (signedBytes.size > length && signedBytes[0] == 0.toByte()) {
             signedBytes.copyOfRange(1, signedBytes.size)

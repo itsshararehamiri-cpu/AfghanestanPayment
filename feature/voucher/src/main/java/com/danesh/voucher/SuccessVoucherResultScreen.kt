@@ -1,5 +1,6 @@
 package com.danesh.voucher
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -188,6 +189,14 @@ private fun VoucherReceipt(
 ) {
     val isPaperReceipt = true
     val context = LocalContext.current
+    LaunchedEffect(receiptType, result.voucherSerial, result.voucherPin) {
+        Log.d(
+            "sharjHoma",
+            "9) receiptType=$receiptType showDetails=${receiptType.showsVoucherChargeDetails()} " +
+                "serial='${result.voucherSerial}' serialBlank=${result.voucherSerial.isBlank()} " +
+                "pin='${result.voucherPin}' pinBlank=${result.voucherPin.isBlank()}",
+        )
+    }
     Column(
         modifier = Modifier.containerReceiptModifier(isPaperReceipt, context)
     ) {

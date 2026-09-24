@@ -46,54 +46,34 @@ class SadadKeyCardReader @Inject constructor(
         return temp
     }
 
+    private suspend fun exchangeUntilComplete(command: ByteArray, operation: String): ByteArray {
+        var response = transport.exchange(command)
+        SadadKeyCardApdu.moreDataLength(SadadKeyCardApdu.statusWord(response))?.let { le ->
+            response = transport.exchange(SadadKeyCardApdu.getResponse(le))
+        }
+        return SadadKeyCardApdu.requireSuccess(response, operation)
+    }
+
     /** کلید عمومی RSA (128 بایت Modulus) از کارت A. */
     suspend fun readRsaPublicModulus(recordNumber: Int): ByteArray {
         val b = SadadKeyCardApdu.readRsaPublicKey(recordNumber)
-        val response = transport.exchange(b)
-        val response2 = transport.exchange(ISOUtil.hex2byte("00C0000080"))
-
-        Log.d(
-            "TAG",
-            "SadadKeyCardReaderreadRsaPublicModuluschhhom: ${ISOUtil.hexString(response2)}"
-        )
-
         Log.d("TAG", "SadadKeyCardReaderreadRsaPublicModulus: $recordNumber")
         Log.d("TAG", "SadadKeyCardReaderreadRsaPublicModuluscom: ${ISOUtil.hexString(b)}")
-
-        Log.d("TAG", "SadadKeyCardReaderreadRsaPublicModulus: ${ISOUtil.hexString(response)}")
-        val temp = SadadKeyCardApdu.requireSuccess(response2, "Read RSA public key")
-        Log.d("TAG", "SadadKeyCardReaderreadRsaPublicModulus: ${ISOUtil.hexString(temp)}")
-
-        return temp
+        return exchangeUntilComplete(b, "Read RSA public key")
     }
 
     /** کلید خصوصی RSA (128 بایت Private Exponent) از کارت A. */
     suspend fun readRsaPrivateExponent(recordNumber: Int): ByteArray {
-        val response = transport.exchange(SadadKeyCardApdu.readRsaPrivateExponent(recordNumber))
+        val command = SadadKeyCardApdu.readRsaPrivateExponent(recordNumber)
         Log.d("TAG", "SadadKeyCardReaderreadRsaPrivateExponent: $recordNumber")
-        Log.d("TAG", "SadadKeyCardReaderreadRsaPrivateExponent: ${ISOUtil.hexString(response)}")
-        val response2 = transport.exchange(ISOUtil.hex2byte("00C0000080"))
-        val temp = SadadKeyCardApdu.requireSuccess(response2, "Read RSA private key")
-        Log.d("TAG", "SadadKeyCardReaderreadRsaPrivateExponent: ${ISOUtil.hexString(temp)}")
-        return temp
+        return exchangeUntilComplete(command, "Read RSA private key")
     }
 
     /** کلید (128 بایت رمزشده با RSA) از کارت B یا C. */
     suspend fun readEncryptedKey(recordNumber: Int, keyNumber: SadadKeyNumber): ByteArray {
-        Log.d("TAG", "SadadKeyCardReaderreadEnjjjcryptedKey: $recordNumber")
-        Log.d("TAG", "SadadKeyCardReaderreadEncryptjkjkedKey: $keyNumber")
-        val t = SadadKeyCardApdu.readEncryptedKey(recordNumber, keyNumber)
-        val response = transport.exchange(t)
-        Log.d("TAG", "SadadKeyCardReaderreadEncryptedKkjkkey: ${ISOUtil.hexString(t)}")
-
-        Log.d("TAG", "SadadKeyCardReaderreadEncryptedKkjkkey: ${ISOUtil.hexString(response)}")
-        val response2 = transport.exchange(ISOUtil.hex2byte("00C0000080"))
-
-        val temp = SadadKeyCardApdu.requireSuccess(response2, "Read encrypted ${keyNumber.name}")
-        Log.d("TAG", "SadadKeyCardReaderreadEncryptedKey: ${ISOUtil.hexString(temp)}")
-        Log.d("TAG", "SadadKeyCardReaderreadEncryptedKey: ${ISOUtil.hexString(response2)}")
-
-        return temp
+        val command = SadadKeyCardApdu.readEncryptedKey(recordNumber, keyNumber)
+        Log.d("TAG", "SadadKeyCardReaderreadEncryptedKey: $recordNumber $keyNumber")
+        return exchangeUntilComplete(command, "Read encrypted ${keyNumber.name}")
     }
 
     fun powerOn(): Boolean {
