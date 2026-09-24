@@ -41,9 +41,9 @@
     <string name="settings_merchant_password_instruction">مهرباني وکړئ د پذیرونکي پټنوم ولیکئ</string>
     <string name="tx_message_network_failed">د شبکې تېروتنه</string>
     <string name="tx_message_general_failed">معامله ترسره نشوه</string>
-    <string name="transaction_communication_error_title">د ارتباط تېروتنه</string>
-    <string name="transaction_communication_error_message">معامله ترسره نه شوه. د سرور سره د ارتباط د ستونزې له امله، مهرباني وکړئ خپل اتصال وګورئ او بیا هڅه وکړئ.</string>
-    <string name="transaction_communication_error_confirm">تایید</string>
+    <string name="transaction_communication_error_title">اړیکه ونه نیول شوه</string>
+    <string name="transaction_communication_error_message">له سرور سره په اړیکه کې ستونزه پیدا شوه او معامله ترسره نشوه. مهرباني وکړئ د وسیلې انټرنیټ وګورئ او بیا هڅه وکړئ.</string>
+    <string name="transaction_communication_error_confirm">سمه ده</string>
 
     <string name="password_keypad_clear">پاک کول</string>
     <string name="password_keypad_confirm">تایید</string>
@@ -64,7 +64,7 @@
     <string name="merchant_receipt">د پذیرونکي رسید</string>
     <string name="duplicate_receipt">بیا رسید</string>
     <string name="unsettled_receipt">ناخلاصه معامله</string>
-    <string name="amount_with_currency">%1$s ریال</string>
+    <string name="amount_with_currency">%1$s %2$s</string>
     <string name="trace__">د تعقیب شمیره</string>
     <string name="trace_rrn">د تعقیب/مرجع شمیره</string>
     <string name="card_number_title">د کارت شمیره</string>
@@ -152,11 +152,11 @@
     <string name="balance_success_title">د موجودي پوښتنه په بریالیتوب سره ترسره شوه.</string>
     <string name="balance_failed_title">د موجودي پوښتنه ناکامه شوه.</string>
     <string name="label_terminal_merchant">ټرمینل/پذیرونکی</string>
-    <string name="currency_afn">AFN</string>
+    <string name="currency_afn">%1$s</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
+    <string name="placeholder_amount_unavailable">— %1$s</string>
     <string name="content_desc_splash">POS Terminal</string>
 
     <string name="receipt_payback_message_part1">که ستاسو له حساب څخه پیسې کسر شوې وي</string>
@@ -206,4 +206,8 @@
     <string name="transaction_fee">کارمزد:</string>
 
     <string name="label_terminal_unique_code">د کارت لوستونکي کوډ</string>
+    <string name="transaction_communication_error_connect">له سرور سره وصل نشو. مهرباني وکړئ انټرنیټ یا سیم کارټ وګورئ او بیا هڅه وکړئ. اندېښنه مه کوئ، ستاسو له حساب څخه پیسې نه دي کمې شوې.</string>
+    <string name="transaction_communication_error_send">غوښتنه سرور ته ونه رسېده. مهرباني وکړئ اتصال وګورئ او بیا هڅه وکړئ.</string>
+    <string name="transaction_communication_error_receive">د سرور ځواب په وخت ونه رسېد. که پیسې مو له حساب څخه کمې شوې وي، په اتومات ډول بېرته راګرځي. لږ وروسته بیا هڅه وکړئ.</string>
+    <string name="transaction_communication_error_queue">یوه پخوانۍ معامله لا له سرور سره نه ده تصفیه شوې. لږ صبر وکړئ او بیا هڅه وکړئ.</string>
 </resources>

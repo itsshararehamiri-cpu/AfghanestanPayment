@@ -1,5 +1,6 @@
 package com.danesh.cashdeposit.presentation.screens
 
+import com.danesh.common.currency.amountInWordsWithCurrency
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -89,6 +90,7 @@ private fun TransactionInfoContent(
                 iconRes = com.danesh.ui.R.drawable.ic_coin,
                 keyboardType = KeyboardType.Decimal,
                 errorMessage = uiState.amountError,
+                amountInWords = amountInWordsWithCurrency(uiState.amount),
             )
 
             Spacer(modifier = Modifier.weight(1f))

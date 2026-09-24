@@ -22,13 +22,13 @@
     <string name="bill_confirm_and_pay">تایید و پرداخت</string>
     <string name="bill_inquiry_error_ok">تایید</string>
     <string name="enter_amount">مبلغ را وارد کنید</string>
-    <string name="bill_id_invalid">شناسه قبض نامعتبر است</string>
-    <string name="bill_id_check_digit">رقم کنترل شناسه قبض نادرست است</string>
-    <string name="bill_id_invalid_type">نوع قبض نامعتبر است</string>
-    <string name="payment_id_invalid">شناسه پرداخت نامعتبر است</string>
-    <string name="payment_id_check_digit">رقم کنترل شناسه پرداخت نادرست است</string>
-    <string name="payment_id_pair_mismatch">شناسه قبض و شناسه پرداخت با هم همخوانی ندارند</string>
-    <string name="bill_failed">پرداخت قبض  ناموفق شد.</string>
-    <string name="bill_was_successful">پرداخت قبض ناموفق شد.</string>
+    <string name="bill_id_invalid">شناسه قبض درست نیست؛ لطفاً دوباره از روی قبض واردش کنید.</string>
+    <string name="bill_id_check_digit">انگار یکی از رقم‌های شناسه قبض اشتباه وارد شده؛ لطفاً دوباره چک کنید.</string>
+    <string name="bill_id_invalid_type">این شناسه مربوط به هیچ قبض قابل پرداختی نیست؛ لطفاً دوباره چک کنید.</string>
+    <string name="payment_id_invalid">شناسه پرداخت درست نیست؛ لطفاً دوباره از روی قبض واردش کنید.</string>
+    <string name="payment_id_check_digit">انگار یکی از رقم‌های شناسه پرداخت اشتباه وارد شده؛ لطفاً دوباره چک کنید.</string>
+    <string name="payment_id_pair_mismatch">این شناسه پرداخت با شناسه قبض جور درنمی‌آید؛ هر دو را دوباره از روی قبض چک کنید.</string>
+    <string name="bill_failed">پرداخت قبض انجام نشد.</string>
+    <string name="bill_was_successful">پرداخت قبض با موفقیت انجام شد.</string>
 
 </resources>

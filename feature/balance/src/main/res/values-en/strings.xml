@@ -3,7 +3,6 @@
     <string name="merchant_receipt">Merchant receipt</string>
     <string name="duplicate_receipt">Duplicate receipt</string>
     <string name="sum_of_all_transactions">Total of all transactions</string>
-    <string name="amount_with_currency">%1$s AFN</string>
     <string name="trace__">Tracking number</string>
     <string name="trace_rrn">Tracking/Reference number</string>
     <string name="balance_">Balance</string>

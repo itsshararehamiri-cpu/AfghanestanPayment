@@ -21,13 +21,13 @@
     <string name="bill_label_payable_amount">Payable amount</string>
     <string name="bill_confirm_and_pay">Confirm and pay</string>
     <string name="bill_inquiry_error_ok">OK</string>
-    <string name="bill_id_invalid">Invalid bill ID</string>
-    <string name="bill_id_check_digit">Bill ID check digit is wrong</string>
-    <string name="bill_id_invalid_type">Invalid bill type</string>
-    <string name="payment_id_invalid">Invalid payment ID</string>
-    <string name="payment_id_check_digit">Payment ID check digit is wrong</string>
-    <string name="payment_id_pair_mismatch">Bill ID and payment ID do not match</string>
-    <string name="bill_failed">Bill failed.</string>
-    <string name="bill_was_successful">Bill was successful.</string>
+    <string name="bill_id_invalid">This bill ID doesn\'t look right. Please enter it again from the bill.</string>
+    <string name="bill_id_check_digit">One of the bill ID digits seems to be wrong. Please check it again.</string>
+    <string name="bill_id_invalid_type">This bill ID doesn\'t belong to any payable bill. Please check it again.</string>
+    <string name="payment_id_invalid">This payment ID doesn\'t look right. Please enter it again from the bill.</string>
+    <string name="payment_id_check_digit">One of the payment ID digits seems to be wrong. Please check it again.</string>
+    <string name="payment_id_pair_mismatch">This payment ID doesn\'t match the bill ID. Please check both on the bill.</string>
+    <string name="bill_failed">Bill payment failed.</string>
+    <string name="bill_was_successful">Bill paid successfully.</string>
 
 </resources>

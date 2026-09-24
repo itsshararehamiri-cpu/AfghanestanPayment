@@ -1,5 +1,6 @@
 package com.danesh.purchase.presentation.screens
 
+import com.danesh.common.currency.amountInWordsWithCurrency
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -103,6 +104,7 @@ private fun TransactionInfoContent(
                 iconRes = com.danesh.ui.R.drawable.ic_coin,
                 keyboardType = KeyboardType.Decimal,
                 errorMessage = uiState.amountError,
+                amountInWords = amountInWordsWithCurrency(uiState.amount),
             )
 
 

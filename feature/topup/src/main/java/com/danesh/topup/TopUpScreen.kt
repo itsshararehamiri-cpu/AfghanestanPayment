@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.danesh.common.currency.amountInWordsWithCurrency
+import com.danesh.common.currency.topUpAmountFieldLabel
 import com.danesh.topup.presentation.viewmodel.TopUpUiState
 import com.danesh.topup.presentation.viewmodel.TopUpViewModel
 import com.danesh.topup.ui.AmountQuickSelectGrid
@@ -133,13 +135,14 @@ private fun TopUpContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 if (uiState.variableAmount) {
                     TransactionField(
-                        label = stringResource(R.string.topup_amount_label),
+                        label = topUpAmountFieldLabel(),
                         value = uiState.amountText,
                         onValueChange = onAmountChange,
                         placeholder = stringResource(R.string.topup_amount_placeholder),
                         iconRes = R.drawable.ic_payable_amount,
                         keyboardType = KeyboardType.Number,
                         errorMessage = uiState.amountError,
+                        amountInWords = amountInWordsWithCurrency(uiState.amountText),
                     )
                 }
                 if (uiState.presetAmounts.isNotEmpty()) {

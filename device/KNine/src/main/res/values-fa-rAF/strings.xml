@@ -55,7 +55,6 @@
     <string name="customer_receipt">رسید مشتری</string>
     <string name="merchant_receipt">رسید پذیرنده</string>
     <string name="duplicate_receipt">رسید مجدد</string>
-    <string name="amount_with_currency">%1$s ریال</string>
     <string name="trace__">شماره پیگیری</string>
     <string name="trace_rrn">شماره پیگیری/مرجع</string>
     <string name="card_number_title">شماره کارت</string>
@@ -161,11 +160,9 @@
     <string name="balance_success_title">استعلام موجودی با موفقیت انجام شد.</string>
     <string name="balance_failed_title">استعلام موجودی ناموفق شد.</string>
     <string name="label_terminal_merchant">پایانه/پذیرنده</string>
-    <string name="currency_afn">AFN</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
     <string name="content_desc_splash">POS Terminal</string>
 
     <string name="receipt_payback_message_part1">در صورت کسر وجه از حساب شما</string>

@@ -27,6 +27,7 @@ fun GetPinScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isTransactionProcessing = uiState.status == GetPinStatus.Processing
     var showCommunicationErrorDialog by remember { mutableStateOf(false) }
+    var communicationErrorCode by remember { mutableStateOf<String?>(null) }
     BackHandler(enabled = !showCommunicationErrorDialog) {
         onBackClick()
     }
@@ -63,9 +64,11 @@ fun GetPinScreen(
                     onSuccessResult(event.response)
                 }
                 is GetPinEvent.TransactionFailure -> {
-                    val isCommunication = isCommunicationTransactionFailure(event.response)
+                    val communicationCode = communicationFailureCode(event.response)
+                    val isCommunication = communicationCode != null
                     Log.d(TAG, "GetPinScreen | TransactionFailure | isCommunication=$isCommunication | responseLen=${event.response.length}")
                     if (isCommunication) {
+                        communicationErrorCode = communicationCode
                         showCommunicationErrorDialog = true
                     } else {
                         onErrorResult(event.response)
@@ -110,6 +113,7 @@ fun GetPinScreen(
 
     if (showCommunicationErrorDialog) {
         TransactionCommunicationErrorDialog(
+            errorCode = communicationErrorCode,
             onConfirm = {
                 showCommunicationErrorDialog = false
                 viewModel.clearCardData()

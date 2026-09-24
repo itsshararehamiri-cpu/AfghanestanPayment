@@ -15,9 +15,9 @@
     <string name="terminal_merchant_label">پایانه/پذیرنده</string>
     <string name="tx_message_network_failed">خطای شبکه</string>
     <string name="tx_message_general_failed">تراکنش انجام نشد</string>
-    <string name="transaction_communication_error_title">خطای ارتباط</string>
-    <string name="transaction_communication_error_message">تراکنش انجام نشد. به دلیل خطای ارتباط با سرور، لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید.</string>
-    <string name="transaction_communication_error_confirm">تایید</string>
+    <string name="transaction_communication_error_title">ارتباط برقرار نشد</string>
+    <string name="transaction_communication_error_message">یه مشکلی توی ارتباط با سرور پیش اومد و تراکنش انجام نشد. لطفاً اینترنت دستگاه رو چک کنید و دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_confirm">باشه</string>
     <string name="rrn_stan">کد رهگیری/مرجع</string>
     <string name="balance_home">صفحه اصلی</string>
     <string name="balance_print_receipt">چاپ رسید</string>
@@ -192,4 +192,8 @@
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">شماره موبایل</string>
     <string name="label_terminal_unique_code">کد کارتخوان</string>
+    <string name="transaction_communication_error_connect">نتونستیم به سرور وصل بشیم. لطفاً اینترنت یا سیم‌کارت دستگاه رو چک کنید و دوباره امتحان کنید. نگران نباشید، مبلغی از حساب کم نشده.</string>
+    <string name="transaction_communication_error_send">درخواست به سرور نرسید. لطفاً اتصال دستگاه رو چک کنید و دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_receive">جواب سرور به‌موقع نرسید. اگه مبلغی از حساب کم شده باشه، خودکار برمی‌گرده. لطفاً چند لحظه دیگه دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_queue">یه تراکنش قبلی هنوز با سرور تسویه نشده. چند لحظه صبر کنید و دوباره امتحان کنید.</string>
 </resources>

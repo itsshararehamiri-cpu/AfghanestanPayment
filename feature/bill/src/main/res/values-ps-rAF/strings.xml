@@ -29,7 +29,7 @@
     <string name="bill_confirm_and_pay">تایید او تادیه</string>
     <string name="bill_inquiry_error_ok">تایید</string>
 
-    <string name="bill_failed">پیرود ناکام شو.</string>
-    <string name="bill_was_successful">پیرود په بریالیتوب سره ترسره شو.</string>
+    <string name="bill_failed">د بل تادیه ترسره نشوه.</string>
+    <string name="bill_was_successful">د بل تادیه په بریالیتوب سره ترسره شوه.</string>
 
 </resources>

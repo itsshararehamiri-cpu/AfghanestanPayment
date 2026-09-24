@@ -224,15 +224,6 @@ fun SwipeCardContent(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                SwipeUpIndicator()
-            }
-
 //            NfcBottomPanel(
 //                modifier = Modifier
 //                    .fillMaxWidth()

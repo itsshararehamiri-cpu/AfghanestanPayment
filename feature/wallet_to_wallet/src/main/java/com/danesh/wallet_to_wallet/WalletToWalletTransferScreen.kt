@@ -1,5 +1,6 @@
 package com.danesh.wallet_to_wallet
 
+import com.danesh.common.currency.amountInWordsWithCurrency
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -99,6 +100,7 @@ private fun WalletToWalletTransferContent(
                 iconRes = com.danesh.ui.R.drawable.ic_coin,
                 keyboardType = KeyboardType.Number,
                 errorMessage = uiState.amountError,
+                amountInWords = amountInWordsWithCurrency(uiState.amountText),
             )
             Spacer(modifier = Modifier.weight(1f))
             GradientActionButton(

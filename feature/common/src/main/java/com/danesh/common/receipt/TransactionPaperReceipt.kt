@@ -414,6 +414,12 @@ private fun TransferPaperReceipt(
             textColor = firstColor,
             isPaperReceipt = isPaperReceipt,
         )
+        AddTerminalUniqueCode(
+            modifier = modifierRowReceipt,
+            terminalUniqueCode = result.terminalUniqueCode,
+            textColor = firstColor,
+            isPaperReceipt = isPaperReceipt,
+        )
         AddTransferReceiptDetails(
             result = result,
             modifier = modifierRowReceipt,

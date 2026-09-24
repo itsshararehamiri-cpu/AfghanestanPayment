@@ -25,8 +25,8 @@
     <string name="transaction_fee">Fee:</string>
     <string name="tx_message_network_failed">Network error</string>
     <string name="tx_message_general_failed">Transaction failed</string>
-    <string name="transaction_communication_error_title">Connection error</string>
-    <string name="transaction_communication_error_message">The transaction could not be completed due to a connection error. Please check your connection and try again.</string>
+    <string name="transaction_communication_error_title">Couldn\'t connect</string>
+    <string name="transaction_communication_error_message">Something went wrong talking to the server, so the transaction didn\'t go through. Please check the device\'s internet and try again.</string>
     <string name="transaction_communication_error_confirm">OK</string>
     <string name="rrn_stan">Tracking/Reference code</string>
     <string name="balance_home">Home</string>
@@ -203,4 +203,8 @@
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">Mobile Number</string>
     <string name="label_terminal_unique_code">Card reader code</string>
+    <string name="transaction_communication_error_connect">We couldn\'t reach the server. Please check the device\'s internet or SIM card and try again. Don\'t worry, no money was taken from the card.</string>
+    <string name="transaction_communication_error_send">The request didn\'t reach the server. Please check the connection and try again.</string>
+    <string name="transaction_communication_error_receive">The server didn\'t answer in time. If any money was taken from the card, it will be returned automatically. Please try again in a moment.</string>
+    <string name="transaction_communication_error_queue">A previous transaction is still being settled with the server. Please wait a moment and try again.</string>
 </resources>

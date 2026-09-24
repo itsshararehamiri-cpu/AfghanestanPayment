@@ -69,6 +69,8 @@ import androidx.compose.ui.unit.sp
 
     visualTransformation: VisualTransformation = VisualTransformation.None,
 
+    amountInWords: String? = null,
+
 ) {
 
     val hasError = errorMessage != null
@@ -186,6 +188,10 @@ import androidx.compose.ui.unit.sp
 
             )
 
+        }
+
+        if (!amountInWords.isNullOrBlank()) {
+            AmountInWordsText(amountInWords)
         }
 
     }

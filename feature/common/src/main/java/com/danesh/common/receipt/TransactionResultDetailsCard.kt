@@ -90,13 +90,7 @@ fun TransactionResultDetailsCard(
             result.merchantId,
         )
 
-        if (result.terminalUniqueCode.isNotBlank()) {
-            ElectronicReceiptDetailRow(
-                label = stringResource(R.string.label_terminal_unique_code),
-                value = result.terminalUniqueCode,
-                icon = R.drawable.ic_terminal_merchant,
-            )
-        }
+        ElectronicReceiptTerminalUniqueCodeRow(result.terminalUniqueCode)
 
         if (result.payId.isNotBlank()) {
             ElectronicReceiptDepositIdRow(depositId = result.payId)

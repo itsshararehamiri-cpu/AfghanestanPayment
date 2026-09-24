@@ -3,7 +3,6 @@
     <string name="purchase_title">پیرود</string>
     <string name="transaction_info">د معاملې معلومات</string>
     <string name="plz_enter_transaction_info">مهرباني وکړئ د معاملې معلومات ولیکئ</string>
-    <string name="amount_currency">مبلغ (AFN)</string>
     <string name="enter_amount">مبلغ ولیکئ</string>
     <string name="show_qr_code">QR کوډ وښایاست</string>
     <string name="pla_enter_amount">مهرباني وکړئ مبلغ ولیکئ</string>

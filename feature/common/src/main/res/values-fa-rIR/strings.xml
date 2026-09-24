@@ -63,9 +63,9 @@
     <string name="settings_merchant_password_instruction">لطفاً رمز پذیرنده را وارد کنید</string>
     <string name="tx_message_network_failed">خطای شبکه</string>
     <string name="tx_message_general_failed">تراکنش انجام نشد</string>
-    <string name="transaction_communication_error_title">خطای ارتباط</string>
-    <string name="transaction_communication_error_message">تراکنش انجام نشد. به دلیل خطای ارتباط با سرور، لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید.</string>
-    <string name="transaction_communication_error_confirm">تایید</string>
+    <string name="transaction_communication_error_title">ارتباط برقرار نشد</string>
+    <string name="transaction_communication_error_message">یه مشکلی توی ارتباط با سرور پیش اومد و تراکنش انجام نشد. لطفاً اینترنت دستگاه رو چک کنید و دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_confirm">باشه</string>
     <string name="password_keypad_clear">پاک کردن</string>
     <string name="password_keypad_confirm">تایید</string>
     <string name="password_hint">لطفاً رمز کارت را وارد کنید</string>
@@ -87,7 +87,7 @@
     <string name="reprint_receipt">چاپ مجدد</string>
     <string name="unsettled_receipt">تراکنش تسویه نشده</string>
     <string name="report_retrieval_time">زمان دریافت گزارش</string>
-    <string name="amount_with_currency">%1$s ریال</string>
+    <string name="amount_with_currency">%1$s %2$s</string>
     <string name="trace__">شماره پیگیری</string>
     <string name="trace_rrn">شماره پیگیری/مرجع</string>
     <string name="card_number_title">شماره کارت</string>
@@ -176,11 +176,11 @@
     <string name="balance_success_title">استعلام موجودی با موفقیت انجام شد.</string>
     <string name="balance_failed_title">استعلام موجودی ناموفق شد.</string>
     <string name="label_terminal_merchant">پایانه/پذیرنده</string>
-    <string name="currency_afn">AFN</string>
+    <string name="currency_afn">%1$s</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
+    <string name="placeholder_amount_unavailable">— %1$s</string>
     <string name="content_desc_splash">POS Terminal</string>
 
     <string name="receipt_payback_message_part1">در صورت کسر وجه از حساب شما</string>
@@ -203,4 +203,8 @@
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">شماره موبایل</string>
     <string name="label_terminal_unique_code">کد کارتخوان</string>
+    <string name="transaction_communication_error_connect">نتونستیم به سرور وصل بشیم. لطفاً اینترنت یا سیم‌کارت دستگاه رو چک کنید و دوباره امتحان کنید. نگران نباشید، مبلغی از حساب کم نشده.</string>
+    <string name="transaction_communication_error_send">درخواست به سرور نرسید. لطفاً اتصال دستگاه رو چک کنید و دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_receive">جواب سرور به‌موقع نرسید. اگه مبلغی از حساب کم شده باشه، خودکار برمی‌گرده. لطفاً چند لحظه دیگه دوباره امتحان کنید.</string>
+    <string name="transaction_communication_error_queue">یه تراکنش قبلی هنوز با سرور تسویه نشده. چند لحظه صبر کنید و دوباره امتحان کنید.</string>
 </resources>

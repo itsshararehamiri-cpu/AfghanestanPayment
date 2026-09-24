@@ -12,3 +12,14 @@ fun ElectronicReceiptMerchantTerminalIdRow(terminalId: String,merchantId: String
         icon = R.drawable.ic_terminal_merchant,
     )
 }
+
+/** کد کارتخوان (سداد)؛ اگر خالی باشد چیزی نمایش داده نمی‌شود. */
+@Composable
+fun ElectronicReceiptTerminalUniqueCodeRow(terminalUniqueCode: String) {
+    if (terminalUniqueCode.isBlank()) return
+    ElectronicReceiptDetailRow(
+        label = stringResource(R.string.label_terminal_unique_code),
+        value = terminalUniqueCode,
+        icon = R.drawable.ic_terminal_merchant,
+    )
+}

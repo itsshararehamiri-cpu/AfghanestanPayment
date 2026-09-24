@@ -55,7 +55,6 @@
     <string name="customer_receipt">د پیرودونکي رسید</string>
     <string name="merchant_receipt">د پذیرونکي رسید</string>
     <string name="duplicate_receipt">بیا رسید</string>
-    <string name="amount_with_currency">%1$s ریال</string>
     <string name="trace__">د تعقیب شمیره</string>
     <string name="trace_rrn">د تعقیب/مرجع شمیره</string>
     <string name="card_number_title">د کارت شمیره</string>
@@ -156,11 +155,9 @@
     <string name="balance_success_title">د موجودي پوښتنه په بریالیتوب سره ترسره شوه.</string>
     <string name="balance_failed_title">د موجودي پوښتنه ناکامه شوه.</string>
     <string name="label_terminal_merchant">ټرمینل/پذیرونکی</string>
-    <string name="currency_afn">AFN</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
     <string name="content_desc_splash">POS Terminal</string>
 
     <string name="receipt_payback_message_part1">که ستاسو له حساب څخه پیسې کسر شوې وي</string>

@@ -4,7 +4,6 @@
     <string name="merchant_receipt">د پذیرونکي رسید</string>
     <string name="duplicate_receipt">بیا رسید</string>
     <string name="sum_of_all_transactions">د ټولو معاملو مجموعه</string>
-    <string name="amount_with_currency">%1$s ریال</string>
     <string name="trace__">د تعقیب شمیره</string>
     <string name="trace_rrn">د تعقیب/مرجع شمیره</string>
     <string name="balance_">موجودي</string>

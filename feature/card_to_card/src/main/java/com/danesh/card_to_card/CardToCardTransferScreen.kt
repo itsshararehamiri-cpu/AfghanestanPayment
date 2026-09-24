@@ -1,5 +1,6 @@
 package com.danesh.card_to_card
 
+import com.danesh.common.currency.amountInWordsWithCurrency
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -120,6 +121,7 @@ private fun CardToCardTransferContent(
                 iconRes = com.danesh.ui.R.drawable.ic_coin,
                 keyboardType = KeyboardType.Number,
                 errorMessage = uiState.amountError,
+                amountInWords = amountInWordsWithCurrency(uiState.amountText),
             )
             Spacer(modifier = Modifier.weight(1f))
             GradientActionButton(

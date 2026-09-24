@@ -80,7 +80,7 @@
     <string name="reprint_receipt">چاپ مجدد</string>
     <string name="unsettled_receipt">تراکنش تسویه نشده</string>
     <string name="report_retrieval_time">زمان دریافت گزارش</string>
-    <string name="amount_with_currency">%1$s ریال</string>
+    <string name="amount_with_currency">%1$s %2$s</string>
     <string name="trace__">شماره پیگیری</string>
     <string name="trace_rrn">شماره پیگیری/مرجع</string>
     <string name="card_number_title">شماره کارت</string>
@@ -176,11 +176,11 @@
     <string name="balance_success_title">استعلام موجودی با موفقیت انجام شد.</string>
     <string name="balance_failed_title">استعلام موجودی ناموفق شد.</string>
     <string name="label_terminal_merchant">پایانه/پذیرنده</string>
-    <string name="currency_afn">AFN</string>
+    <string name="currency_afn">%1$s</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
+    <string name="placeholder_amount_unavailable">— %1$s</string>
     <string name="content_desc_splash">POS Terminal</string>
 
     <string name="receipt_payback_message_part1">در صورت کسر وجه از حساب شما</string>
@@ -195,9 +195,9 @@
     <string name="voucher_pin">رمز کارت شارژ</string>
     <string name="tx_message_network_failed">خطای شبکه</string>
     <string name="tx_message_general_failed">تراکنش انجام نشد</string>
-    <string name="transaction_communication_error_title">خطای ارتباط</string>
-    <string name="transaction_communication_error_message">تراکنش انجام نشد. به دلیل خطای ارتباط با سرور، لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید.</string>
-    <string name="transaction_communication_error_confirm">تایید</string>
+    <string name="transaction_communication_error_title">ارتباط برقرار نشد</string>
+    <string name="transaction_communication_error_message">در ارتباط با سرور مشکلی پیش آمد و تراکنش انجام نشد. لطفاً انترنت دستگاه را چک کنید و دوباره کوشش کنید.</string>
+    <string name="transaction_communication_error_confirm">خوب</string>
     <string name="charging_method">روش شارژ</string>
     <string name="voucher_operator_hamrah_e_aval">همراه اول</string>
     <string name="voucher_operator_irancell">ایرانسل</string>
@@ -208,4 +208,8 @@
     <string name="voucher_operator_awcc">AWCC</string>
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">شماره موبایل</string>    <string name="label_terminal_unique_code">کد کارتخوان</string>
+    <string name="transaction_communication_error_connect">به سرور وصل شده نتوانستیم. لطفاً انترنت یا سیم‌کارت دستگاه را چک کنید و دوباره کوشش کنید. تشویش نکنید، از حساب شما پولی کم نشده است.</string>
+    <string name="transaction_communication_error_send">درخواست به سرور نرسید. لطفاً اتصال دستگاه را چک کنید و دوباره کوشش کنید.</string>
+    <string name="transaction_communication_error_receive">جواب سرور به وقتش نرسید. اگر پولی از حساب کم شده باشد، خودکار دوباره برمی‌گردد. لطفاً چند لحظه بعد دوباره کوشش کنید.</string>
+    <string name="transaction_communication_error_queue">یک تراکنش قبلی هنوز با سرور تصفیه نشده است. چند لحظه صبر کنید و دوباره کوشش کنید.</string>
 </resources>

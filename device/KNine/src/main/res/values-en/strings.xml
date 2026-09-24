@@ -55,7 +55,6 @@
     <string name="customer_receipt">Customer receipt</string>
     <string name="merchant_receipt">Merchant receipt</string>
     <string name="duplicate_receipt">Duplicate receipt</string>
-    <string name="amount_with_currency">%1$s AFN</string>
     <string name="trace__">Tracking number</string>
     <string name="trace_rrn">Tracking/Reference number</string>
     <string name="card_number_title">Card number</string>
@@ -161,11 +160,9 @@
     <string name="balance_success_title">Balance inquiry completed successfully.</string>
     <string name="balance_failed_title">Balance inquiry failed.</string>
     <string name="label_terminal_merchant">Terminal/Merchant</string>
-    <string name="currency_afn">AFN</string>
     <string name="currency_asp">ASP</string>
 
     <string name="placeholder_not_available">—</string>
-    <string name="placeholder_amount_unavailable">— AFN</string>
     <string name="content_desc_splash">POS Terminal</string>
 
 

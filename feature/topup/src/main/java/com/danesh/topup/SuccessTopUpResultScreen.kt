@@ -61,6 +61,7 @@ import com.danesh.common.receipt.ElectronicReceiptHeader
 import com.danesh.common.receipt.ElectronicReceiptHostTextRow
 import com.danesh.common.receipt.ElectronicReceiptMerchantNamePhoneRow
 import com.danesh.common.receipt.ElectronicReceiptMerchantTerminalIdRow
+import com.danesh.common.receipt.ElectronicReceiptTerminalUniqueCodeRow
 import com.danesh.common.receipt.ElectronicReceiptStanRRnRow
 import com.danesh.common.receipt.ElectronicReceiptTransactionTypeResultRow
 import com.danesh.common.receipt.RESULT_AUTO_HOME_DELAY_MS
@@ -325,6 +326,7 @@ private fun TransactionResultDetailsCard(
             result.terminalId,
             result.merchantId,
         )
+        ElectronicReceiptTerminalUniqueCodeRow(result.terminalUniqueCode)
 
         if (result.maskedPan.isNotBlank()) {
             ElectronicReceiptCardInfoRow(

@@ -1,6 +1,7 @@
 package com.danesh.afghanestanpayment
 
 import android.app.Application
+import android.content.res.Configuration
 import android.util.Log
 import com.danesh.api.PspGateway
 import com.danesh.common.locale.LocaleManager
@@ -32,6 +33,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        LocaleManager.init(this)
         val saved = localePreferences.getLanguage()
         val coerced = languageOptions.coerceCoreLanguage(saved)
         if (coerced != saved) {
@@ -41,6 +43,12 @@ class MyApp : Application() {
         runStartupTasks()
         //runStartupTasks2()
 
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // تغییر پیکربندی سیستم زبان منابع Application را به زبان دستگاه برمی‌گرداند.
+        LocaleManager.apply(localePreferences.getLanguage())
     }
 
     override fun onLowMemory() {

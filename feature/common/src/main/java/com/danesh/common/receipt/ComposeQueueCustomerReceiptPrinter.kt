@@ -9,10 +9,12 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import com.danesh.api.CurrencyDefaultsProvider
 import com.danesh.api.QueueCustomerReceiptPrinter
 import com.danesh.api.QueueItem
 import com.danesh.api.TransactionContextProvider
 import com.danesh.api.toTransactionResultDetail
+import com.danesh.common.currency.LocalCurrencyLabel
 import com.danesh.common.locale.LocalReceiptCalendarStyle
 import com.danesh.common.locale.LocalReceiptLocale
 import com.danesh.common.locale.LocalePreferences
@@ -36,6 +38,7 @@ class ComposeQueueCustomerReceiptPrinter @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val receiptCalendarStyleProvider: ReceiptCalendarStyleProvider,
     private val localePreferences: LocalePreferences,
+    private val currencyDefaults: CurrencyDefaultsProvider,
 ) : QueueCustomerReceiptPrinter {
 
     override suspend fun printCustomerReceipt(item: QueueItem): Boolean =
@@ -63,6 +66,7 @@ class ComposeQueueCustomerReceiptPrinter @Inject constructor(
                 LocalContext provides hostContext,
                 LocalReceiptLocale provides localePreferences.getLanguage().toAppLocale(),
                 LocalReceiptCalendarStyle provides receiptCalendarStyleProvider.getCalendarStyle(),
+                LocalCurrencyLabel provides currencyDefaults.currencyLabel,
             ) {
                 ReceiptUi(
                     content = {

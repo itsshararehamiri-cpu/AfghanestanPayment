@@ -40,6 +40,7 @@ import com.danesh.common.receipt.ElectronicReceiptDetailRow
 import com.danesh.common.receipt.ElectronicReceiptHostTextRow
 import com.danesh.common.receipt.ElectronicReceiptMerchantNamePhoneRow
 import com.danesh.common.receipt.ElectronicReceiptMerchantTerminalIdRow
+import com.danesh.common.receipt.ElectronicReceiptTerminalUniqueCodeRow
 import com.danesh.common.receipt.ElectronicReceiptPaymentIdRow
 import com.danesh.common.receipt.ElectronicReceiptStanRRnRow
 import com.danesh.common.receipt.ElectronicReceiptTransactionTypeResultRow
@@ -229,6 +230,7 @@ private fun TransactionResultDetailsCard(
             result.terminalId,
             result.merchantId,
         )
+        ElectronicReceiptTerminalUniqueCodeRow(result.terminalUniqueCode)
 
         if (result.maskedPan.isNotBlank()) {
             ElectronicReceiptCardInfoRow(

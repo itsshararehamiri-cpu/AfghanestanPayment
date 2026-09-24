@@ -1,5 +1,6 @@
 package com.example.bill
 
+import com.danesh.common.currency.amountInWordsWithCurrency
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -117,8 +118,10 @@ private fun BillInfoContent(
                     onValueChange = onAmountChange,
                     placeholder = stringResource(R.string.enter_amount),
                     iconRes = com.danesh.ui.R.drawable.ic_money_send,
-                    errorMessage = uiState.amountError,                 keyboardType = KeyboardType.Decimal
-                    )
+                    errorMessage = uiState.amountError,
+                    keyboardType = KeyboardType.Decimal,
+                    amountInWords = amountInWordsWithCurrency(uiState.amount),
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))

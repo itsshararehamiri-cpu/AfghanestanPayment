@@ -72,6 +72,8 @@ import com.danesh.ui.theme.appTextStyle
 
     errorMessage: String? = null,
 
+    amountInWords: String? = null,
+
 ) {
 
     val hasError = errorMessage != null
@@ -211,6 +213,10 @@ import com.danesh.ui.theme.appTextStyle
 
             )
 
+        }
+
+        if (!amountInWords.isNullOrBlank()) {
+            AmountInWordsText(amountInWords)
         }
 
     }
