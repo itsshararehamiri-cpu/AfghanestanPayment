@@ -32,6 +32,7 @@ class AppStrings @Inject constructor(
     }
     fun invalidCardNumber(): String = context.getString(R.string.error_invalid_card_number)
     fun wrongPassword(): String = context.getString(R.string.error_wrong_password)
+    fun merchantPasswordLocked(): String = context.getString(R.string.error_merchant_password_locked)
     fun wrongCurrentPassword(): String = context.getString(R.string.error_current_password_wrong)
     fun invalidCard(): String = context.getString(R.string.error_invalid_card)
     fun noTransactionFound(): String = context.getString(R.string.error_transaction_not_found)

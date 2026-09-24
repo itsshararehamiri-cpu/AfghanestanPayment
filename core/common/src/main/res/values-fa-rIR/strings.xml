@@ -15,6 +15,7 @@
 
     <string name="error_invalid_card_number">شماره کارت نامعتبر است</string>
     <string name="error_wrong_password">رمز اشتباه است</string>
+    <string name="error_merchant_password_locked">رمز پذیرنده به دلیل ورود اشتباه بیش از حد مجاز قفل شد. برای باز شدن با پشتیبانی تماس بگیرید.</string>
     <string name="error_current_password_wrong">رمز فعلی اشتباه است</string>
     <string name="error_invalid_card">کارت نامعتبر است</string>
     <string name="error_transaction_not_found">تراکنشی یافت نشد</string>

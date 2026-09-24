@@ -14,6 +14,7 @@
 
     <string name="error_invalid_card_number">د کارت شمیره ناسمه ده</string>
     <string name="error_wrong_password">پټ نوم غلط دی</string>
+    <string name="error_merchant_password_locked">د پذیرونکي پټنوم د ډېرو ناسمو هڅو له امله قفل شو. د خلاصولو لپاره له ملاتړ سره اړیکه ونیسئ.</string>
     <string name="error_current_password_wrong">اوسنی پټ نوم غلط دی</string>
     <string name="error_invalid_card">کارت ناسم دی</string>
     <string name="error_transaction_not_found">هیڅ معامله ونه موندل شوه</string>

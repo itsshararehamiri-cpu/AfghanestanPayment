@@ -15,6 +15,7 @@
 
     <string name="error_invalid_card_number">Invalid card number</string>
     <string name="error_wrong_password">Incorrect password</string>
+    <string name="error_merchant_password_locked">Merchant password is locked after too many wrong attempts. Please contact support to unlock it.</string>
     <string name="error_current_password_wrong">Current password is incorrect</string>
     <string name="error_invalid_card">Invalid card</string>
     <string name="error_transaction_not_found">No transaction found</string>
