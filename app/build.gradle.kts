@@ -70,7 +70,7 @@ fun ApplicationProductFlavor.configureSadadMenuFeatures() {
     buildConfigField(
         "String",
         "ENABLED_FEATURES",
-        "\"PURCHASE,TOPUP,BILL,BILL_INQUIRY,BALANCE,SETTINGS,REPORT,VOUCHER\"",
+        "\"PURCHASE,TOPUP,BILL,BALANCE,SETTINGS,REPORT,VOUCHER\"",
     )
 }
 
