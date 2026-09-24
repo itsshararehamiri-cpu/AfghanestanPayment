@@ -339,6 +339,8 @@ fun SettingsNavHost(
                 selectedTheme = AppThemeMode.valueOf(selectedTheme),
 
              //   onThemeChange = { selectedTheme = it.name },
+                onStartupClick = merchantSettingsViewModel::runStartup,
+                onDismissStartupResult = merchantSettingsViewModel::dismissStartupResult,
 
 
 

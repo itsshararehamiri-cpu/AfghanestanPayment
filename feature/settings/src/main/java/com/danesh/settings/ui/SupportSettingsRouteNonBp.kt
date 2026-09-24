@@ -23,6 +23,7 @@ fun SupportSettingsRouteNonBp(
     onMainServerClick: () -> Unit,
     onMenuFeaturesClick: () -> Unit,
     onExitClick: () -> Unit,
+    onKeyInjectionClick: () -> Unit = {},
     viewModel: SupportSettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -64,5 +65,8 @@ fun SupportSettingsRouteNonBp(
         onFetchTerminalInfoClick = viewModel::confirmTerminalInfo,
         onDismissTerminalInfoResult = viewModel::dismissTerminalInfoResult,
         onDismissTerminalInfoError = viewModel::dismissTerminalInfoError,
+        onKeyInjectionClick = onKeyInjectionClick,
+        onStartupClick = viewModel::runStartup,
+        onDismissStartupResult = viewModel::dismissStartupResult,
     )
 }

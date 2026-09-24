@@ -37,12 +37,7 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
 
     init {
         restorePersistedIndices()
-        viewModelScope.launch {
-            Log.d("TAG", "kkjkkjkjjjf: ")
-            pspGateway.init(InitInput())
-            pspGateway.logon("")
-            refreshStoredCardAState()
-        }
+        refreshStoredCardAState()
     }
 
     private fun restorePersistedIndices() {

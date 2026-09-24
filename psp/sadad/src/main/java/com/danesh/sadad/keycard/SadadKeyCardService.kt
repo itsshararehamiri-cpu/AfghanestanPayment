@@ -22,6 +22,15 @@ class SadadKeyCardService @Inject constructor(
 
     suspend fun hasStoredKeyPair(keyIndex: Int): Boolean = storage.load(keyIndex) != null
 
+    fun isCardPresent(): Boolean = runCatching { reader.isCardPresent() }.getOrDefault(false)
+
+    suspend fun hasApplet(card: SadadKeyCard): Boolean = runCatching {
+        withCard {
+            reader.selectApplet(card)
+            true
+        }
+    }.getOrDefault(false)
+
     suspend fun loadKeyPairFromCardA(pin: String, keyIndex: Int): Result<Unit> = runCatching {
         withCard {
             reader.selectApplet(SadadKeyCard.CARD_A)

@@ -36,6 +36,12 @@ interface KeyCardLoadingService {
         rsaKeyIndex: Int,
     ): Result<KeyCardKcvSummary>
 
+    /** آیا کارتی در کارت‌خوان ICC قرار دارد (بدون روشن کردن کارت). */
+    suspend fun isCardPresent(): Boolean = false
+
+    /** آیا کارت داخل کارت‌خوان applet کارت [card] را دارد (کارت A و C می‌توانند یک کارت فیزیکی یا دو کارت جدا باشند). */
+    suspend fun hasApplet(card: KeyCardType): Boolean = false
+
     /** اندیس ذخیره‌شدهٔ جفت RSA کارت A؛ null اگر هنوز خوانده نشده. */
     fun persistedRsaKeyIndex(): Int? = null
 
