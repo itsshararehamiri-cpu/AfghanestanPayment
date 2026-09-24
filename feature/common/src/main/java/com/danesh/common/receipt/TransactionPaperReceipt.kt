@@ -37,6 +37,7 @@ import com.danesh.common.AddPaymentId
 import com.danesh.common.AddRRNStan
 import com.danesh.common.AddReprintReportTime
 import com.danesh.common.AddReceiptType
+import com.danesh.common.AddTerminalUniqueCode
 import com.danesh.common.AddTypeDateTime
 import com.danesh.common.AddVoucherChargeMSG
 import com.danesh.common.AddVoucherPin
@@ -505,6 +506,12 @@ private fun PaperReceiptCommonBody(
         modifier = modifierRowReceipt,
         merchantId = result.merchantId,
         terminalId = result.terminalId,
+        textColor = firstColor,
+        isPaperReceipt = isPaperReceipt,
+    )
+    AddTerminalUniqueCode(
+        modifier = modifierRowReceipt,
+        terminalUniqueCode = result.terminalUniqueCode,
         textColor = firstColor,
         isPaperReceipt = isPaperReceipt,
     )

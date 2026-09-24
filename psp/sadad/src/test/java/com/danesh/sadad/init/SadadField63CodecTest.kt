@@ -67,6 +67,44 @@ class SadadField63CodecTest {
     }
 
     @Test
+    fun terminalInitializer_readsHeadlineListThenUniqueCode() {
+        val data = "34091903" +
+            "000000131678530" +
+            "006" + "96A897" +
+            "005" + "sadad" +
+            "000" +
+            "000" +
+            "012" + "021-22598009" +
+            "0000111111" +
+            "02" + "04" + "1111" + "03" + "222" +
+            "06" + "ABC123" +
+            "04" + "SER1" +
+            "04" + "MEM1"
+
+        val parsed = SadadTerminalInitializerCodec.parse(data)!!
+
+        assertEquals("02", parsed.linesCount)
+        assertEquals("1111,222", parsed.headlineNo)
+        assertEquals("ABC123", parsed.taxMemoryUniqueCode)
+        assertEquals("SER1", parsed.salesFundDeviceSerial)
+        assertEquals("MEM1", parsed.salesFundMemorySerial)
+    }
+
+    @Test
+    fun terminalInitializer_zeroLengthHeadlineStopsList() {
+        val data = "34091903" + "000000131678530" +
+            "000" + "000" + "000" + "000" + "000" +
+            "0000111111" +
+            "03" + "00" +
+            "06" + "ABC123"
+
+        val parsed = SadadTerminalInitializerCodec.parse(data)!!
+
+        assertEquals("", parsed.headlineNo)
+        assertEquals("ABC123", parsed.taxMemoryUniqueCode)
+    }
+
+    @Test
     fun iranSystemHex_96A897_isTest() {
         assertEquals(
             "تست",

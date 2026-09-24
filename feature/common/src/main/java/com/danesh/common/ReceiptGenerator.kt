@@ -388,6 +388,22 @@ fun AddPaymentId(
 }
 
 @Composable
+fun AddTerminalUniqueCode(
+    modifier: Modifier = Modifier,
+    terminalUniqueCode: String,
+    textColor: Color,
+    isPaperReceipt: Boolean = false,
+) {
+    if (terminalUniqueCode.isBlank()) return
+    RowReceipt(
+        modifier = modifier,
+        first = stringResource(R.string.label_terminal_unique_code),
+        second = terminalUniqueCode,
+        textColor = textColor, isPaperReceipt = isPaperReceipt,
+    )
+}
+
+@Composable
 fun AddMerchantIdTerminalId(
     modifier: Modifier = Modifier,
     merchantId: String,

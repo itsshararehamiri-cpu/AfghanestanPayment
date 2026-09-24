@@ -191,4 +191,5 @@
     <string name="voucher_operator_awcc">AWCC</string>
     <string name="voucher_operator_etisalat">Etisalat</string>
     <string name="mobile_number">شماره موبایل</string>
+    <string name="label_terminal_unique_code">کد کارتخوان</string>
 </resources>

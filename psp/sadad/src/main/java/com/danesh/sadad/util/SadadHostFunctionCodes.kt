@@ -23,6 +23,8 @@ data class SadadHostData(
     val printData: String? = null,
     /** 033: رسید اختیاری. */
     val optionalReceipt: OptionalReceipt? = null,
+    /** 043: کد یکتای پایانه (کد کارتخوان) به ازای هر شماره پایانه. */
+    val terminalUniqueCodes: Map<String, String> = emptyMap(),
 ) {
     data class Discount(val originalAmount: String, val cardHolderAmount: String, val merchantAmount: String)
 
@@ -52,6 +54,7 @@ object SadadHostFunctionCodes {
     const val BILL_PAYMENT_EXTRA_DATA = "026"
     const val PRINT_DATA = "029"
     const val OPTIONAL_RECEIPT = "033"
+    const val TERMINAL_UNIQUE_CODE = "043"
 
     private const val TAG = "SadadHostFC"
 
@@ -124,6 +127,19 @@ object SadadHostFunctionCodes {
                         SadadHostData.OptionalReceipt(false, "", "")
                     },
                 )
+            }
+            TERMINAL_UNIQUE_CODE -> {
+                // Version n1 + Count n2 + (Terminal ID n8 + Code Len n2 + Terminal Unique Code) × Count
+                val r = FixedReader(data)
+                r.digits(1)
+                val count = r.digits(2).toInt()
+                val codes = LinkedHashMap<String, String>()
+                repeat(count) {
+                    val terminalId = r.take(8).trim()
+                    val code = r.take(r.digits(2).toInt()).trim()
+                    if (terminalId.isNotEmpty() && code.isNotEmpty()) codes[terminalId] = code
+                }
+                current.copy(terminalUniqueCodes = codes)
             }
             else -> current
         }

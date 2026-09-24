@@ -61,6 +61,14 @@ class SadadHostFunctionCodesTest {
     }
 
     @Test
+    fun parsesTerminalUniqueCode043() {
+        val host = SadadHostFunctionCodes.parse(
+            field63("043" to "1" + "02" + "34091903" + "06" + "ABC123" + "11111111" + "03" + "XYZ"),
+        )
+        assertEquals(mapOf("34091903" to "ABC123", "11111111" to "XYZ"), host.terminalUniqueCodes)
+    }
+
+    @Test
     fun optionalReceiptInactive() {
         val host = SadadHostFunctionCodes.parse(field63("033" to "0"))
         assertFalse(host.optionalReceipt!!.isActive)

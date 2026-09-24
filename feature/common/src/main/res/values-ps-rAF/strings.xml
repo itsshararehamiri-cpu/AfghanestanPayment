@@ -205,4 +205,5 @@
     <string name="network_error_transaction_blocked">د دې معاملې د ترسره کولو لپاره د انټرنېټ اتصال نشته</string>
     <string name="transaction_fee">کارمزد:</string>
 
+    <string name="label_terminal_unique_code">د کارت لوستونکي کوډ</string>
 </resources>

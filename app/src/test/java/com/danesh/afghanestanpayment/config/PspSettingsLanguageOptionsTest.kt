@@ -59,6 +59,24 @@ class PspSettingsLanguageOptionsTest {
         assertEquals(AppLanguage.PersianDari, options.coerceCoreLanguage(AppLanguage.English))
     }
 
+    @Test
+    fun sadad_offersOnlyPersianAndEnglish_defaultPersian() {
+        val options = optionsFor(ActivePsp.SADAD)
+
+        assertEquals(
+            listOf(com.danesh.settings.model.AppLanguage.Persian, com.danesh.settings.model.AppLanguage.English),
+            options.availableSettingsLanguages(),
+        )
+        assertEquals(AppLanguage.Other, options.coerceCoreLanguage(AppLanguage.PersianDari))
+        assertEquals(AppLanguage.Other, options.coerceCoreLanguage(AppLanguage.PersianPashto))
+        assertEquals(AppLanguage.English, options.coerceCoreLanguage(AppLanguage.English))
+        assertEquals(
+            com.danesh.settings.model.AppLanguage.Persian,
+            options.toSettingsLanguage(AppLanguage.Other),
+        )
+        assertEquals(AppLanguage.Other, ActivePsp.SADAD.toDefaultAppLanguage())
+    }
+
     private fun optionsFor(activePsp: ActivePsp): PspSettingsLanguageOptions {
         return PspSettingsLanguageOptions(
             AppRuntimeConfig(

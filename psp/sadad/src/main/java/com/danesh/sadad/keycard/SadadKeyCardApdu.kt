@@ -78,6 +78,19 @@ internal object SadadKeyCardApdu {
         return byteArrayOf(0x00, 0xC0.toByte(), 0x00, 0x00, le.toByte())
     }
 
+    const val SW1_WRONG_LENGTH = 0x6C
+
+    /** `6C xx`: طول صحیح xx است. */
+    fun wrongLengthLe(sw: Int): Int? =
+        if ((sw shr 8) == SW1_WRONG_LENGTH) (sw and 0xFF).let { if (it == 0) 0x100 else it } else null
+
+    /** دستور case 1 (4 بایت) → case 2 با Le؛ اگر Le داشت جایگزین می‌شود. */
+    fun withLe(command: ByteArray, le: Int): ByteArray {
+        val header = command.copyOf(4)
+        val leByte = (if (le >= 0x100) 0 else le).toByte()
+        return if (command.size == 4 || command.size == 5) header + leByte else command
+    }
+
     fun moreDataLength(sw: Int): Int? {
         if ((sw shr 8) != SW1_MORE_DATA) return null
         val le = sw and 0xFF
