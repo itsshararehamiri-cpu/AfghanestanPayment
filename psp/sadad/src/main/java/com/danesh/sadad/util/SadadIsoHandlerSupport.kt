@@ -1,5 +1,6 @@
 package com.danesh.sadad.util
 
+import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
@@ -17,6 +18,7 @@ class SadadIsoHandlerSupport @Inject constructor(
     private val messages: SadadTransactionMessages,
     private val resultMapper: IsoTransactionResultMapper,
     private val responseCodeText: SadadResponseCodeText,
+    private val contextProvider: TransactionContextProvider,
 ) {
     fun map(
         transactionType: TransactionType,
@@ -47,7 +49,18 @@ class SadadIsoHandlerSupport @Inject constructor(
             ),
             messages.appStrings,
         )
-        return normalized.copy(responseMessage = mappedResponseMessage(normalized))
+        val withMessage = normalized.copy(responseMessage = mappedResponseMessage(normalized))
+        val hostData = SadadHostFunctionCodes.parse(response?.privateUseField63)
+        if (isSuccess) saveTopupVat(hostData)
+        return SadadHostDataReceipt.apply(withMessage, hostData)
+    }
+
+    /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ. */
+    private fun saveTopupVat(hostData: SadadHostData) {
+        val percent = hostData.topupVatPercent ?: return
+        val rounded = Math.round(percent).toInt()
+        if (rounded !in 1..100) return
+        runCatching { contextProvider.saveVatPercentage(rounded.toString()) }
     }
 
     private fun mappedResponseMessage(detail: TransactionResultDetail): String {

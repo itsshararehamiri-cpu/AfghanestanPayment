@@ -139,7 +139,7 @@ class BillInquiryHandler @Inject constructor(
     ): SadadBillInquiryResult = receiveFailure(request, sentMessage, e)
 
     /**
-     * مبلغ قبض از DE4 پاسخ استعلام می‌آید. اگر سوئیچ مبلغی نداد، از شناسه پرداخت استخراج می‌شود.
+     * مبلغ قبض از DE4 پاسخ استعلام می‌آید؛ اگر نبود از Function Code 008 و در نهایت از شناسه پرداخت.
      */
     private fun overlayBill(
         detail: com.danesh.api.TransactionResultDetail,
@@ -153,9 +153,11 @@ class BillInquiryHandler @Inject constructor(
         }
         val billId = parsedIds?.first?.ifBlank { request.billId } ?: request.billId
         val payId = parsedIds?.second?.ifBlank { request.payId } ?: request.payId
-        val amount = fromSwitch.ifBlank {
-            SadadBillFields.amountFromPaymentId(payId).trimStart('0')
-        }.ifBlank { "0" }
+        // ترتیب: DE4 پاسخ ← Function Code 008 (داخل detail.amount) ← استخراج از شناسه پرداخت
+        val amount = fromSwitch
+            .ifBlank { detail.amount.filter(Char::isDigit).trimStart('0') }
+            .ifBlank { SadadBillFields.amountFromPaymentId(payId).trimStart('0') }
+            .ifBlank { "0" }
         return detail.copy(
             billId = billId,
             payId = payId,

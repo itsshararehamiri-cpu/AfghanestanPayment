@@ -76,6 +76,10 @@ data class TransactionResultDetail(
     @SerializedName("hostReceiptTextSecond")
     val hostReceiptTextSecond: String? = null,
 
+    /** متن میزبان فقط برای رسید پذیرنده (مثلاً پیام برنده پذیرنده، Function Code 004 سداد). */
+    @SerializedName("merchantReceiptText")
+    val merchantReceiptText: String? = null,
+
     @SerializedName("merchantPhone")
     val merchantPhone: String = "",
 
