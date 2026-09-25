@@ -6,6 +6,7 @@ import com.danesh.api.PspConfigurationChecker
 import com.danesh.api.TerminalConfig
 import com.danesh.api.TransactionContextProvider
 import android.content.Context
+import com.danesh.common.card.CardSession
 import com.danesh.common.menu.MenuFeaturePreferences
 import com.danesh.common.menu.MenuFlavorFeatures
 import com.danesh.common.network.NetworkConnectivityMonitor
@@ -29,6 +30,7 @@ class HomeMenuViewModel @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val configurationChecker: PspConfigurationChecker,
     private val networkConnectivityMonitor: NetworkConnectivityMonitor,
+    private val cardSession: CardSession,
     menuFeaturePreferences: MenuFeaturePreferences,
     menuFlavorFeatures: MenuFlavorFeatures,
     @ApplicationContext private val context: Context,
@@ -57,6 +59,8 @@ class HomeMenuViewModel @Inject constructor(
     )
 
     fun refresh() {
+        // برگشت به صفحه اصلی = پایان هر تراکنش نیمه‌کاره؛ اطلاعات کارت در حافظه نماند.
+        cardSession.clear()
         _terminalConfig.update { contextProvider.getTerminalConfig() }
         _isConfigured.update { configurationChecker.isConfigured() }
     }

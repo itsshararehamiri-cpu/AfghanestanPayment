@@ -28,9 +28,6 @@ fun GetPinScreen(
     val isTransactionProcessing = uiState.status == GetPinStatus.Processing
     var showCommunicationErrorDialog by remember { mutableStateOf(false) }
     var communicationErrorCode by remember { mutableStateOf<String?>(null) }
-    BackHandler(enabled = !showCommunicationErrorDialog) {
-        onBackClick()
-    }
     val exitToMenu: () -> Unit = {
         if (!showCommunicationErrorDialog) {
             viewModel.clearCardData()
@@ -48,7 +45,8 @@ fun GetPinScreen(
         viewModel.startPinEntry()
     }
 
-    BackHandler(enabled = !isTransactionProcessing && !showCommunicationErrorDialog) {
+    // بک در هر مرحله (حتی حین پردازش): اطلاعات کارت پاک و برگشت به صفحه اصلی.
+    BackHandler(enabled = !showCommunicationErrorDialog) {
         exitToMenu()
     }
 

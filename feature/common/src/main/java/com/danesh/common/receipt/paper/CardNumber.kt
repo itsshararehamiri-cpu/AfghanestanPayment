@@ -15,6 +15,7 @@ fun CardNumber(  modifier: Modifier = Modifier,
         modifier,
         first = stringResource(R.string.card_number),
         second = cardNumber,
-        textColor = textColor, isPaperReceipt = isPaperReceipt
+        textColor = textColor, isPaperReceipt = isPaperReceipt,
+        ltrValue = true,
     )
 }

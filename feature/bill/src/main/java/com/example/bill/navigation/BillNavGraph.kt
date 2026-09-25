@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionType
 import com.danesh.common.SwipeCardNavArgs
+import com.danesh.common.card.CardTransactionBackHandler
 import com.danesh.common.SwipeCardScreen
 import com.danesh.common.pin.GetPinScreen
 import com.danesh.api.BillInquiryKind
@@ -280,6 +281,7 @@ fun BillNavHost(
                 navArgument(SwipeCardNavArgs.TRACK_2) { type = NavType.StringType },
             ),
         ) {
+            CardTransactionBackHandler(onExitToHome = onFlowComplete)
             BillInquiryRoute(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,

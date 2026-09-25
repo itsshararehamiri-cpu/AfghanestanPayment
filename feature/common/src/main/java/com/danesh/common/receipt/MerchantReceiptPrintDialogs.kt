@@ -12,15 +12,19 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import com.danesh.common.R
 
 @Composable
 fun MerchantReceiptOptionalDialog(
     onConfirm: () -> Unit,
     onDecline: () -> Unit,
+    /** دکمه بک سخت‌افزاری روی دیالوگ — خروج فوری به صفحه اصلی. */
+    onBack: () -> Unit = onDecline,
 ) {
     AlertDialog(
-        onDismissRequest = onDecline,
+        onDismissRequest = onBack,
+        properties = DialogProperties(dismissOnClickOutside = false),
         title = {
             Text(
                 text = stringResource(R.string.merchant_receipt_optional_dialog_title),

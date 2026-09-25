@@ -23,6 +23,7 @@ import com.danesh.card_to_card.model.TransferDestinationType
 import com.danesh.card_to_card.ui.cardNumberToDisplay
 import com.danesh.card_to_card.ui.formatAmount
 import com.danesh.common.SwipeCardNavArgs
+import com.danesh.common.card.CardTransactionBackHandler
 import com.danesh.common.SwipeCardScreen
 import com.danesh.common.currency.currencyLabel
 import com.danesh.common.pin.GetPinScreen
@@ -118,6 +119,7 @@ fun CardToCardNavHost(onFlowComplete: () -> Unit) {
         ) { backStackEntry ->
             val sourcePan = backStackEntry.arguments?.getString(SwipeCardNavArgs.PAN).orEmpty()
             val sourceTrack2 = backStackEntry.arguments?.getString(SwipeCardNavArgs.TRACK_2).orEmpty()
+            CardTransactionBackHandler(onExitToHome = onFlowComplete)
             CardToCardTransferScreen(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
@@ -164,6 +166,7 @@ fun CardToCardNavHost(onFlowComplete: () -> Unit) {
             Log.d("TAG", "CardToCardNavHost: ddtrdddddddddddddj")
             val sourcePan = backStackEntry.arguments?.getString(SwipeCardNavArgs.PAN).orEmpty()
             val sourceTrack2 = backStackEntry.arguments?.getString(SwipeCardNavArgs.TRACK_2).orEmpty()
+            CardTransactionBackHandler(onExitToHome = onFlowComplete)
             NameInquiryRoute(
                 viewModel = hiltViewModel(),
                 onBackClick = onFlowComplete,
@@ -227,9 +230,10 @@ fun CardToCardNavHost(onFlowComplete: () -> Unit) {
                 currency = currencyLabel(),
             )
 
+            CardTransactionBackHandler(onExitToHome = onFlowComplete)
             CardToCardConfirmScreen(
                 details = details,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = onFlowComplete,
                 onEditClick = { navController.popBackStack(CardToCardRoutes.TRANSFER, inclusive = false) },
                 onConfirmClick = {
                     navController.navigate(

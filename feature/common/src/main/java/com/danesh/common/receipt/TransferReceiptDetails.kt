@@ -81,6 +81,7 @@ fun AddTransferReceiptDetails(
             second = sourcePan.maskPanForReceipt(),
             textColor = textColor,
             isPaperReceipt = isPaperReceipt,
+            ltrValue = true,
         )
     }
 
@@ -97,6 +98,7 @@ fun AddTransferReceiptDetails(
             second = destinationValue,
             textColor = textColor,
             isPaperReceipt = isPaperReceipt,
+            ltrValue = true,
         )
     }
 

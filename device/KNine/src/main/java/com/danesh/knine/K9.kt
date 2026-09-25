@@ -471,7 +471,8 @@ class K9 @Inject constructor(
         onFailed: (String) -> Unit, reportErrorToUi: Boolean,
     ) {
         if (deviceManager == null) {
-            onFailed(errorMessage(context, R.string.error_print_device, "deviceManager=null"))
+            DeviceTrace.warn(SDK, "print failed deviceManager=null")
+            onFailed(K9PrinterErrorMessages.deviceUnavailable(context))
             return
         }
         val mPrinter = deviceManager!!.printDevice
@@ -489,16 +490,12 @@ class K9 @Inject constructor(
 
                 override fun onPrintError(code: Int, message: String?) {
                     DeviceTrace.warn(SDK, "print onPrintError code=$code message=$message")
-                    onFailed(
-                        resolveKnownDeviceError(
-                            context, code, R.string.error_printer, message
-                        )
-                    )
+                    onFailed(K9PrinterErrorMessages.message(context, code))
                 }
             })
         } catch (e: Exception) {
             DeviceTrace.error(SDK, "print failed", throwable = e)
-            onFailed(errorMessage(context, R.string.error_printer, exceptionDetail(e)))
+            onFailed(K9PrinterErrorMessages.generic(context))
         }
     }
 
@@ -514,7 +511,8 @@ class K9 @Inject constructor(
 
     override suspend fun getPrinterError(): String {
         if (deviceManager == null) {
-            return errorMessage(context, R.string.error_print_device, "deviceManager=null")
+            DeviceTrace.warn(SDK, "getPrinterError deviceManager=null")
+            return K9PrinterErrorMessages.deviceUnavailable(context)
         }
         val device = deviceManager!!.printDevice
         return try {
@@ -522,22 +520,18 @@ class K9 @Inject constructor(
             val bundle = Bundle()
             val printerState = device.printSync(bundle)
             when {
-                printerState.stateCode == PrinterState.PRINTER_STATE_NOPAPER.toInt() -> errorMessage(
-                    context,
-                    R.string.error_printer_no_paper,
-                    "stateCode=${printerState.stateCode}",
-                )
+                printerState.stateCode == PrinterState.PRINTER_STATE_NOPAPER.toInt() ->
+                    K9PrinterErrorMessages.noPaper(context)
 
                 printerState.stateCode.toShort() == PrinterState.PRINTER_STATE_NORMAL -> ""
-                else -> errorMessage(
-                    context,
-                    R.string.error_printer,
-                    "stateCode=${printerState.stateCode}",
-                )
+                else -> {
+                    DeviceTrace.warn(SDK, "printer stateCode=${printerState.stateCode}")
+                    K9PrinterErrorMessages.generic(context)
+                }
             }
         } catch (e: Exception) {
             DeviceTrace.error(SDK, "getPrinterError failed", throwable = e)
-            errorMessage(context, R.string.error_printer, exceptionDetail(e))
+            K9PrinterErrorMessages.generic(context)
         }
     }
 

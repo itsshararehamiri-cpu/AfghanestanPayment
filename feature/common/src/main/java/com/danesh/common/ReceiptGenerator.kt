@@ -50,7 +50,9 @@ fun RowReceipt(
     first: String,
     second: String,
     textColor: Color,
-    isPaperReceipt: Boolean = false
+    isPaperReceipt: Boolean = false,
+    /** شماره کارت و مقادیر عددی مشابه — همیشه چپ‌به‌راست تا ترتیب ارقام در RTL به‌هم نریزد. */
+    ltrValue: Boolean = false,
 ) {
     val context = LocalContext.current
     Row(
@@ -72,19 +74,26 @@ fun RowReceipt(
             textAlign = TextAlign.End
         )
         Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = second,
-            modifier = Modifier
-                .wrapContentWidth()
-                .padding(start =  0.dp )
-                .layoutId("second"),
-            color = textColor,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = getFontSize(isPaperReceipt, context),
-                fontWeight = getFontWeight(isPaperReceipt, context)
-            ).withAppFont(),
-            textAlign = TextAlign.Start
-        )
+        val value: @Composable () -> Unit = {
+            Text(
+                text = second,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(start =  0.dp )
+                    .layoutId("second"),
+                color = textColor,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = getFontSize(isPaperReceipt, context),
+                    fontWeight = getFontWeight(isPaperReceipt, context)
+                ).withAppFont(),
+                textAlign = TextAlign.Start
+            )
+        }
+        if (ltrValue) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { value() }
+        } else {
+            value()
+        }
     }
 }
 

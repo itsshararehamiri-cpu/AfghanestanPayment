@@ -1,7 +1,10 @@
 package com.danesh.knine
 
 import android.content.Context
+import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 
 
 object K9PrinterErrorMessages {
@@ -24,14 +27,42 @@ object K9PrinterErrorMessages {
         const val DEVICE_PIN_ENTRY_TIMEOUT=8200
     }
 
+    /**
+     * پیام کاربرپسند برای خطای چاپ — بدون کد/متن فنی SDK (آن‌ها فقط در لاگ می‌مانند)
+     * و به زبانی که کاربر در اپ انتخاب کرده است.
+     */
     fun message(context: Context, code: Int): String =
-        knownMessage(context, code)
-            ?: context.getString(R.string.error_printer_unknown_code, code)
+        knownMessage(context, code) ?: generic(context)
 
-    /** پیام مشخص برای کدهای شناخته‌شده؛ برای بقیه null تا مسیر خطای قبلی حفظ شود. */
+    /** پیام مشخص برای کدهای شناخته‌شده؛ برای بقیه null. */
     fun knownMessage(context: Context, code: Int): String? {
         val messageRes = messageResForCode(code) ?: return null
-        return context.getString(messageRes)
+        return localized(context).getString(messageRes)
+    }
+
+    /** پیام عمومی «چاپ نشد، دوباره امتحان کنید». */
+    fun generic(context: Context): String =
+        localized(context).getString(R.string.error_printer)
+
+    fun deviceUnavailable(context: Context): String =
+        localized(context).getString(R.string.error_print_device)
+
+    fun noPaper(context: Context): String =
+        localized(context).getString(R.string.error_printer_no_paper)
+
+    /**
+     * کانتکست با زبان انتخاب‌شده در اپ؛ کانتکست‌های Application/Service زیر اندروید ۱۳
+     * ممکن است هنوز زبان سیستم را داشته باشند.
+     */
+    private fun localized(context: Context): Context {
+        val appLocales = AppCompatDelegate.getApplicationLocales()
+        if (appLocales.isEmpty()) return context
+        val wanted = appLocales[0] ?: return context
+        val current = context.resources.configuration.locales[0]
+        if (current == wanted) return context
+        val config = Configuration(context.resources.configuration)
+        config.setLocales(LocaleList.forLanguageTags(appLocales.toLanguageTags()))
+        return runCatching { context.createConfigurationContext(config) }.getOrDefault(context)
     }
 
     @StringRes

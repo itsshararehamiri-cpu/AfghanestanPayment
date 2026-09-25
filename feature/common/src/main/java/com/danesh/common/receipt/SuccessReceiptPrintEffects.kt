@@ -106,9 +106,12 @@ fun SuccessReceiptPrintEffects(
     }
 
     if (printFlow.merchantPhase == MerchantReceiptPhase.OPTIONAL_DIALOG) {
+        // چه رسید پذیرنده را بخواهد چه نه، رسید تا [autoFinishDelayMs] روی صفحه می‌ماند
+        // (افکت canNavigateHome بالا)؛ فقط دکمه بک زودتر به صفحه اصلی برمی‌گرداند.
         MerchantReceiptOptionalDialog(
             onConfirm = { acceptMerchantPrint() },
-            onDecline = {
+            onDecline = { printFlow.onMerchantPrintDeclined() },
+            onBack = {
                 printFlow.onMerchantPrintDeclined()
                 navigateHomeOnce()
             },
