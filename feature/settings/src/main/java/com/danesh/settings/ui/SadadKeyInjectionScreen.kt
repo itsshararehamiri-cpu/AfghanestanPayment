@@ -230,7 +230,8 @@ private fun SuccessContent(uiState: SadadKeyInjectionUiState, onDoneClick: () ->
 
     Spacer(modifier = Modifier.height(20.dp))
     StepResultLine(stringResource(R.string.settings_sadad_result_init), uiState.initResult)
-    if (uiState.initResult?.isSuccess == true) {
+    // پیام موفقیت شروع به کار نمایش داده نمی‌شود؛ فقط اگر LOGON خطا داد.
+    if (uiState.initResult?.isSuccess == true && uiState.logonResult?.isSuccess == false) {
         Spacer(modifier = Modifier.height(8.dp))
         StepResultLine(stringResource(R.string.settings_sadad_result_logon), uiState.logonResult)
     }

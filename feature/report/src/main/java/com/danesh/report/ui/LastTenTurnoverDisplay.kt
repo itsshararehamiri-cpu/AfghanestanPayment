@@ -2,6 +2,7 @@ package com.danesh.report.ui
 
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionType
+import com.danesh.api.maskPanForDisplay
 import com.danesh.common.locale.AppLocale
 import com.danesh.common.locale.ReceiptCalendarStyle
 import com.danesh.common.locale.TransactionDateTimeFormatter
@@ -223,12 +224,13 @@ object LastTenTurnoverDisplayFormatter {
         return "${parts[2]} / ${parts[1]} / ${parts[0]}"
     }
 
-    fun formatCardNumber(pan: String, locale: AppLocale): String {
-        val digits = pan.filter { it.isDigit() }
-        if (digits.length < 10) return formatDigits(pan, locale)
-        val formatted = "${digits.take(4)} ** ${digits.takeLast(6)}"
-        return formatDigits(formatted, locale)
-    }
+    /**
+     * همان قالب رسید: ۶ رقم اول + ستاره + ۴ رقم آخر (مثلاً 603799******1234).
+     * قبلاً از ارقامِ PAN ماسک‌شده «۴ اول + ۶ آخر» برداشته می‌شد و وسط شماره کارت
+     * جابه‌جا نمایش داده می‌شد (603799******1234 → 6037 ** 991234).
+     */
+    fun formatCardNumber(pan: String, locale: AppLocale): String =
+        formatDigits(pan.maskPanForDisplay(), locale)
 
     fun formatTurnoverAmount(amountRaw: String, locale: AppLocale): String {
         val digits = amountRaw.filter { it.isDigit() }

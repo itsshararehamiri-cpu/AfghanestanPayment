@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -75,7 +76,7 @@ fun ElectronicReceiptCardInfoRow(pan: String,issuer: String, verticalPadding: Dp
                     textAlign = TextAlign.End,
                     maxLines = 2,
                     overflow = TextOverflow.Visible,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.Ltr),
                 )
             }
              //   }
