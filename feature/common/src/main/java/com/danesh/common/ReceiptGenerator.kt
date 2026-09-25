@@ -32,6 +32,7 @@ import com.danesh.common.locale.TransactionDateTimeFormatter
 import com.danesh.common.locale.displayMerchantName
 import com.danesh.common.receipt.formatStanRrnDisplay
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -87,7 +88,7 @@ fun RowReceipt(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = getFontSize(isPaperReceipt, context),
                     fontWeight = getFontWeight(isPaperReceipt, context)
-                ).withAppFont(),
+                ).withAppFont().let { if (ltrValue) it.copy(textDirection = TextDirection.Ltr) else it },
                 textAlign = TextAlign.Start
             )
         }
@@ -472,7 +473,7 @@ fun AddMaskedPanCardIssuer(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = getFontSize(isPaperReceipt, context),
                     fontWeight = getFontWeight(isPaperReceipt, context)
-                ).withAppFont(),
+                ).withAppFont().copy(textDirection = TextDirection.Ltr),
                 textAlign = TextAlign.Center
             )
         }

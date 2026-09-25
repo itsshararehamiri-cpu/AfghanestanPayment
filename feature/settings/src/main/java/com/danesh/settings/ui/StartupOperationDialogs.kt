@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -49,7 +50,13 @@ fun StartupOperationDialogs(
             confirmButton = {},
         )
     }
-    if (result != null && inProgress == null) {
+    // پیام «شروع به کار پایانه با موفقیت انجام شد» نمایش داده نمی‌شود؛ فقط خطای شروع به کار.
+    val isSilentLogonSuccess =
+        result != null && result.operation == StartupOperation.LOGON && result.isSuccess
+    if (isSilentLogonSuccess) {
+        LaunchedEffect(result) { onDismissResult() }
+    }
+    if (result != null && inProgress == null && !isSilentLogonSuccess) {
         AlertDialog(
             onDismissRequest = onDismissResult,
             title = {

@@ -36,6 +36,7 @@ fun ElectronicTransferReceiptDetails(result: TransactionResultDetail) {
             label = sourceLabel,
             value = sourcePan.maskPanForReceipt(),
             icon = R.drawable.ic_pan,
+            ltrText = true,
         )
     }
 
@@ -50,6 +51,7 @@ fun ElectronicTransferReceiptDetails(result: TransactionResultDetail) {
             label = destinationLabel,
             value = destinationValue,
             icon = R.drawable.ic_pan,
+            ltrText = true,
         )
     }
 

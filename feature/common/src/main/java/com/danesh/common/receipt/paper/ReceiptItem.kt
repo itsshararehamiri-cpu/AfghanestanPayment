@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,7 @@ fun ReceiptItem(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = getFontSize(isPaperReceipt, context),
                     fontWeight = getFontWeight(isPaperReceipt, context)
-                ).withAppFont(),
+                ).withAppFont().let { if (ltrValue) it.copy(textDirection = TextDirection.Ltr) else it },
                 textAlign = TextAlign.Start
             )
         }

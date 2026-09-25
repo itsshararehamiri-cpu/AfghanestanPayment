@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +37,8 @@ fun ElectronicReceiptDetailRow(
     valueFontWeight: FontWeight = FontWeight.Normal,
     valueContent: (@Composable () -> Unit)? = null,
     verticalPadding: Dp = 0.dp,
+    /** شماره کارت/حساب: متن همیشه چپ‌به‌راست (نه فقط جهت چیدمان). */
+    ltrText: Boolean = false,
 ) {
     Row(
         modifier = modifier
@@ -78,7 +81,9 @@ fun ElectronicReceiptDetailRow(
                         textAlign = TextAlign.End,
                         maxLines = 2,
                         overflow = TextOverflow.Visible,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.let {
+                            if (ltrText) it.copy(textDirection = TextDirection.Ltr) else it
+                        },
                     )}
                 }
             }
