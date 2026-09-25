@@ -56,7 +56,7 @@ fun ReceiptPspBrand.receiptLogoAssets(): PspReceiptLogoAssets = when (this) {
         tintNetworkLogo = true,
     )
     ReceiptPspBrand.SADAD -> PspReceiptLogoAssets(
-        networkLogo = R.drawable.sadad,
+        networkLogo = R.drawable.ic_new_shapark,
         brandLogo = R.drawable.sadad_logo_white,
         brandLogoPaper = R.drawable.ic_new_sadad,
         tintBrandOnPaper = true,

@@ -104,27 +104,27 @@ private fun OtherPspLogo(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if (brand == ReceiptPspBrand.PN) {
-                Image(
-                    painter = painterResource(id = logos.brandLogo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(PSP_LOGO_hEIGHT_RECEPINT)
-                        .width(130.dp)
-                        .align(Alignment.CenterVertically),
-                )
-            } else {
+//            if (brand == ReceiptPspBrand.PN) {
+//                Image(
+//                    painter = painterResource(id = logos.brandLogo),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .height(PSP_LOGO_hEIGHT_RECEPINT)
+//                        .width(130.dp)
+//                        .align(Alignment.CenterVertically),
+//                )
+//            } else {
                 Image(
                     painter = painterResource(id = logos.brandLogo),
                     contentDescription = null,
                     modifier = Modifier
                         .padding(end = 0.dp)
-                        .height(PSP_LOGO_hEIGHT_RECEPINT)
+                        .height(40.dp)
                         .width(130.dp)
                         .align(Alignment.CenterVertically),
-                    contentScale = ContentScale.FillWidth,
+                    contentScale = ContentScale.FillBounds,
                 )
-            }
+          //  }
         }
     }
 }
