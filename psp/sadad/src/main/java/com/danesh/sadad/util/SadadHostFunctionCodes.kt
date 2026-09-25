@@ -57,12 +57,26 @@ object SadadHostFunctionCodes {
     const val TERMINAL_UNIQUE_CODE = "043"
 
     private const val TAG = "SadadHostFC"
+    /** لاگ مسیر کد کارتخوان (Terminal Unique Code) — فیلتر: `adb logcat -s TUC` */
+    const val TUC_TAG = "TUC"
 
     fun parse(field63: String?): SadadHostData {
-        if (field63.isNullOrBlank()) return SadadHostData()
+        if (field63.isNullOrBlank()) {
+            Log.d(TUC_TAG, "DE63 response is empty -> no function code 043")
+            return SadadHostData()
+        }
+        Log.d(TUC_TAG, "DE63 raw='$field63' len=${field63.length}")
         val blocks = runCatching { Field63Parser.parse(field63) }
-            .onFailure { Log.w(TAG, "DE63 parse failed: ${it.message}") }
+            .onFailure {
+                Log.w(TAG, "DE63 parse failed: ${it.message}")
+                Log.w(TUC_TAG, "DE63 parse failed: ${it.message}")
+            }
             .getOrNull() ?: return SadadHostData()
+        Log.d(
+            TUC_TAG,
+            "DE63 function codes=${blocks.map { "${it.code}(len=${it.data.length})" }} " +
+                "has043=${blocks.any { it.code == TERMINAL_UNIQUE_CODE }}",
+        )
         return parse(blocks)
     }
 
@@ -70,7 +84,12 @@ object SadadHostFunctionCodes {
         var result = SadadHostData()
         for (block in blocks) {
             result = runCatching { apply(result, block) }
-                .onFailure { Log.w(TAG, "function code ${block.code} ignored: ${it.message}") }
+                .onFailure {
+                    Log.w(TAG, "function code ${block.code} ignored: ${it.message}")
+                    if (block.code == TERMINAL_UNIQUE_CODE) {
+                        Log.w(TUC_TAG, "043 parse failed data='${block.data}': ${it.message}")
+                    }
+                }
                 .getOrDefault(result)
         }
         return result
@@ -130,6 +149,7 @@ object SadadHostFunctionCodes {
             }
             TERMINAL_UNIQUE_CODE -> {
                 // Version n1 + Count n2 + (Terminal ID n8 + Code Len n2 + Terminal Unique Code) × Count
+                Log.d(TUC_TAG, "043 raw data='$data' len=${data.length}")
                 val r = FixedReader(data)
                 r.digits(1)
                 val count = r.digits(2).toInt()
@@ -139,6 +159,7 @@ object SadadHostFunctionCodes {
                     val code = r.take(r.digits(2).toInt()).trim()
                     if (terminalId.isNotEmpty() && code.isNotEmpty()) codes[terminalId] = code
                 }
+                Log.d(TUC_TAG, "043 parsed count=$count codes(terminalId->code)=$codes")
                 current.copy(terminalUniqueCodes = codes)
             }
             else -> current

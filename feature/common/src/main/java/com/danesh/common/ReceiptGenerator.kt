@@ -1,4 +1,6 @@
 package com.danesh.common
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import com.danesh.common.receipt.maskPanForReceipt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -403,6 +405,9 @@ fun AddTerminalUniqueCode(
     textColor: Color,
     isPaperReceipt: Boolean = false,
 ) {
+    LaunchedEffect(terminalUniqueCode, isPaperReceipt) {
+        Log.d("TUC", "paper=$isPaperReceipt receipt terminalUniqueCode='$terminalUniqueCode' shown=${terminalUniqueCode.isNotBlank()}")
+    }
     if (terminalUniqueCode.isBlank()) return
     RowReceipt(
         modifier = modifier,

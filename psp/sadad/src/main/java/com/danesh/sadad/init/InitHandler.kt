@@ -167,6 +167,10 @@ class InitHandler @Inject constructor(
         Log.d("INIT", "Lines Count = ${initializer.linesCount}")
         Log.d("INIT", "Headline = ${initializer.headlineNo}")
         Log.d("INIT", "Tax Memory Unique = ${initializer.taxMemoryUniqueCode}")
+        Log.d(
+            com.danesh.sadad.util.SadadHostFunctionCodes.TUC_TAG,
+            "INIT 013 Unique Code='${initializer.taxMemoryUniqueCode}' terminalId='${initializer.terminalId}'",
+        )
         Log.d("INIT", "Sales Fund Device Serial = ${initializer.salesFundDeviceSerial}")
         Log.d("INIT", "Sales Fund Memory Serial = ${initializer.salesFundMemorySerial}")
         val current = contextProvider.getTerminalConfig()

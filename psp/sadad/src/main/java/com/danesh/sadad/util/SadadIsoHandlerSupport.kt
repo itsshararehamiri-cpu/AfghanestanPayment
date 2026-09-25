@@ -1,5 +1,6 @@
 package com.danesh.sadad.util
 
+import android.util.Log
 import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionTransportCodes
@@ -59,6 +60,12 @@ class SadadIsoHandlerSupport @Inject constructor(
         }
         val terminalUniqueCode = runCatching { initProfileStore.get().taxMemoryUniqueCode }
             .getOrDefault("")
+        Log.d(
+            SadadHostFunctionCodes.TUC_TAG,
+            "map type=$transactionType success=$isSuccess terminalId='${withMessage.terminalId}' " +
+                "codesFrom043=${hostData.terminalUniqueCodes} storedCode='$terminalUniqueCode' " +
+                "-> receipt terminalUniqueCode='$terminalUniqueCode'",
+        )
         return SadadHostDataReceipt.apply(withMessage, hostData)
             .copy(terminalUniqueCode = terminalUniqueCode)
     }
@@ -67,13 +74,22 @@ class SadadIsoHandlerSupport @Inject constructor(
     private fun saveTerminalUniqueCode(hostData: SadadHostData, terminalId: String) {
         val codes = hostData.terminalUniqueCodes
         if (codes.isEmpty()) return
-        val code = codes[terminalId.trim()] ?: codes.values.singleOrNull() ?: return
+        val code = codes[terminalId.trim()] ?: codes.values.singleOrNull() ?: run {
+            Log.w(
+                SadadHostFunctionCodes.TUC_TAG,
+                "043 has no code for terminalId='${terminalId.trim()}' codes=$codes -> not saved",
+            )
+            return
+        }
         runCatching {
             val profile = initProfileStore.get()
             if (profile.taxMemoryUniqueCode != code) {
                 initProfileStore.save(profile.copy(taxMemoryUniqueCode = code))
+                Log.d(SadadHostFunctionCodes.TUC_TAG, "043 saved code='$code' (old='${profile.taxMemoryUniqueCode}')")
+            } else {
+                Log.d(SadadHostFunctionCodes.TUC_TAG, "043 code='$code' unchanged")
             }
-        }
+        }.onFailure { Log.e(SadadHostFunctionCodes.TUC_TAG, "043 save failed", it) }
     }
 
     /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ. */
