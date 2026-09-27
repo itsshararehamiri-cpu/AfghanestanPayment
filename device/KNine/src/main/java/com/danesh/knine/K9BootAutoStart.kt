@@ -6,7 +6,7 @@ import com.pos.sdk.sys.SystemDevice
 
 private const val TAG = "K9BootAutoStart"
 private const val MAIN_ACTIVITY =
-    "com.danesh.afghanestanpayment.MainActivity"
+    "com.danesh.payapp.MainActivity"
 
 /**
  * ثبت اپ در boot service اختصاصی Centerm/K9 — پایدارتر از BOOT_COMPLETED معمولی.

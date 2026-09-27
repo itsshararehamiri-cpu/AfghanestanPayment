@@ -1,5 +1,5 @@
 # =============================================================================
-# AfghanestanPayment — release shrink/obfuscate rules
+# PayApp — release shrink/obfuscate rules
 # =============================================================================
 
 # Stack traces in crash reports
@@ -131,11 +131,11 @@
 # =============================================================================
 # App entry points & BuildConfig
 # =============================================================================
--keep class com.danesh.afghanestanpayment.MyApp { *; }
--keep class com.danesh.afghanestanpayment.BootReceiver { *; }
--keep class com.danesh.afghanestanpayment.BootLaunchService { *; }
--keep class com.danesh.afghanestanpayment.BootLaunchActivity { *; }
--keep class com.danesh.afghanestanpayment.BuildConfig { *; }
+-keep class com.danesh.payapp.MyApp { *; }
+-keep class com.danesh.payapp.BootReceiver { *; }
+-keep class com.danesh.payapp.BootLaunchService { *; }
+-keep class com.danesh.payapp.BootLaunchActivity { *; }
+-keep class com.danesh.payapp.BuildConfig { *; }
 -keep @dagger.hilt.android.AndroidEntryPoint class * {
     <init>(...);
 }

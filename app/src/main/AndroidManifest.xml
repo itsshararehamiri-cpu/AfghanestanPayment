@@ -27,7 +27,7 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AfghanestanPayment">
+        android:theme="@style/Theme.PayApp">
         <receiver
             android:name=".BootReceiver"
             android:directBootAware="true"
@@ -59,7 +59,7 @@
             android:launchMode="singleTask"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
-            android:theme="@style/Theme.AfghanestanPayment" />
+            android:theme="@style/Theme.PayApp" />
 
         <activity
             android:name=".MainActivity"
@@ -68,7 +68,7 @@
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AfghanestanPayment">
+            android:theme="@style/Theme.PayApp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -79,9 +79,9 @@
             android:name=".external.ExternalPurchaseActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AfghanestanPayment">
+            android:theme="@style/Theme.PayApp">
             <intent-filter>
-                <action android:name="com.danesh.afghanestanpayment.action.EXTERNAL_PURCHASE" />
+                <action android:name="com.danesh.payapp.action.EXTERNAL_PURCHASE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

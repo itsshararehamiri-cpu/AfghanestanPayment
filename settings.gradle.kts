@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AfghanestanPayment"
+rootProject.name = "PayApp"
 
 include(":app")
 

@@ -90,7 +90,7 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 android {
-    namespace = "com.danesh.afghanestanpayment"
+    namespace = "com.danesh.payapp"
     compileSdk = 36
     flavorDimensions += listOf("psp", "device")
     productFlavors {
@@ -104,7 +104,7 @@ android {
             configureHamrahPayCurrency()
             configureHamrahPayMenuFeatures()
             configureHamrahPayReceiptFee()
-            applicationId= "com.danesh.afghanestanpayment.app.hp"
+            applicationId= "com.danesh.payapp.app.hp"
 
         }
         create("bp") {
@@ -118,7 +118,7 @@ android {
             configureBehpardakhtCurrency()
             configureBehpardakhtMenuFeatures()
             configureBehpardakhtReceiptFee()
-            applicationId="com.danesh.afghanestanpayment.app.bp"
+            applicationId="com.danesh.payapp.app.bp"
 
         }
         create("sadad") {
@@ -132,7 +132,7 @@ android {
             configureSadadCurrency()
             configureSadadMenuFeatures()
             configureSadadReceiptFee()
-            applicationId="com.danesh.afghanestanpayment.app.sadad"
+            applicationId="com.danesh.payapp.app.sadad"
 
         }
         create("K9") {
@@ -146,7 +146,7 @@ android {
     }
     defaultConfig {
         multiDexEnabled = true
-        applicationId = "com.danesh.afghanestanpayment"
+        applicationId = "com.danesh.payapp"
         minSdk = 24
         targetSdk = 36
         versionCode = 2

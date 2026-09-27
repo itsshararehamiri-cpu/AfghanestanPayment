@@ -1,4 +1,4 @@
-# AfghanestanPayment
+# PayApp
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://git.denovin.com/android-pos/afghanestanpayment.git
+git remote add origin https://git.denovin.com/android-pos/payapp.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-* [Set up project integrations](https://git.denovin.com/android-pos/afghanestanpayment/-/settings/integrations)
+* [Set up project integrations](https://git.denovin.com/android-pos/payapp/-/settings/integrations)
 
 ## Collaborate with your team
 
