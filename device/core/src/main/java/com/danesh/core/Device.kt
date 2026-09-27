@@ -114,6 +114,9 @@ interface Device {
         onCancel: () -> Unit
     )
     suspend  fun getKCv(): KCV
+
+    /** KCV چهار کلید روی همان اندیسی که تزریق شده‌اند. پیاده‌سازی پیش‌فرض اندیس را نادیده می‌گیرد. */
+    suspend fun getKcvAt(index: Int): KCV = getKCv()
      fun  getCheckValue(tt: String=""): ByteArray
     suspend fun beep(context: Context,onSuccess: () -> Unit,onFailed: (String) -> Unit)
     suspend fun ledOn(onError: (String) -> Unit)

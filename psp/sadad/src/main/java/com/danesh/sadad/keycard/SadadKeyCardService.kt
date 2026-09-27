@@ -1,6 +1,7 @@
 package com.danesh.sadad.keycard
 
 import android.util.Log
+import com.danesh.common.diagnostics.StartupTraceFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
@@ -52,17 +53,24 @@ class SadadKeyCardService @Inject constructor(
     }.getOrDefault(false)
 
     suspend fun loadKeyPairFromCardA(pin: String, keyIndex: Int): Result<Unit> = runCatching {
+        StartupTraceFile.line("KeyCard", "card A select index=$keyIndex")
         withCard {
             reader.selectApplet(SadadKeyCard.CARD_A)
+            StartupTraceFile.line("KeyCard", "card A verify pin")
             verifyPinOrThrow(pin)
             val modulus = reader.readRsaPublicModulus(keyIndex)
             val exponent = reader.readRsaPrivateExponent(keyIndex)
+            StartupTraceFile.line(
+                "KeyCard",
+                "card A read index=$keyIndex modulusLen=${modulus.size} exponentLen=${exponent.size}",
+            )
             check(modulus.isNotEmpty() && exponent.isNotEmpty()) {
                 "پاسخ کارت A حاوی کلید معتبر نبود"
             }
             storage.save(keyIndex, modulus, exponent)
+            StartupTraceFile.line("KeyCard", "card A saved index=$keyIndex")
         }
-    }
+    }.onFailure { StartupTraceFile.error("KeyCard card A", it) }
 
     suspend fun loadAndInjectMasterKeys(
         card: SadadKeyCard,
@@ -73,6 +81,7 @@ class SadadKeyCardService @Inject constructor(
         Log.d("TAG", "loadAndInjectMasterKeys() calledcard$card")
         Log.d("TAG", "loadAndInjectMasterKeys() calledpin$pin")
         Log.d("TAG", "loadAndInjectMasterKeys() calledkeyindex$keyIndex rsa=$rsaKeyIndex")
+        StartupTraceFile.line("KeyCard", "inject start card=$card keyIndex=$keyIndex rsaIndex=$rsaKeyIndex")
 
         require(card != SadadKeyCard.CARD_A) { "این عملیات فقط برای کارت B یا C است" }
         val stored = storage.load(rsaKeyIndex)
@@ -87,9 +96,17 @@ class SadadKeyCardService @Inject constructor(
                 val encrypted = reader.readEncryptedKey(keyIndex, keyNumber)
                 Log.d("TAG", "loadAndInjectMasterKeys: keyNumber$keyNumber")
                 Log.d("TAG", "loadAndInjectMasterKeys: encrypted${ISOUtil.hexString(encrypted)}")
+                StartupTraceFile.line(
+                    "KeyCard",
+                    "read ${keyNumber.name} index=$keyIndex encryptedLen=${encrypted.size}",
+                )
 
                 runCatching {val twmp= SadadKeyCardCrypto.decryptTransportedKey(privateKey, encrypted)
                     Log.d("TAG", "loadAndInjectMasterKeys: decryptTransportedKey${ISOUtil.hexString(twmp)}")
+                    StartupTraceFile.line(
+                        "KeyCard",
+                        "decrypt ${keyNumber.name} plainLen=${twmp.size}",
+                    )
 
                     twmp}
                     .getOrElse { cause ->
@@ -111,8 +128,9 @@ class SadadKeyCardService @Inject constructor(
             initDataKey = decrypted.getValue(SadadKeyNumber.INIT_DATA),
         )
 
+        StartupTraceFile.line("KeyCard", "decrypt done, inject into PED index=$keyIndex")
         injector.inject(masterKeys, keyIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
-    }
+    }.onFailure { StartupTraceFile.error("KeyCard inject", it) }
 
     private suspend fun <T> withCard(block: suspend () -> T): T = withContext(Dispatchers.IO) {
         cardLock.withLock {

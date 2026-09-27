@@ -61,6 +61,10 @@ internal class K9KeyManager(
 
             val ok = device.loadTmk(index, key)
             DeviceTrace.step(KEY_SDK, "writeMasterKey inject index=$index result=$ok")
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedWrite",
+                "TMK index=$index result=$ok len=${key.size}",
+            )
             check(ok) { "PED loadTmk failed index=$index" }
             requirePedKcvMatches(
                 device = device,
@@ -92,6 +96,10 @@ internal class K9KeyManager(
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedMak(tmkIndex, index, encrypted)
             Log.d("TAG", "writePlaintextMacKeycalled->$ok")
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedWrite",
+                "MAC index=$index tmkIndex=$tmkIndex result=$ok len=${key.size}",
+            )
             DeviceTrace.step(
                 KEY_SDK,
                 "writePlaintextMacKey inject makIndex=$index tmkIndex=$tmkIndex " +
@@ -117,6 +125,10 @@ internal class K9KeyManager(
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedDek(tmkIndex, index, encrypted)
             Log.d("TAG", "writePlaintexddtDataKey: dd$ok")
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedWrite",
+                "DATA index=$index tmkIndex=$tmkIndex result=$ok",
+            )
             DeviceTrace.debug(KEY_SDK, "writePlaintextDataKey tmkIndex=$tmkIndex dekIndex=$index result=$ok")
             check(ok) { "PED loadTmkEncryptedDek failed tmkIndex=$tmkIndex dekIndex=$index" }
             requirePedKcvMatches(device, KeyType.DEK, index, dataKey, "DEK")
@@ -131,6 +143,10 @@ internal class K9KeyManager(
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedPik(tmkIndex, index, encrypted)
             DeviceTrace.debug(KEY_SDK, "writePlaintextPinKey tmkIndex=$tmkIndex pikIndex=$index result=$ok")
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedWrite",
+                "PIN index=$index tmkIndex=$tmkIndex result=$ok",
+            )
             check(ok) { "PED loadTmkEncryptedPik failed tmkIndex=$tmkIndex pikIndex=$index" }
             requirePedKcvMatches(device, KeyType.PIK, index, pinKey, "PIK")
         }
@@ -220,11 +236,16 @@ internal class K9KeyManager(
             )
         }
     }
+    private fun bytesToHexOrEmpty(bytes: ByteArray?): String {
+        if (bytes == null || bytes.isEmpty()) return ""
+        return runCatching { HexUtils.bytesToHexString(bytes) }.getOrDefault("")
+    }
+
     fun getCheckValue(index: Int, keyType: KeyType): ByteArray{
         try {
             Log.d("TAG", "getCheckValue: index=${index},keyType=$keyType")
             val device = pinpadProvider()
-            return  device!!.getCheckValue(keyType,index)
+            return device!!.getCheckValue(keyType, index) ?: ByteArray(0)
         }
         catch (e: Exception){
             Log.d("TAG", "getCheckValue: cause${e.cause}")
@@ -392,21 +413,23 @@ internal class K9KeyManager(
                 "getMac calc PED macType=$macType makIndex=$index macMode=$macMode " +
                         "inputLen=${data.size} cbc=false",
             )
-            val macInfo = PinPadMacInfo.builder(17, data)
+            val macInfo = PinPadMacInfo.builder(index, data)
                 .setMacMode(macMode)
                 .setMacType(macType)
                 .build()
-            val mac = device.getMac(macInfo)
-            Log.d(
-                "TAG", "getCheckValCuedmac->${
-                    HexUtils.bytesToHexString(
-                        getCheckValue(
-                            17, keyType = KeyType.MAK
-                        )
-                    )
-                }"
+            val makKcv = getCheckValue(index, KeyType.MAK)
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedMac",
+                "slot=$index keyType=$keyType macType=$macType macMode=$macMode " +
+                    "dataLen=${data.size} makKcvLen=${makKcv.size}",
             )
-            Log.d("TAG", "calcPedMac: ddddd->${HexUtils.bytesToHexString(mac)}")
+            val mac = device.getMac(macInfo)
+            com.danesh.common.diagnostics.StartupTraceFile.line(
+                "PedMac",
+                "device.getMac slot=$index result=${if (mac == null) "null" else "len=${mac.size}"}",
+            )
+            Log.d("TAG", "getCheckValCuedmac->${bytesToHexOrEmpty(makKcv)} slot=$index")
+            Log.d("TAG", "calcPedMac: ddddd->${bytesToHexOrEmpty(mac)}")
             if (mac != null && mac.isNotEmpty()) {
                 DeviceTrace.step(KEY_SDK, "getMac ok macType=$macType macLen=${mac.size}")
                 mac

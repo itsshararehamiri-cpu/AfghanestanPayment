@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class BillInfoUiState(
-    val billId: String = "6039628301226",
-    val paymentId: String = "189840835",
+    val billId: String = "",
+    val paymentId: String = "",
     val amount: String = "",
     val billIdError: String? = null,
     val paymentIdError: String? = null,

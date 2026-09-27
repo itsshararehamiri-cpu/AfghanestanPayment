@@ -9,7 +9,9 @@ import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
 import com.danesh.engine.HandlerTransaction
 import com.danesh.iso.IsoMessage
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.sadad.SadadNetworkResult
+import com.danesh.sadad.diagnostics.traceIso
 import com.danesh.sadad.key.SadadKeyConfig
 import com.danesh.sadad.util.Field63Parser
 import com.danesh.sadad.util.SadadIsoHandlerSupport
@@ -35,6 +37,7 @@ class InitHandler @Inject constructor(
         kotlinx.coroutines.runBlocking { initMessageBuilder.build() }
 
     override fun queueFailure(request: InitRequest): SadadNetworkResult {
+        StartupTraceFile.line("InitHandler", "queueFailure")
         val message = buildMessage(request)
         return SadadNetworkResult(
             detail = transport.map(
@@ -54,24 +57,31 @@ class InitHandler @Inject constructor(
         request: InitRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): SadadNetworkResult = SadadNetworkResult(
-        detail = transport.map(
-            transactionType = TransactionType.INIT,
-            request = sentMessage,
-            response = response,
-            isSuccess = false,
-            responseMessage = messages.failed(),
-        ),
-    )
+    ): SadadNetworkResult {
+        StartupTraceFile.line("InitHandler", "failure rc=${response?.responseCode}")
+        traceIso("InitHandler response", response)
+        return SadadNetworkResult(
+            detail = transport.map(
+                transactionType = TransactionType.INIT,
+                request = sentMessage,
+                response = response,
+                isSuccess = false,
+                responseMessage = messages.failed(),
+            ),
+        )
+    }
 
     override fun success(
         request: InitRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
     ): SadadNetworkResult {
+        StartupTraceFile.line("InitHandler", "success rc=${response?.responseCode}")
+        traceIso("InitHandler response", response)
         return try {
             persistMerchantFromInit(response)
             configurationStore.markConfigured()
+            StartupTraceFile.line("InitHandler", "markConfigured")
             SadadNetworkResult(
                 detail = transport.map(
                     transactionType = TransactionType.INIT,
@@ -83,6 +93,7 @@ class InitHandler @Inject constructor(
                 ),
             )
         } catch (error: Exception) {
+            StartupTraceFile.error("InitHandler success", error)
             SadadNetworkResult(
                 detail = transport.failureDetail(
                     transactionType = TransactionType.INIT,
@@ -99,43 +110,52 @@ class InitHandler @Inject constructor(
         request: InitRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadNetworkResult = SadadNetworkResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.INIT,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.CONNECT_FAILED,
-            responseMessage = transport.connectFailedMessage(error),
-        ),
-    )
+    ): SadadNetworkResult {
+        StartupTraceFile.error("InitHandler connectFailure", error)
+        return SadadNetworkResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.INIT,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.CONNECT_FAILED,
+                responseMessage = transport.connectFailedMessage(error),
+            ),
+        )
+    }
 
     override fun sendFailure(
         request: InitRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadNetworkResult = SadadNetworkResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.INIT,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.SEND_FAILED,
-            responseMessage = transport.sendFailedMessage(error),
-        ),
-    )
+    ): SadadNetworkResult {
+        StartupTraceFile.error("InitHandler sendFailure", error)
+        return SadadNetworkResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.INIT,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.SEND_FAILED,
+                responseMessage = transport.sendFailedMessage(error),
+            ),
+        )
+    }
 
     override fun receiveFailure(
         request: InitRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadNetworkResult = SadadNetworkResult(
-        detail = transport.failureDetail(
-            transactionType = TransactionType.INIT,
-            sentMessage = sentMessage,
-            response = null,
-            responseCode = TransactionTransportCodes.RECEIVE_FAILED,
-            responseMessage = transport.receiveFailedMessage(error),
-        ),
-    )
+    ): SadadNetworkResult {
+        StartupTraceFile.error("InitHandler receiveFailure", error)
+        return SadadNetworkResult(
+            detail = transport.failureDetail(
+                transactionType = TransactionType.INIT,
+                sentMessage = sentMessage,
+                response = null,
+                responseCode = TransactionTransportCodes.RECEIVE_FAILED,
+                responseMessage = transport.receiveFailedMessage(error),
+            ),
+        )
+    }
 
     override fun networkError(
         request: InitRequest,
@@ -151,11 +171,24 @@ class InitHandler @Inject constructor(
         if (response == null) return
         persistTerminalIds(response)
         val field63 = response.privateUseField63
-        if (field63.isBlank()) return
-        val initializer = parseTerminalInitializer(field63) ?: run {
-            Log.w("INIT", "field 63 present but Terminal initializer could not be parsed")
+        if (field63.isBlank()) {
+            StartupTraceFile.line("InitHandler", "field63 empty")
             return
         }
+        StartupTraceFile.line("InitHandler", "field63 len=${field63.length}")
+        val initializer = parseTerminalInitializer(field63) ?: run {
+            Log.w("INIT", "field 63 present but Terminal initializer could not be parsed")
+            StartupTraceFile.line("InitHandler", "field63 could not be parsed")
+            return
+        }
+        StartupTraceFile.line(
+            "InitHandler",
+            "terminalId=${initializer.terminalId} acqId=${initializer.acqId} " +
+                "nameFa=${initializer.acqNameFa} nameEn=${initializer.acqNameEn} " +
+                "tel=${initializer.tel} postal=${initializer.postalCode} " +
+                "lines=${initializer.linesCount} headline=${initializer.headlineNo} " +
+                "tax=${initializer.taxMemoryUniqueCode}",
+        )
         Log.d("INIT", "Terminal ID = ${initializer.terminalId}")
         Log.d("INIT", "Acq ID = ${initializer.acqId}")
         Log.d("INIT", "Acq Name Fa = ${initializer.acqNameFa}")
@@ -221,6 +254,10 @@ class InitHandler @Inject constructor(
         val current = contextProvider.getTerminalConfig()
         val terminalId = response.terminalId.takeIf { it.isNotBlank() } ?: current.terminalId
         val merchantId = response.merchantId.takeIf { it.isNotBlank() } ?: current.merchantId
+        StartupTraceFile.line(
+            "InitHandler",
+            "DE41/DE42 terminalId='$terminalId' merchantId='$merchantId'",
+        )
         if (terminalId != current.terminalId || merchantId != current.merchantId) {
             contextProvider.saveTerminalConfig(
                 current.copy(terminalId = terminalId, merchantId = merchantId),

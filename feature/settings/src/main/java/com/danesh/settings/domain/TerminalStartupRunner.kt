@@ -3,6 +3,7 @@ package com.danesh.settings.domain
 import android.content.Context
 import android.util.Log
 import com.danesh.api.InitInput
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.api.PspGateway
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionTransportCodes
@@ -40,19 +41,26 @@ class TerminalStartupRunner @Inject constructor(
         operation: StartupOperation,
         call: suspend () -> TransactionResultDetail,
     ): StartupStepResult {
+        StartupTraceFile.line("Startup", "$operation start")
         val detail = try {
             call()
         } catch (cancel: CancellationException) {
+            StartupTraceFile.line("Startup", "$operation cancelled")
             throw cancel
         } catch (error: Exception) {
             Log.e(TAG, "$operation failed with exception", error)
+            StartupTraceFile.error("Startup $operation", error)
             return StartupStepResult(
                 operation = operation,
                 isSuccess = false,
-                message = failedMessage(operation, appContext.getString(R.string.settings_sadad_failure_unknown)),
+                message = failedMessage(operation, "${appContext.getString(R.string.settings_sadad_failure_unknown)}2${error.cause}${error.message}"),
             )
         }
         Log.i(TAG, "$operation result success=${detail.isSuccess} code=${detail.responseCode}")
+        StartupTraceFile.line(
+            "Startup",
+            "$operation result success=${detail.isSuccess} rc=${detail.responseCode} msg=${detail.responseMessage}",
+        )
         if (detail.isSuccess) {
             return StartupStepResult(
                 operation = operation,
@@ -79,7 +87,7 @@ class TerminalStartupRunner @Inject constructor(
             return appContext.getString(R.string.settings_sadad_failure_connection)
         }
         val message = detail.responseMessage.ifBlank {
-            appContext.getString(R.string.settings_sadad_failure_unknown)
+           "${ appContext.getString(R.string.settings_sadad_failure_unknown)}3"
         }
         return appContext.getString(R.string.settings_sadad_failure_with_code, message, code)
     }

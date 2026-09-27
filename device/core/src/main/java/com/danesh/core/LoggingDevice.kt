@@ -386,6 +386,13 @@ class LoggingDevice(
         }
     }
 
+    override suspend fun getKcvAt(index: Int): KCV {
+        DeviceTrace.step("getKcvAt", "index=$index")
+        return delegate.getKcvAt(index).also {
+            DeviceTrace.step("getKcvAt", "index=$index done")
+        }
+    }
+
     override fun getCheckValue(TT: String): ByteArray {
         return ByteArray(0)
     }

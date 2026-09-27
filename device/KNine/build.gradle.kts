@@ -51,5 +51,6 @@ dependencies {
     implementation(files("libs\\CpaySDKLibV5.0.0.4_20251029.jar"))
     implementation(files(  "libs\\CpaySystemSdkLib_V1.9.1.jar"))
     implementation(project(":device:core"))
+    implementation(project(":core:common"))
 
 }

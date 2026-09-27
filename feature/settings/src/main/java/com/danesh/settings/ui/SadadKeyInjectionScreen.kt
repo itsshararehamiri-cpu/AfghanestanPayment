@@ -221,11 +221,14 @@ private fun SuccessContent(uiState: SadadKeyInjectionUiState, onDoneClick: () ->
         Body(note)
     }
 
-    uiState.kcv?.let { kcv ->
+    if (uiState.kcv == null) {
+        Spacer(modifier = Modifier.height(12.dp))
+        Body(stringResource(R.string.settings_key_loading_result_success))
+    } else {
         Spacer(modifier = Modifier.height(20.dp))
         SettingsSectionTitle(title = stringResource(R.string.settings_sadad_kcv_title))
         Spacer(modifier = Modifier.height(8.dp))
-        KeyLoadingKcvTable(kcvSummary = kcv)
+        KeyLoadingKcvTable(kcvSummary = uiState.kcv)
     }
 
     Spacer(modifier = Modifier.height(20.dp))

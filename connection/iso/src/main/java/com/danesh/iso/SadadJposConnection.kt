@@ -2,6 +2,7 @@ package com.danesh.iso
 
 import android.util.Log
 import com.danesh.common.connection.ConnectionEndpointResolver
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.common.connection.ConnectionPreferences
 import com.danesh.core.Connection
 import com.danesh.iso.packager.SadadIso93BPackager
@@ -37,11 +38,17 @@ class SadadJposConnection @Inject constructor(
 
         channel = NACChannel4(ip, port, packager, header)
         val nii = connectionPreferences.getNii()
+        if (StartupTraceFile.isActive) {
+            StartupTraceFile.line("Connect", "ip=$ip port=$port nii=$nii tpdu=${ISOUtil.hexString(header)}")
+        }
 //        IsoConnectionFailover.connectWithFailover(endpointResolver) { endpoint ->
 //            connectToEndpoint(endpoint.ip, endpoint.port, nii)
 //        }
         channel.connect()
         Log.d(TAG, "SADAD channel connected=${channel.isConnected}")
+        if (StartupTraceFile.isActive) {
+            StartupTraceFile.line("Connect", "channel connected=${channel.isConnected}")
+        }
 
     }
 
@@ -116,8 +123,12 @@ class SadadJposConnection @Inject constructor(
             Log.d(TAG, "CONNECTED BEFORE SEND = ${channel.isConnected}")
             channel.send(message.getIsoMessage())
             Log.d(TAG, "CONNECTED AFTER SEND = ${channel.isConnected}")
+            if (StartupTraceFile.isActive) {
+                StartupTraceFile.line("Wire", "send ok connected=${channel.isConnected}")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "send failed: ${e.message}")
+            if (StartupTraceFile.isActive) StartupTraceFile.error("Wire send", e)
             throw Exception("Start channel failed", e)
         }
     }
@@ -133,9 +144,16 @@ class SadadJposConnection @Inject constructor(
                // channel.lastReceivedIsoBody?.let { raw -> it.requireSadad().setRawPackedBody(raw) }
             }
             temp.print("resp>>")
+            if (StartupTraceFile.isActive) {
+                StartupTraceFile.line(
+                    "Wire",
+                    "receive ok mti=${temp.mti} rc=${temp.responseCode} stan=${temp.stan}",
+                )
+            }
             temp
         } catch (e: Exception) {
             Log.e(TAG, "receive failed: ${e.message}", e)
+            if (StartupTraceFile.isActive) StartupTraceFile.error("Wire receive", e)
             throw e
         }
     }

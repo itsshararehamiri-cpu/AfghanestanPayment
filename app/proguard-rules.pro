@@ -143,3 +143,22 @@
 # PSP implementations selected at compile time per flavor
 -keep class com.danesh.bp.** { *; }
 -keep class com.danesh.hp.** { *; }
+-keep class com.danesh.sadad.** { *; }
+
+# =============================================================================
+# کد شارژ (voucher) و شارژ مستقیم (top-up)
+# =============================================================================
+# مدل‌های ChargeList در :transaction:api هستند، نه داخل com.danesh.sadad.**.
+# هر دو صفحه موقع باز شدن ChargeKind / ChargeOperator / ChargeProduct را می‌خوانند.
+-keep class com.danesh.api.ChargeKind { *; }
+-keep class com.danesh.api.ChargeOperator { *; }
+-keep class com.danesh.api.ChargeProduct { *; }
+
+# DocumentBuilderFactory.newInstance() پیاده‌سازی را از META-INF/services برمی‌دارد
+# (Xerces، وابستگی jPOS). R8 در ریلیز آن کلاس را حذف می‌کند و باز شدن این دو صفحه
+# با FactoryConfigurationError می‌افتد. harmony پارسر خود اندروید است.
+-keep class org.apache.xerces.** { *; }
+-keep class org.apache.harmony.xml.** { *; }
+-dontwarn org.apache.xerces.**
+-dontwarn org.apache.harmony.xml.**
+-dontwarn javax.xml.parsers.**

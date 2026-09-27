@@ -1,6 +1,7 @@
 package com.danesh.sadad.logon
 
 import android.util.Log
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.core.Device
 import com.danesh.core.SensitiveBytes
 import com.danesh.sadad.key.SadadWorkingMacState
@@ -36,6 +37,11 @@ class SadadLogonWorkingKeyInjector @Inject constructor(
         var plainMac: ByteArray? = null
         var plainData: ByteArray? = null
         try {
+            StartupTraceFile.line(
+                "KeyInject",
+                "unwrap start cardIndex=$cardCIndex workingIndex=$workingIndex " +
+                    "tmkKcv=${SadadKeyCardCrypto.kcvHex(wrapTmk)}",
+            )
             Log.d(
                 "LOGON",
                 "unwrap DE48 PIN under card TMK(0x00) kcv=${SadadKeyCardCrypto.kcvHex(wrapTmk)} " +
@@ -59,6 +65,13 @@ class SadadLogonWorkingKeyInjector @Inject constructor(
             wrappingKeys.storeWorkingMacKey(plainMac)
             wrappingKeys.storeWorkingDataKey(plainData)
             workingMacState.markWorkingMacLoaded()
+            StartupTraceFile.line(
+                "KeyInject",
+                "done workingIndex=$workingIndex initIndex=$cardCIndex " +
+                    "pinKcv=${SadadKeyCardCrypto.kcvHex(plainPin)} " +
+                    "macKcv=${SadadKeyCardCrypto.kcvHex(plainMac)} " +
+                    "dataKcv=${SadadKeyCardCrypto.kcvHex(plainData)}",
+            )
             Log.d(
                 "LOGON",
                 "working keys injected pinKcv=${SadadKeyCardCrypto.kcvHex(plainPin)} " +

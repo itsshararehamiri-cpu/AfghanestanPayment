@@ -8,6 +8,7 @@ import com.danesh.api.KeyCardKcvSummary
 import com.danesh.api.KeyCardLoadingService
 import com.danesh.api.KeyCardPinRejectedException
 import com.danesh.api.KeyCardType
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.settings.R
 import com.danesh.settings.domain.TerminalStartupRunner
 import com.danesh.settings.model.KeyLoadingKcvSummary
@@ -54,12 +55,7 @@ class SadadKeyInjectionViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        SadadKeyInjectionUiState(
-            cardAIndex = service.persistedRsaKeyIndex()?.toString().orEmpty(),
-            cardCIndex = service.persistedCardCIndex()?.toString().orEmpty(),
-        ),
-    )
+    private val _uiState = MutableStateFlow(SadadKeyInjectionUiState())
     val uiState: StateFlow<SadadKeyInjectionUiState> = _uiState.asStateFlow()
 
     private var activeJob: Job? = null
@@ -209,12 +205,19 @@ class SadadKeyInjectionViewModel @Inject constructor(
             )
         }
         try {
+            StartupTraceFile.begin("KeyInjection")
+            StartupTraceFile.line(
+                "KeyInject",
+                "start cardAIndex=$cardAIndex cardCIndex=$cardCIndex",
+            )
             if (!service.isCardPresent()) {
+                StartupTraceFile.line("KeyInject", "card not present")
                 fail(string(R.string.settings_sadad_error_card_removed))
                 return
             }
             val hasCardA = service.hasApplet(KeyCardType.CARD_A)
             val hasCardC = service.hasApplet(KeyCardType.CARD_C)
+            StartupTraceFile.line("KeyInject", "applets cardA=$hasCardA cardC=$hasCardC")
             Log.i(TAG, "applets on inserted card: A=$hasCardA C=$hasCardC")
             if (!hasCardA && !hasCardC) {
                 fail(string(R.string.settings_sadad_error_not_key_card))
@@ -224,47 +227,68 @@ class SadadKeyInjectionViewModel @Inject constructor(
             // مرحله ۱: کارت A
             if (hasCardA) {
                 setStatus(R.string.settings_sadad_step_reading_a)
+                StartupTraceFile.line("KeyInject", "read card A index=$cardAIndex")
                 val cardAResult = service.loadKeyPairFromCardA(pinA, cardAIndex)
                 cardAResult.exceptionOrNull()?.let { error ->
+                    StartupTraceFile.error("KeyInject card A", error)
                     fail(describeCardError(error, "A", R.string.settings_sadad_error_card_a))
                     return
                 }
+                StartupTraceFile.line("KeyInject", "card A stored index=$cardAIndex")
             } else if (service.hasStoredKeyPair(cardAIndex)) {
+                StartupTraceFile.line("KeyInject", "card A already stored index=$cardAIndex")
                 notes += appContext.getString(R.string.settings_sadad_card_a_used_stored, cardAIndex.toString())
             } else {
+                StartupTraceFile.line("KeyInject", "card A missing index=$cardAIndex")
                 fail(appContext.getString(R.string.settings_sadad_error_no_card_a, cardAIndex.toString()))
                 return
             }
 
             // مرحله ۲: کارت C (اگر روی همان کارت نیست، تعویض کارت)
             if (!hasCardC) {
+                StartupTraceFile.line("KeyInject", "swap card A to card C")
                 if (!swapToCardC()) return
             }
             setStatus(R.string.settings_sadad_step_reading_c)
+            StartupTraceFile.line(
+                "KeyInject",
+                "inject card C index=$cardCIndex rsaIndex=$cardAIndex",
+            )
             val kcv = service.loadAndInjectMasterKeys(
                 card = KeyCardType.CARD_C,
                 pin = pinC,
                 keyIndex = cardCIndex,
                 rsaKeyIndex = cardAIndex,
             ).getOrElse { error ->
+                StartupTraceFile.error("KeyInject card C", error)
                 fail(describeCardError(error, "C", R.string.settings_sadad_error_card_c))
                 return
-            }.toUiSummary()
+            }.toUiSummaryOrNull()
+            StartupTraceFile.line(
+                "KeyInject",
+                if (kcv == null) {
+                    "KCV empty at cardCIndex=$cardCIndex"
+                } else {
+                    "KCV at cardCIndex=$cardCIndex master=${kcv.master} mac=${kcv.mac} pin=${kcv.pin} data=${kcv.data}"
+                },
+            )
             _uiState.update { it.copy(kcv = kcv, notes = notes.toList()) }
 
             // مرحله ۳: INIT و سپس LOGON خودکار
             setStatus(R.string.settings_sadad_step_init)
+            StartupTraceFile.line("KeyInject", "start INIT")
             val initResult = startupRunner.runInit()
             _uiState.update { it.copy(initResult = initResult) }
             if (initResult.isSuccess) {
                 setStatus(R.string.settings_sadad_step_logon)
+                StartupTraceFile.line("KeyInject", "start LOGON")
                 val logonResult = startupRunner.runLogon()
                 _uiState.update { it.copy(logonResult = logonResult) }
             }
 
             // مرحله ۴: چاپ KCV و مشخصات پایانه/پذیرنده (بعد از LOGON که شماره‌ها به‌روز شده‌اند)
             setStatus(R.string.settings_sadad_step_printing)
-            val printError = receiptPrinter.printKcvReceipt(kcv)
+            val printError = kcv?.let { receiptPrinter.printKcvReceipt(it) }
                 ?: receiptPrinter.printConfigurationReceipt(receiptPrinter.buildConfigurationSummary())
             _uiState.update {
                 it.copy(
@@ -287,11 +311,14 @@ class SadadKeyInjectionViewModel @Inject constructor(
                 }
             }
         } catch (cancel: CancellationException) {
+            StartupTraceFile.line("KeyInject", "cancelled")
             throw cancel
         } catch (error: Exception) {
             Log.e(TAG, "key injection failed", error)
+            StartupTraceFile.error("KeyInject", error)
             fail(unexpectedErrorMessage(error))
         } finally {
+            StartupTraceFile.end("KeyInjection")
             closeCardReader()
         }
     }
@@ -362,7 +389,7 @@ class SadadKeyInjectionViewModel @Inject constructor(
     }
 
     private fun unexpectedErrorMessage(error: Throwable): String =
-        error.message?.takeIf { it.isNotBlank() } ?: string(R.string.settings_sadad_failure_unknown)
+        error.message?.takeIf { it.isNotBlank() } ?: "${string(R.string.settings_sadad_failure_unknown)}-1"
 
     private fun fail(message: String) {
         _uiState.update {
@@ -403,7 +430,10 @@ class SadadKeyInjectionViewModel @Inject constructor(
 
     private fun string(resId: Int): String = appContext.getString(resId)
 
-    private fun KeyCardKcvSummary.toUiSummary(): KeyLoadingKcvSummary {
+    private fun KeyCardKcvSummary.toUiSummaryOrNull(): KeyLoadingKcvSummary? {
+        if (terminalMasterKey.isBlank() && mac.isBlank() && pin.isBlank() && data.isBlank()) {
+            return null
+        }
         val notSet = string(R.string.settings_kcv_value_not_set)
         return KeyLoadingKcvSummary(
             master = terminalMasterKey.ifBlank { notSet },

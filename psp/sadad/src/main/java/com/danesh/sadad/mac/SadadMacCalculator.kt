@@ -141,7 +141,16 @@ class SadadMacCalculator @Inject constructor(
         pedIndex: Int,
         keySource: SadadMacKeySource,
     ): ByteArray {
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "Mac",
+            "compute mti=$mti keySource=$keySource pedIndex=$pedIndex " +
+                "inputLen=${macInput.size} aligned=${macInput.size % 8 == 0}",
+        )
         val pedMac = device.getMac(data = macInput, index = pedIndex)
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "Mac",
+            "ped returned len=${pedMac.size} empty=${pedMac.isEmpty()}",
+        )
         if (macInput.size % 8 != 0) return pedMac
         logPedPaddingSelfTest(pedIndex)
         if (keySource == SadadMacKeySource.WORKING) {
@@ -316,6 +325,11 @@ class SadadMacCalculator @Inject constructor(
 
     suspend fun applyInitMac(message: IsoMessage) {
         val pedIndex = workingMacState.initMacIndex()
+
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "InitMac",
+            "start pedIndex=$pedIndex mti=${message.mti}",
+        )
         Log.d(
             "applyInitMac",
             "شروع INIT MAC pedIndex=$pedIndex mti=${message.mti}",
@@ -325,6 +339,10 @@ class SadadMacCalculator @Inject constructor(
             keySource = SadadMacKeySource.INITIAL,
         )
         Log.d("applyInitMac", "فیلد 64=${message.mac?.encodeHexKey()}")
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "InitMac",
+            "done macLen=${message.mac?.size ?: 0}",
+        )
     }
 
     suspend fun applyLogonMac(message: IsoMessage) {
@@ -333,6 +351,11 @@ class SadadMacCalculator @Inject constructor(
         } else {
             SadadMacKeySource.INITIAL
         }
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "LogonMac",
+            "start mti=${message.mti} keySource=$keySource hasWorkingMac=${workingMacState.hasWorkingMac()} " +
+                "initIndex=${workingMacState.initMacIndex()} workingIndex=${workingMacState.workingKeyIndex()}",
+        )
         Log.d(
             "applyLogonMac",
             "شروع mti=${message.mti} keySource=$keySource " +
@@ -342,6 +365,7 @@ class SadadMacCalculator @Inject constructor(
         val mac = calculateMac(message = message, keySource = keySource)
         message.mac = mac
         Log.d("applyLogonMac", "F64=${mac.encodeHexKey()}")
+        com.danesh.common.diagnostics.StartupTraceFile.line("LogonMac", "done macLen=${mac.size}")
     }
 
     suspend fun verifyResponseMac(response: IsoMessage) {
@@ -414,8 +438,14 @@ class SadadMacCalculator @Inject constructor(
             "calculateMac",
             "keySource=$keySource pedIndex=$pedIndex mti=${message.mti}",
         )
+        com.danesh.common.diagnostics.StartupTraceFile.line(
+            "Mac",
+            "calculate mti=${message.mti} keySource=$keySource pedIndex=$pedIndex " +
+                "initIndex=${workingMacState.initMacIndex()} workingIndex=${workingMacState.workingKeyIndex()}",
+        )
         logMessageBeforeMac(message, keySource)
         val macInput = message.requireSadad().packForMac()
+    device.getCheckValue("kkkkkkkkkkkkkkk")
         val temp = computeMac(
             mti = message.mti,
             macInput = macInput,

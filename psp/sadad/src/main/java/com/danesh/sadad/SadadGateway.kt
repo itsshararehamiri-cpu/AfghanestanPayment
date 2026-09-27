@@ -73,6 +73,7 @@ import com.danesh.sadad.gambond.GamBondHandler
 import com.danesh.sadad.gambond.SadadGamBondRequest
 import com.danesh.sadad.gisstation.SadadSaleGisStationRequest
 import com.danesh.sadad.gisstation.SaleGisStationHandler
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.sadad.init.InitHandler
 import com.danesh.sadad.inquiry.InquiryHandler
 import com.danesh.sadad.inquiry.SadadInquiryRequest
@@ -330,24 +331,45 @@ class SadadGateway @Inject constructor(
 
     override suspend fun logon(masterKey: String): LogonOutput {
         Log.d("TAG", "logon: jjkjkkjk")
-        return withContext(Dispatchers.IO) {
-            executor.execute(
-                request = LogonRequest(masterKey),
-                handler = logonHandler,
-            ).detail
+        StartupTraceFile.line("Gateway", "logon start")
+        return try {
+            withContext(Dispatchers.IO) {
+                val detail = executor.execute(
+                    request = LogonRequest(masterKey),
+                    handler = logonHandler,
+                ).detail
+                StartupTraceFile.line(
+                    "Gateway",
+                    "logon done success=${detail.isSuccess} rc=${detail.responseCode} msg=${detail.responseMessage}",
+                )
+                detail
+            }
+        } catch (error: Exception) {
+            StartupTraceFile.error("Gateway logon", error)
+            throw error
         }
     }
 
     override suspend fun init(input: InitInput): InitOutput = withContext(Dispatchers.IO) {
         Log.d("TAG", "init: ddddddddddddddnmnmf")
-
-        executor.execute(
-            request = InitRequest(
-                firstBallotTicket = input.firstBallotTicket,
-                secondBallotTicket = input.secondBallotTicket,
-            ),
-            handler = initHandler,
-        ).detail
+        StartupTraceFile.line("Gateway", "init start")
+        try {
+            val detail = executor.execute(
+                request = InitRequest(
+                    firstBallotTicket = input.firstBallotTicket,
+                    secondBallotTicket = input.secondBallotTicket,
+                ),
+                handler = initHandler,
+            ).detail
+            StartupTraceFile.line(
+                "Gateway",
+                "init done success=${detail.isSuccess} rc=${detail.responseCode} msg=${detail.responseMessage}",
+            )
+            detail
+        } catch (error: Exception) {
+            StartupTraceFile.error("Gateway init", error)
+            throw error
+        }
     }
 
     private fun BillInput.toPaymentUserInput(): BillUserInput =

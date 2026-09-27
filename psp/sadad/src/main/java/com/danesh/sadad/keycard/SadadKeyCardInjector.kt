@@ -1,6 +1,7 @@
 package com.danesh.sadad.keycard
 
 import com.danesh.api.DeviceConfigurationStore
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.core.Device
 import com.danesh.core.SensitiveBytes
 import com.danesh.sadad.key.SadadWorkingMacState
@@ -46,25 +47,34 @@ class SadadKeyCardInjector @Inject constructor(
         rsaKeyIndex: Int = keyIndex,
     ): SadadKeyCardKcvSummary {
         try {
+            StartupTraceFile.line(
+                "Inject",
+                "start cardCIndex=$keyIndex rsaIndex=$rsaKeyIndex workingIndex=${keyIndex + 1}",
+            )
             wrappingKeys.storeFromCard(keys)
             workingMacState.clearWorkingMac()
             workingMacState.saveKeyIndices(cardCIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
+            StartupTraceFile.line("Inject", "write TMK index=$keyIndex len=${keys.terminalMasterKey.size}")
             device.writeMasterKey(keys.terminalMasterKey, index = keyIndex)
+            StartupTraceFile.line("Inject", "write MAC index=$keyIndex len=${keys.initMacKey.size}")
             device.writeMacKey(keys.initMacKey, index = keyIndex)
+            StartupTraceFile.line("Inject", "write DATA index=$keyIndex len=${keys.dataKey.size}")
             device.writeDataKey(keys.dataKey, index = keyIndex)
+            StartupTraceFile.line("Inject", "write PIN index=$keyIndex len=${keys.pinKey.size}")
             device.writePinKey(keys.pinKey, index = keyIndex)
             configurationStore.markConfigured()
 
-            val pedKcv = runCatching { device.getKCv() }.getOrNull()
+            val pedKcv = runCatching { device.getKcvAt(keyIndex) }.getOrNull()
+            StartupTraceFile.line(
+                "Inject",
+                "KCV read index=$keyIndex master=${pedKcv?.master.orEmpty()} " +
+                    "mac=${pedKcv?.mac.orEmpty()} pin=${pedKcv?.pin.orEmpty()} data=${pedKcv?.data.orEmpty()}",
+            )
             return SadadKeyCardKcvSummary(
-                terminalMasterKey = pedKcv?.master?.takeIf { it.isNotBlank() }
-                    ?: SadadKeyCardCrypto.kcvHex(keys.terminalMasterKey),
-                mac = pedKcv?.mac?.takeIf { it.isNotBlank() }
-                    ?: SadadKeyCardCrypto.kcvHex(keys.macKey),
-                data = pedKcv?.data?.takeIf { it.isNotBlank() }
-                    ?: SadadKeyCardCrypto.kcvHex(keys.dataKey),
-                pin = pedKcv?.pin?.takeIf { it.isNotBlank() }
-                    ?: SadadKeyCardCrypto.kcvHex(keys.pinKey),
+                terminalMasterKey = pedKcv?.master.orEmpty(),
+                mac = pedKcv?.mac.orEmpty(),
+                data = pedKcv?.data.orEmpty(),
+                pin = pedKcv?.pin.orEmpty(),
             )
         } finally {
             SensitiveBytes.wipe(keys.terminalMasterKey)

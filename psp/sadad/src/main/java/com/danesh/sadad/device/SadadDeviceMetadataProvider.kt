@@ -26,6 +26,6 @@ class SadadDeviceMetadataProvider @Inject constructor(
     override suspend fun deviceSerial(): String {
         return contextProvider.getTerminalConfig().deviceSerial
             .ifBlank { device.getSerial() }
-            .ifBlank { DeviceDefaults.SERIAL }
+
     }
 }

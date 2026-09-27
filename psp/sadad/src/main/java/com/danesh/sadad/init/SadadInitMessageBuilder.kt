@@ -6,6 +6,8 @@ import com.danesh.api.TransactionSessionClock
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
 import com.danesh.iso.packager.SadadIso93BPackager
+import com.danesh.common.diagnostics.StartupTraceFile
+import com.danesh.sadad.diagnostics.traceIso
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
 import com.danesh.sadad.mac.SadadMacCalculator
@@ -21,6 +23,7 @@ class SadadInitMessageBuilder @Inject constructor(
 ) {
    suspend fun build(): IsoMessage {
        Log.d("TAG", "build: SadadInitMessageBuilder")
+       StartupTraceFile.line("InitMessage", "build start")
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
         // مستند: DE11 پیام INIT باید یک عدد تصادفی ۶ رقمی باشد، نه شمارنده‌ی ترتیبی nextStan().
@@ -41,7 +44,10 @@ class SadadInitMessageBuilder @Inject constructor(
             transportData = messageSupport.initTransportData()
         }
         message.setPackager(SadadIso93BPackager())
+        StartupTraceFile.line("InitMessage", "apply MAC")
         macCalculator.applyInitMac(message)
+        traceIso("InitMessage request", message)
+        StartupTraceFile.line("InitMessage", "build done")
         return message
 
     }

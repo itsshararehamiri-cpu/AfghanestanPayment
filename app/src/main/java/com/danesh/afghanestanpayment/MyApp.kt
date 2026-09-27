@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.res.Configuration
 import android.util.Log
 import com.danesh.api.PspGateway
+import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.common.locale.LocaleManager
 import com.danesh.common.locale.LocalePreferences
 import com.danesh.common.startup.AppStartupTask
@@ -33,6 +34,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        StartupTraceFile.install(this)
         LocaleManager.init(this)
         val saved = localePreferences.getLanguage()
         val coerced = languageOptions.coerceCoreLanguage(saved)

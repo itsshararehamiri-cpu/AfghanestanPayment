@@ -35,23 +35,6 @@ class SadadKeyCardLoadingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SadadKeyCardLoadingUiState())
     val uiState: StateFlow<SadadKeyCardLoadingUiState> = _uiState.asStateFlow()
 
-    init {
-        restorePersistedIndices()
-        refreshStoredCardAState()
-    }
-
-    private fun restorePersistedIndices() {
-        val rsa = service.persistedRsaKeyIndex()?.toString().orEmpty()
-        val cardC = service.persistedCardCIndex()?.toString().orEmpty()
-        if (rsa.isEmpty() && cardC.isEmpty()) return
-        _uiState.update { state ->
-            state.copy(
-                cardAIndex = rsa.ifEmpty { state.cardAIndex },
-                cardCIndex = cardC.ifEmpty { state.cardCIndex },
-            )
-        }
-    }
-
     private fun refreshStoredCardAState() {
         viewModelScope.launch {
             val keyIndex = _uiState.value.cardAIndex.toIntOrNull() ?: return@launch

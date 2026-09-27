@@ -6,7 +6,6 @@ import com.danesh.iso.IsoMessageProvider
 import com.danesh.iso.packager.SadadIso93BPackager
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
-import com.danesh.sadad.logon.buildField59
 import com.danesh.sadad.mac.SadadMacCalculator
 import org.jpos.iso.ISOUtil
 import javax.inject.Inject

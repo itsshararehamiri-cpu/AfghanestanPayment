@@ -138,7 +138,10 @@ class SadadIsoMessageSupport @Inject constructor(
         return config.deviceSerial.ifBlank { config.terminalId }
             .ifBlank { SadadKeyConfig.DEFAULT_TERMINAL_ID }
     }
-
+//    private fun softwareVersionField(versionName: String, versionCode: Int): String {
+//        val digits = digitsOnly(versionName) + digitsOnly(versionCode.toString())
+//        return digits.take(SOFTWARE_VERSION_LENGTH).padEnd(SOFTWARE_VERSION_LENGTH, '0')
+//    }
     /**
      * DE59 پیام INIT — طبق صفحه ۱۹ مستند PosTrans-Final.pdf (ر.ک. [SadadKeyConfig]).
      */
@@ -148,9 +151,18 @@ class SadadIsoMessageSupport @Inject constructor(
             .ifBlank { SadadKeyConfig.DEFAULT_TERMINAL_ID }
         val serialLength = serial.length.coerceAtMost(99)
         val truncatedSerial = serial.take(serialLength)
-        val hw = "00016"//Build.MODEL.orEmpty().take(5).padEnd(5, ' ')
-        val sw = "010203"//appVersionProvider.versionName().take(6).padEnd(6, ' ')
-        val fw ="040506"// Build.VERSION.RELEASE.orEmpty().take(6).padEnd(6, ' ')
+      //  logBuildFields(appVersionProvider.versionName())
+      //  logDeviceVersionInfo()
+        val hw ="00016"// numericField(Build.MODEL.orEmpty(), HARDWARE_VERSION_LENGTH)
+        val sw ="010203"
+            /*softwareVersionField(
+            appVersionProvider.versionName(),
+            appVersionProvider.versionCode(),
+        )*/
+        val firmwareRaw = "040506"//device.getFirmwareVersion()
+        val fw ="040506"// numericField(firmwareRaw, FIRMWARE_VERSION_LENGTH)
+     //   Log.d(BUILD_LOG_TAG, "DE59 hw=$hw sw=$sw fw=$fw firmware1902=$firmwareRaw serial=$truncatedSerial")
+
         return buildString {
             append(SadadKeyConfig.INIT_STRUCTURE_VERSION)
             append(SadadKeyConfig.INIT_CONNECTION_ATTEMPTS)
@@ -165,7 +177,46 @@ class SadadIsoMessageSupport @Inject constructor(
             append(SadadKeyConfig.INIT_ENC_METHOD)
         }
     }
-
+    private fun logBuildFields(appVersion: String) {
+        fun log(name: String, value: String?) {
+         //   Log.d(BUILD_LOG_TAG, "$name=${value.orEmpty()}")
+        }
+        log("APP_VERSION", appVersion)
+        log("BOARD", Build.BOARD)
+        log("BOOTLOADER", Build.BOOTLOADER)
+        log("BRAND", Build.BRAND)
+        log("DEVICE", Build.DEVICE)
+        log("DISPLAY", Build.DISPLAY)
+        log("FINGERPRINT", Build.FINGERPRINT)
+        log("HARDWARE", Build.HARDWARE)
+        log("HOST", Build.HOST)
+        log("ID", Build.ID)
+        log("MANUFACTURER", Build.MANUFACTURER)
+        log("MODEL", Build.MODEL)
+        log("PRODUCT", Build.PRODUCT)
+        log("TAGS", Build.TAGS)
+        log("TYPE", Build.TYPE)
+        log("USER", Build.USER)
+        log("RADIO", runCatching { Build.getRadioVersion() }.getOrNull())
+        log("SERIAL", runCatching { @Suppress("DEPRECATION") Build.SERIAL }.getOrNull())
+        log("SUPPORTED_ABIS", Build.SUPPORTED_ABIS.joinToString())
+        log("TIME", Build.TIME.toString())
+        log("VERSION.INCREMENTAL", Build.VERSION.INCREMENTAL)
+        log("VERSION.RELEASE", Build.VERSION.RELEASE)
+        log("VERSION.SDK_INT", Build.VERSION.SDK_INT.toString())
+        log("VERSION.CODENAME", Build.VERSION.CODENAME)
+        log("VERSION.BASE_OS", Build.VERSION.BASE_OS)
+        log("VERSION.SECURITY_PATCH", Build.VERSION.SECURITY_PATCH)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            log("VERSION.RELEASE_OR_CODENAME", Build.VERSION.RELEASE_OR_CODENAME)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            log("SOC_MANUFACTURER", Build.SOC_MANUFACTURER)
+            log("SOC_MODEL", Build.SOC_MODEL)
+            log("SKU", Build.SKU)
+            log("ODM_SKU", Build.ODM_SKU)
+        }
+    }
     /** DE48 — دادهٔ خصوصی اجباری؛ بدون تگ Function Code همراه‌پی. */
     fun additionalPrivateData(): String {
         val config = contextProvider.getTerminalConfig()

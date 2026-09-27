@@ -5,6 +5,8 @@ import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionSessionClock
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoMessageProvider
+import com.danesh.common.diagnostics.StartupTraceFile
+import com.danesh.sadad.diagnostics.traceIso
 import com.danesh.sadad.iso.SadadIsoMessageSupport
 import com.danesh.sadad.key.SadadKeyConfig
 import com.danesh.sadad.mac.SadadMacCalculator
@@ -21,6 +23,7 @@ class SadadLogonMessageBuilder @Inject constructor(
 
     ) {
     suspend fun build(): IsoMessage {
+        StartupTraceFile.line("LogonMessage", "build start")
         val clock = contextProvider.currentClock()
         sessionClock.capture(clock)
         // مستند: DE11 پیام INIT باید یک عدد تصادفی ۶ رقمی باشد، نه شمارنده‌ی ترتیبی nextStan().
@@ -38,7 +41,10 @@ class SadadLogonMessageBuilder @Inject constructor(
             merchantId = messageSupport.merchantIdOrDefault()
             transportData = messageSupport.initTransportData()
         }
+        StartupTraceFile.line("LogonMessage", "apply MAC")
         macCalculator.applyLogonMac(message)
+        traceIso("LogonMessage request", message)
+        StartupTraceFile.line("LogonMessage", "build done")
         return message
 
     }
@@ -59,103 +65,7 @@ Bit Map b 8 M Mandatory
 59 Transport data ans ....999 M *
 64 Message Auth. Code b 8 M MAC
 
- */
-fun buildField59(
-    structureVersion: Int = 3,
-    connectionAttempts: Int,
-    lastTimeDone: Int,
-    hardwareVersion: String,
-    softwareVersion: String,
-    firmwareVersion: String,
-    serialNumber: String,
-    masterKeyIndex: Int,
-    reserve: Int = 0,
-    encryptionMethod: Int = 4
-): String {
-
-    require(structureVersion == 3) {
-        "Structure Version must be 3"
-    }
-
-    require(connectionAttempts in 0..99) {
-        "Connection Attempts must be 2 digits"
-    }
-
-    require(lastTimeDone in 0..99) {
-        "Last Time Done must be 2 digits"
-    }
-
-    require(hardwareVersion.length == 5) {
-        "HW must be exactly 5 characters"
-    }
-
-    require(softwareVersion.length == 6) {
-        "SW must be exactly 6 characters"
-    }
-
-    require(firmwareVersion.length == 6) {
-        "FW must be exactly 6 characters"
-    }
-
-    require(serialNumber.length <= 99) {
-        "Serial Number cannot exceed 99 characters"
-    }
-
-    require(masterKeyIndex in 0..999) {
-        "Master Key Index must be 3 digits"
-    }
-
-    require(encryptionMethod == 4) {
-        "Encryption Method must be 4"
-    }
-
-    val temp =   buildString {
-
-        // Structure Version - n1
-        append(structureVersion)
-
-        // Connection Attempts - n2
-        append(String.format(Locale.US, "%02d", connectionAttempts))
-
-        // Last Time Done - n2
-        append(String.format(Locale.US, "%02d", lastTimeDone))
-
-        // POS Information - HW ans5
-        append(hardwareVersion.toEnglishNumber())
-
-        // SW ans6
-        append(softwareVersion.toEnglishNumber())
-
-        // FW ans6
-        append(firmwareVersion.toEnglishNumber())
-
-        // S.NO Length - n2
-        append(String.format(Locale.US, "%02d", "D1V2890000001".length))//
-
-        // S.NO - LLVAR
-        append("D1V2890000001".toEnglishNumber())
-
-        // Master Key Index - n3
-        append(String.format(Locale.US, "%03d", masterKeyIndex))
-
-        // Reserve - n3 = 000
-        append("000")
-
-        // Encryption Method - n1
-        append(encryptionMethod)
-    }
-
-    Log.d("SADAD", "DE59 = '$temp'")
-
-    temp.forEachIndexed { index, char ->
-        Log.d(
-            "SADAD",
-            "DE59[$index]='$char' code=${char.code}"
-        )
-    }
-
-    return temp
-}
+*/
 fun String.toEnglishNumber(): String {
     return this
         .replace('۰', '0')

@@ -408,6 +408,7 @@ class K9 @Inject constructor(
         }
         DeviceTrace.warn(SDK, "getSerial SN unavailable â€” fallback DeviceDefaults.SERIAL")
         return DeviceDefaults.SERIAL
+   //    return "D1V2890000039"
     }
 
     override suspend fun getImei(): String {
@@ -769,8 +770,25 @@ class K9 @Inject constructor(
 //        }
 //    }
 
-    override suspend fun getKCv(): KCV {
-        return KCV("", "", "", "")
+    override suspend fun getKCv(): KCV = getKcvAt(INDEX_MAC)
+
+    override suspend fun getKcvAt(index: Int): KCV {
+        fun hex(keyType: KeyType): String {
+            val bytes = runCatching { keyManager.getCheckValue(index, keyType) }.getOrNull()
+                ?: return ""
+            if (bytes.isEmpty()) return ""
+            return runCatching { HexUtils.bytesToHexString(bytes) }
+                .getOrDefault("")
+                .filter { it.isDigit() || it in 'A'..'F' || it in 'a'..'f' }
+                .take(6)
+                .uppercase()
+        }
+        return KCV(
+            data = hex(KeyType.DEK),
+            mac = hex(KeyType.MAK),
+            pin = hex(KeyType.PIK),
+            master = hex(KeyType.TDKEK),
+        )
     }
 
     override fun getCheckValue(tt: String): ByteArray {
@@ -882,7 +900,7 @@ class K9 @Inject constructor(
                 override fun onFinish(deviceService: DeviceService?) {
                     val systemOperation=deviceService?.systemOperation
                     try {
-                        systemOperation?.setDisplayNavigationBar(1)
+                        systemOperation?.setDisplayNavigationBar(0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  )
                     }catch (e: Exception){
                         e.printStackTrace()
                     }
