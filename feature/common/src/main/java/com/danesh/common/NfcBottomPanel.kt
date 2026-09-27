@@ -33,6 +33,8 @@ import coil.compose.AsyncImage
 @Composable
 fun NfcBottomPanel(
     modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.balance_nfc_title),
+    description: String = stringResource(R.string.balance_nfc_description),
     onClick: () -> Unit = {},
 ) {
     val panelShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
@@ -151,7 +153,7 @@ fun NfcBottomPanel(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    text = stringResource(R.string.balance_nfc_title),
+                    text = title,
                     color = Color(0XFF5FFBF3),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
@@ -159,7 +161,7 @@ fun NfcBottomPanel(
                 )
 
                 Text(
-                    text = stringResource(R.string.balance_nfc_description),
+                    text = description,
                     color = Color.White,
                     fontSize = 13.sp,
                     lineHeight = 20.sp,

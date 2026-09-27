@@ -8,6 +8,7 @@ import com.danesh.payapp.config.AppRuntimeConfig
 import com.danesh.payapp.config.toReceiptPspBrand
 import com.danesh.common.menu.MenuFlavorFeatures
 import com.danesh.common.receipt.ReceiptPspBrandProvider
+import com.danesh.common.card.KahrobaPolicy
 import com.danesh.payapp.config.toDefaultAppLanguage
 import com.danesh.payapp.config.toDefaultMerchantPassword
 import com.danesh.settings.config.DefaultMerchantPasswordProvider
@@ -37,6 +38,15 @@ object ConfigModule {
     fun provideReceiptPspBrandProvider(config: AppRuntimeConfig): ReceiptPspBrandProvider =
         ReceiptPspBrandProvider {
             config.activePsp.toReceiptPspBrand()
+        }
+
+    @Provides
+    @Singleton
+    fun provideKahrobaPolicy(config: AppRuntimeConfig): KahrobaPolicy =
+        object : KahrobaPolicy {
+            override val isEnabled: Boolean =
+                BuildConfig.KAHROBA_ENABLED && config.activePsp.isSadad
+            override val noPinAmountLimit: Long = BuildConfig.KAHROBA_NO_PIN_AMOUNT_LIMIT
         }
 
     @Provides

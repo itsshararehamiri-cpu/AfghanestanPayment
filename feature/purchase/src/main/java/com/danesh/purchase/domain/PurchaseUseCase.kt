@@ -13,7 +13,9 @@ class PurchaseUseCase @Inject constructor(
     suspend operator fun invoke(
         pinBlock: String,
         track2: String,
-        amount: String,pan: String
+        amount: String,pan: String,
+        /** فیلد ۵۵ کارت کهربا؛ خالی = کارت مغناطیسی */
+        iccData: String = "",
     ): PurchaseOutput {
         return withContext(Dispatchers.IO) {
             val amountValue = amount.replace(",", "").toLongOrNull() ?: 0L
@@ -21,7 +23,8 @@ class PurchaseUseCase @Inject constructor(
                 PurchaseInput(
                     track2 = track2,
                     pinBlock = pinBlock,
-                    amount = amountValue,pan=pan
+                    amount = amountValue,pan=pan,
+                    iccData = iccData,
                 ),
             )
         }

@@ -322,6 +322,27 @@ class LoggingDevice(
         }
     }
 
+    override fun stopReadCard() {
+        DeviceTrace.step("stopReadCard", "started")
+        delegate.stopReadCard()
+    }
+
+    override val supportsContactless: Boolean get() = delegate.supportsContactless
+
+    override fun detectContactlessCard(): Boolean = delegate.detectContactlessCard()
+
+    override fun transmitContactless(apdu: ByteArray): ByteArray? {
+        DeviceTrace.step("transmitContactless", "commandBytes=${apdu.size}")
+        return delegate.transmitContactless(apdu).also {
+            DeviceTrace.step("transmitContactless", "responseBytes=${it?.size ?: 0}")
+        }
+    }
+
+    override fun closeContactless() {
+        DeviceTrace.step("closeContactless", "started")
+        delegate.closeContactless()
+    }
+
     override suspend fun setDateTime(dataTime: String) {
         DeviceTrace.step("setDateTime", "value=$dataTime")
         delegate.setDateTime(dataTime)

@@ -12,13 +12,20 @@ import javax.inject.Inject
 class BalanceUseCase @Inject constructor(
     private val pspGateway: PspGateway,
 ) {
-    suspend operator fun invoke(pinBlock: String, track2: String, pan: String): BalanceOutput {
+    suspend operator fun invoke(
+        pinBlock: String,
+        track2: String,
+        pan: String,
+        /** فیلد ۵۵ کارت کهربا؛ خالی = کارت مغناطیسی */
+        iccData: String = "",
+    ): BalanceOutput {
         Log.d("BalanceFlow", "BalanceUseCase | invoke | panLen=${pan.length}")
         return withContext(Dispatchers.IO) {
             val result = pspGateway.balance(
                 BalanceInput(
                     track2 = track2,
-                    pinBlock = pinBlock, pan = pan
+                    pinBlock = pinBlock, pan = pan,
+                    iccData = iccData,
                 ),
             )
             Log.d(

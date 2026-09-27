@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.danesh.common.SwipeCardNavArgs
 import com.danesh.common.SwipeCardScreen
+import com.danesh.common.card.ContactlessReadRequest
 import com.danesh.common.pin.GetPinScreen
 import com.danesh.purchase.GetPinViewModel
 import com.danesh.purchase.SuccessPurchaseResultScreen
@@ -101,6 +102,7 @@ fun PurchaseNavHost(
                 },
                 onTimeout = onFlowComplete,
                 cancelReading = { onFlowComplete() },
+                contactless = ContactlessReadRequest.Purchase(amount.replace(",", "")),
             )
         }
         composable(

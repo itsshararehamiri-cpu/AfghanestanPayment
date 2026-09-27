@@ -28,6 +28,7 @@ import com.pos.sdk.pinpad.PinpadDevice
 import com.pos.sdk.printer.IPrinterResultListener
 import com.pos.sdk.printer.PrinterDevice
 import com.pos.sdk.printer.PrinterState
+import com.pos.sdk.rfcard.RfCardDevice
 import com.pos.sdk.scan.IScanCallback
 import com.pos.sdk.scan.IScanner
 import com.pos.sdk.scan.ScanDevice
@@ -57,6 +58,14 @@ class K9 @Inject constructor(
      * برای polling حضور کارت یک نمونه نگه داشته می‌شود و در [powerOffIcCard] بسته می‌شود.
      */
     private var icDeviceHandle: IcCardDevice? = null
+
+    /** دستگاه مغناطیسی در حال swipe؛ برای توقف وقتی کارت کهربا زودتر شناسایی شود. */
+    @Volatile
+    private var activeMagCard: MagCardDevice? = null
+
+    /** کارت‌خوان بدون تماس (PICC) برای جریان EMV کهربا. */
+    @Volatile
+    private var rfDeviceHandle: RfCardDevice? = null
 
     private fun icDeviceOrNull(): IcCardDevice? {
         icDeviceHandle?.let { return it }
@@ -284,6 +293,7 @@ class K9 @Inject constructor(
             )
         } else {
             val magCardDevice: MagCardDevice = deviceManager!!.magneticDevice
+            activeMagCard = magCardDevice
             magCardDevice.swipeCard(
                 20000, true, object : IMagCardListener.Stub() {
                     override fun onSwipeCardTimeout() {
@@ -328,6 +338,50 @@ class K9 @Inject constructor(
                 })
         }
 
+    }
+
+    override fun stopReadCard() {
+        val mag = activeMagCard ?: return
+        activeMagCard = null
+        runCatching { mag.stopSwipeCard() }
+            .onFailure { DeviceTrace.warn(SDK, "stopSwipeCard failed ${exceptionDetail(it)}") }
+    }
+
+    // ------------------------------------------------------------ Contactless (NFC / کهربا)
+
+    override val supportsContactless: Boolean
+        get() = deviceManager != null
+
+    private fun rfDeviceOrNull(): RfCardDevice? {
+        rfDeviceHandle?.let { return it }
+        val manager = deviceManager ?: return null
+        return runCatching { manager.rfDevice }.getOrNull()?.also { rfDeviceHandle = it }
+    }
+
+    override fun detectContactlessCard(): Boolean {
+        val rf = rfDeviceOrNull() ?: return false
+        val present = runCatching { rf.exists() }.getOrDefault(false)
+        if (!present) return false
+        val ats = runCatching { rf.reset() }.getOrNull()
+        if (ats == null) {
+            DeviceTrace.warn(SDK, "rf reset failed")
+            return false
+        }
+        DeviceTrace.step(SDK, "rf card activated atsLen=${ats.size}")
+        return true
+    }
+
+    override fun transmitContactless(apdu: ByteArray): ByteArray? {
+        val rf = rfDeviceOrNull() ?: return null
+        return runCatching { rf.send(apdu) }
+            .onFailure { DeviceTrace.warn(SDK, "rf send failed ${exceptionDetail(it)}") }
+            .getOrNull()
+    }
+
+    override fun closeContactless() {
+        val rf = rfDeviceHandle ?: return
+        rfDeviceHandle = null
+        runCatching { rf.halt() }
     }
 
     override suspend fun getPinBlock(title:String,

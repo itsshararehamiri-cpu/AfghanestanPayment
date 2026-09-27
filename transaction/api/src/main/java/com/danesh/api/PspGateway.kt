@@ -3,7 +3,9 @@ package com.danesh.api
 data class BalanceInput(
     val track2: String,
     val pinBlock: String,
-    val pan: String
+    val pan: String,
+    /** فیلد ۵۵ (EMV) کارت کهربا به‌صورت HEX؛ خالی یعنی کارت مغناطیسی. */
+    val iccData: String = "",
 )
 data class SignOnInput(
     val id: String,
@@ -53,7 +55,9 @@ typealias BillInquiryOutput= TransactionResultDetail
 data class PurchaseInput(
     val track2: String,
     val pinBlock: String,
-    val amount: Long = 0, val pan: String
+    val amount: Long = 0, val pan: String,
+    /** فیلد ۵۵ (EMV) کارت کهربا به‌صورت HEX؛ خالی یعنی کارت مغناطیسی. */
+    val iccData: String = "",
 )
 
 typealias PurchaseOutput = TransactionResultDetail

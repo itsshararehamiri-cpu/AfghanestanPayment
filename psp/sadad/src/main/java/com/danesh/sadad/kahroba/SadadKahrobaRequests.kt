@@ -4,7 +4,8 @@ import com.danesh.api.TransactionRequest
 
 /**
  * 21.1-KAHROBA SALE (NFC) — MTI 0200/0210، DE3 000000، DE22 071.
- * iccData: خروجی خام EMV کارت (فیلد ۵۵) به‌صورت hex — از لایه‌ی خواندن NFC/چیپ تأمین می‌شود.
+ * iccData: خروجی EMV کارت (فیلد ۵۵) به‌صورت hex — از KahrobaEmvKernel تأمین می‌شود.
+ * pinBlock: خالی یعنی خرید بدون PIN (کارت PIN نخواسته و مبلغ زیر سقف است).
  */
 data class SadadKahrobaSaleRequest(
     val track2: String,

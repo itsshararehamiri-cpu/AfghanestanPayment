@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.danesh.common.card.ContactlessReadRequest
 import com.danesh.common.currency.amountWithCurrency
 import com.danesh.common.presentation.viewmodel.SwipeCardEvent
 import com.danesh.common.presentation.viewmodel.SwipeCardStatus
@@ -44,6 +47,8 @@ fun SwipeCardScreen(viewModel: SwipeCardViewModel,
                     onTimeout: () -> Unit,
                     cancelReading: () -> Unit,
                     showBalanceTransactionFee: Boolean = false,
+                    /** اگر مقدار داشته باشد، کهربا (NFC) هم در کنار کشیدن کارت فعال می‌شود. */
+                    contactless: ContactlessReadRequest? = null,
                     ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val balanceFeeHint = if (showBalanceTransactionFee) {
@@ -70,7 +75,7 @@ fun SwipeCardScreen(viewModel: SwipeCardViewModel,
     }
 
     LaunchedEffect(Unit) {
-        viewModel.startReadCard()
+        viewModel.startReadCard(contactless)
     }
 
     LaunchedEffect(viewModel) {
@@ -151,11 +156,25 @@ fun SwipeCardContent(
 
 
     val hintText = when (uiState.status) {
-        SwipeCardStatus.Reading -> stringResource(R.string.swipe_card_reading)
+        SwipeCardStatus.Reading -> if (uiState.contactlessEnabled) {
+            stringResource(R.string.swipe_or_tap_card)
+        } else {
+            stringResource(R.string.swipe_card_reading)
+        }
+        SwipeCardStatus.KahrobaReading -> stringResource(R.string.kahroba_reading)
         SwipeCardStatus.Error -> uiState.errorMessage
             ?: stringResource(R.string.swipe_card_retry)
 
-        SwipeCardStatus.Waiting -> stringResource(R.string.plz_swipe)
+        SwipeCardStatus.Waiting -> if (uiState.contactlessEnabled) {
+            stringResource(R.string.swipe_or_tap_card)
+        } else {
+            stringResource(R.string.plz_swipe)
+        }
+    }
+    val title = if (uiState.contactlessEnabled) {
+        stringResource(R.string.swipe_card_title_kahroba)
+    } else {
+        stringResource(R.string.swipe_card_title)
     }
 
     val hintColor = when (uiState.status) {
@@ -169,7 +188,7 @@ fun SwipeCardContent(
             .appScreenBackground(),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Toolbar(stringResource(R.string.swipe_card_title)) {
+            Toolbar(title) {
                 cancelReading()
                 onBackClick()
             }
@@ -214,26 +233,41 @@ fun SwipeCardContent(
                     ),
                 contentAlignment = Alignment.Center,
             ) {
-                Image(
-                    painter = painterResource(R.drawable.swipe_card),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .padding(horizontal = 40.dp)
-                        .padding(vertical = 70.dp)
-                        .fillMaxSize(),
-                )
+                if (uiState.status == SwipeCardStatus.KahrobaReading) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        NfcGlowIcon()
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(top = 24.dp),
+                            color = Color(0XFF5FFBF3),
+                        )
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.swipe_card),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(horizontal = 40.dp)
+                            .padding(vertical = if (uiState.contactlessEnabled) 24.dp else 70.dp)
+                            .fillMaxSize(),
+                    )
+                }
             }
 
-//            NfcBottomPanel(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(175.dp),
-//                onClick = {
-//                    if (uiState.status == SwipeCardStatus.Error) {
-//                     retryReadCard()
-//                    }
-//                },
-//            )
+            // پرداخت کهربا (بدون تماس) — اختیاری و هم‌زمان با کشیدن کارت مغناطیسی
+            if (uiState.contactlessEnabled) {
+                NfcBottomPanel(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(175.dp),
+                    title = stringResource(R.string.kahroba_title),
+                    description = stringResource(R.string.kahroba_description),
+                    onClick = {
+                        if (uiState.status == SwipeCardStatus.Error) {
+                            retryReadCard()
+                        }
+                    },
+                )
+            }
         }
     }
 }
@@ -248,4 +282,14 @@ private fun SwipeCardContentPreview() {
     SwipeCardContent(uiState = SwipeCardUiState(), onCardRead = {x,y->}, onTimeout = {}, onBackClick = {},
         cancelReading = {}, retryReadCard = {},
         )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF001A1F, widthDp = 360, heightDp = 720)
+@Composable
+private fun SwipeCardContentKahrobaPreview() {
+    SwipeCardContent(
+        uiState = SwipeCardUiState(status = SwipeCardStatus.Reading, contactlessEnabled = true),
+        onCardRead = { _, _ -> }, onTimeout = {}, onBackClick = {},
+        cancelReading = {}, retryReadCard = {},
+    )
 }

@@ -196,4 +196,12 @@
     <string name="transaction_communication_error_send">درخواست به سرور نرسید. لطفاً اتصال دستگاه رو چک کنید و دوباره امتحان کنید.</string>
     <string name="transaction_communication_error_receive">جواب سرور به‌موقع نرسید. اگه مبلغی از حساب کم شده باشه، خودکار برمی‌گرده. لطفاً چند لحظه دیگه دوباره امتحان کنید.</string>
     <string name="transaction_communication_error_queue">یه تراکنش قبلی هنوز با سرور تسویه نشده. چند لحظه صبر کنید و دوباره امتحان کنید.</string>
+    <string name="swipe_card_title_kahroba">کشیدن کارت یا کهربا</string>
+    <string name="swipe_or_tap_card">کارت را بکشید یا به پشت دستگاه نزدیک کنید...</string>
+    <string name="kahroba_title">پرداخت کهربا (بدون تماس)</string>
+    <string name="kahroba_description">کارت را به پشت دستگاه نزدیک کنید</string>
+    <string name="kahroba_reading">در حال خواندن کارت کهربا... کارت را جدا نکنید</string>
+    <string name="kahroba_read_error">خواندن کارت کهربا ناموفق بود. دوباره تلاش کنید یا کارت را بکشید</string>
+    <string name="kahroba_pin_required">برای ادامه تراکنش کهربا رمز کارت را وارد کنید</string>
+    <string name="kahroba_processing">در حال انجام تراکنش کهربا...</string>
 </resources>

@@ -176,6 +176,15 @@ class SadadGateway @Inject constructor(
             transactionType = com.danesh.api.TransactionType.COUPON_PURCHASE,
         )
     override suspend fun balance(input: BalanceInput): BalanceOutput = withContext(Dispatchers.IO) {
+        if (input.iccData.isNotBlank()) {
+            return@withContext kahrobaBalance(
+                SadadKahrobaBalanceRequest(
+                    track2 = input.track2,
+                    pinBlock = input.pinBlock,
+                    iccData = input.iccData,
+                ),
+            ).detail
+        }
         executor.execute(
             request = BalanceUserInput(pinBlock = input.pinBlock, track2 = input.track2, pan = input.pan),
             handler = balanceHandler,
@@ -183,6 +192,16 @@ class SadadGateway @Inject constructor(
     }
 
     override suspend fun purchase(input: PurchaseInput): PurchaseOutput = withContext(Dispatchers.IO) {
+        if (input.iccData.isNotBlank()) {
+            return@withContext kahrobaSale(
+                SadadKahrobaSaleRequest(
+                    track2 = input.track2,
+                    pinBlock = input.pinBlock,
+                    amount = input.amount.toString(),
+                    iccData = input.iccData,
+                ),
+            ).detail
+        }
         executor.execute(
             request = PurchaseUserInput(
                 pinBlock = input.pinBlock,

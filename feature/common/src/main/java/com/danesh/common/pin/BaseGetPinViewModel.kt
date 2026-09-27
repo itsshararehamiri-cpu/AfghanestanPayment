@@ -14,6 +14,7 @@ import com.danesh.api.toJson
 import com.danesh.common.R
 import com.danesh.common.SwipeCardNavArgs
 import com.danesh.common.card.CardSession
+import com.danesh.common.card.KAHROBA_PIN_REQUIRED_RESPONSE_CODE
 import com.danesh.core.Device
 import com.danesh.core.DeviceTrace
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -59,6 +60,10 @@ abstract class BaseGetPinViewModel(
     private var pinJob: Job? = null
     private var isSubmitting = false
 
+    /** فیلد ۵۵ کارت کهربا (HEX)؛ برای کارت مغناطیسی خالی است. */
+    protected val iccData: String
+        get() = cardSession.iccData
+
     protected abstract suspend fun executeTransaction(
         pinBlock: String,
         track2: String,pan: String
@@ -94,6 +99,14 @@ abstract class BaseGetPinViewModel(
                     useDevicePinPad = !device.hasKeyboard,
                 )
             }
+            return
+        }
+
+        // خرید کهربا بدون PIN: کارت PIN نخواسته و مبلغ زیر سقف است → مستقیم ارسال تراکنش
+        val kahroba = cardSession.kahroba
+        if (kahroba != null && !kahroba.pinRequired && kahroba.card.track2 == track2) {
+            Log.d(TAG, "startPinEntry | kahroba without PIN, submitting directly")
+            submitPin("")
             return
         }
 
@@ -223,6 +236,19 @@ abstract class BaseGetPinViewModel(
             }
             try {
                 val result = executeTransaction(pinBlock, track2,pan)
+                if (pinBlock.isBlank() && cardSession.kahroba != null &&
+                    result.responseCode == KAHROBA_PIN_REQUIRED_RESPONSE_CODE
+                ) {
+                    // سوئیچ برای خرید کهربا PIN خواسته (کد 76) → گرفتن PIN و ارسال مجدد
+                    Log.w(TAG, "kahroba | host requested PIN (code=${result.responseCode})")
+                    cardSession.markKahrobaPinRequired()
+                    isSubmitting = false
+                    startPinEntry()
+                    _uiState.update {
+                        it.copy(errorMessage = context.getString(R.string.kahroba_pin_required))
+                    }
+                    return@launch
+                }
                 val success = result.resolvedSuccess()
                 val normalized = result.copy(isSuccess = success)
                 val responseJson = normalized.toJson()

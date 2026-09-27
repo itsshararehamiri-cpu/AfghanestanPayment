@@ -127,6 +127,8 @@ android {
             isDefault = true
             resValue("string", "app_name", "سداد")
             buildConfigField("String", "ACTIVE_PSP", "\"SADAD\"")
+            // کهربا (EMV بدون تماس) در کنار کارت مغناطیسی
+            buildConfigField("boolean", "KAHROBA_ENABLED", "true")
             buildConfigField("String", "DEFAULT_SERVER_IP", "\"$sadadDefaultServerIp\"")
             buildConfigField("int", "DEFAULT_SERVER_PORT", "$sadadDefaultServerPort")
             configureSadadCurrency()
@@ -158,6 +160,10 @@ android {
         buildConfigField("String", "DEFAULT_CURRENCY", "\"364\"")
         buildConfigField("String", "CURRENCY_LABEL", "\"ریال\"")
         buildConfigField("String", "DEFAULT_BALANCE_TRANSACTION_FEE", "\"5000\"")
+        // کهربا به‌صورت پیش‌فرض خاموش است و فقط flavor سداد روشنش می‌کند.
+        buildConfigField("boolean", "KAHROBA_ENABLED", "false")
+        // سقف خرید کهربا بدون PIN (ریال)؛ 0 یعنی همیشه PIN گرفته شود.
+        buildConfigField("long", "KAHROBA_NO_PIN_AMOUNT_LIMIT", "0L")
         buildConfigField(
             "String",
             "ENABLED_FEATURES",

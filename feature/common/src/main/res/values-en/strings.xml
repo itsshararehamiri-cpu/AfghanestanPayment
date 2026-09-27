@@ -207,4 +207,12 @@
     <string name="transaction_communication_error_send">The request didn\'t reach the server. Please check the connection and try again.</string>
     <string name="transaction_communication_error_receive">The server didn\'t answer in time. If any money was taken from the card, it will be returned automatically. Please try again in a moment.</string>
     <string name="transaction_communication_error_queue">A previous transaction is still being settled with the server. Please wait a moment and try again.</string>
+    <string name="swipe_card_title_kahroba">Swipe or tap card</string>
+    <string name="swipe_or_tap_card">Swipe your card or tap it on the back of the device...</string>
+    <string name="kahroba_title">Kahroba (contactless) payment</string>
+    <string name="kahroba_description">Hold the card near the back of the device</string>
+    <string name="kahroba_reading">Reading Kahroba card... do not remove the card</string>
+    <string name="kahroba_read_error">Could not read the Kahroba card. Try again or swipe the card</string>
+    <string name="kahroba_pin_required">Enter the card PIN to continue the Kahroba transaction</string>
+    <string name="kahroba_processing">Processing Kahroba transaction...</string>
 </resources>

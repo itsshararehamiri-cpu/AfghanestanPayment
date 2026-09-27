@@ -18,11 +18,14 @@ class KahrobaSaleHandler @Inject constructor(
     private val transport: SadadIsoHandlerSupport,
 ) : HandlerTransaction<SadadKahrobaSaleRequest, SadadNetworkResult, IsoMessage>() {
 
-    override val isReversible: Boolean = false
-    override val needReport: Boolean = false
+    // مثل خرید مغناطیسی: SAF/Reverse، گزارش و Advice پس از رسید
+    override val isReversible: Boolean = true
+    override val needReport: Boolean = true
+    override val needAdvice: Boolean = true
+    override val deferAdviceUntilReceipt: Boolean = true
 
     override fun buildMessage(request: SadadKahrobaSaleRequest): IsoMessage =
-        messageBuilder.buildSale(request)
+        kotlinx.coroutines.runBlocking { messageBuilder.buildSale(request) }
 
     override fun queueFailure(request: SadadKahrobaSaleRequest): SadadNetworkResult {
         val message = buildMessage(request)

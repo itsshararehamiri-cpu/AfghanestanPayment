@@ -22,7 +22,7 @@ class KahrobaBalanceHandler @Inject constructor(
     override val needReport: Boolean = false
 
     override fun buildMessage(request: SadadKahrobaBalanceRequest): IsoMessage =
-        messageBuilder.buildBalance(request)
+        kotlinx.coroutines.runBlocking { messageBuilder.buildBalance(request) }
 
     override fun queueFailure(request: SadadKahrobaBalanceRequest): SadadNetworkResult {
         val message = buildMessage(request)

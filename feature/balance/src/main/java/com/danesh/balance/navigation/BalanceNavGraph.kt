@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.danesh.common.SwipeCardNavArgs
 import com.danesh.common.SwipeCardScreen
+import com.danesh.common.card.ContactlessReadRequest
 import com.danesh.common.pin.GetPinScreen
 import com.danesh.balance.navigation.GetPinViewModel
 private const val TAG = "BalanceFlow"
@@ -54,6 +55,7 @@ fun BalanceNavHost(onFlowComplete: () -> Unit) {
                 onTimeout = onFlowComplete,
                 cancelReading = { onFlowComplete() },
                 showBalanceTransactionFee = true,
+                contactless = ContactlessReadRequest.Balance,
             )
         }
         composable(

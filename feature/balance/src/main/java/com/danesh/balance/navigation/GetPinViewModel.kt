@@ -24,6 +24,6 @@ class GetPinViewModel @Inject constructor(
         pinBlock: String,
         track2: String,pan: String
     ): TransactionResultDetail {
-        return balanceUseCase(pinBlock = pinBlock, track2 = track2,pan=pan)
+        return balanceUseCase(pinBlock = pinBlock, track2 = track2, pan = pan, iccData = iccData)
     }
 }

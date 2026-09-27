@@ -210,4 +210,12 @@
     <string name="transaction_communication_error_send">غوښتنه سرور ته ونه رسېده. مهرباني وکړئ اتصال وګورئ او بیا هڅه وکړئ.</string>
     <string name="transaction_communication_error_receive">د سرور ځواب په وخت ونه رسېد. که پیسې مو له حساب څخه کمې شوې وي، په اتومات ډول بېرته راګرځي. لږ وروسته بیا هڅه وکړئ.</string>
     <string name="transaction_communication_error_queue">یوه پخوانۍ معامله لا له سرور سره نه ده تصفیه شوې. لږ صبر وکړئ او بیا هڅه وکړئ.</string>
+    <string name="swipe_card_title_kahroba">کارت تیرول یا کهربا</string>
+    <string name="swipe_or_tap_card">کارت تیر کړئ یا یې د وسیلې شا ته نږدې کړئ...</string>
+    <string name="kahroba_title">کهربا تادیه (بې تماسه)</string>
+    <string name="kahroba_description">کارت د وسیلې شا ته نږدې کړئ</string>
+    <string name="kahroba_reading">د کهربا کارت لوستل کېږي... کارت مه لرې کوئ</string>
+    <string name="kahroba_read_error">د کهربا کارت ونه لوستل شو. بیا هڅه وکړئ یا کارت تیر کړئ</string>
+    <string name="kahroba_pin_required">د کهربا راکړې ورکړې د دوام لپاره د کارت رمز ولیکئ</string>
+    <string name="kahroba_processing">د کهربا راکړه ورکړه روانه ده...</string>
 </resources>

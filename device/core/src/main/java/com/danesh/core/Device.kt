@@ -101,6 +101,20 @@ interface Device {
     fun isIcCardDetect(): Boolean
 
     suspend fun sendApdu(byteArray: ByteArray,onError: (String) -> Unit): ByteArray?
+
+    /** توقف خواندن کارت مغناطیسی (وقتی کارت بدون تماس/کهربا زودتر شناسایی شد). */
+    fun stopReadCard() {}
+
+    /** کارت‌خوان بدون تماس (NFC/کهربا) — پیاده‌سازی پیش‌فرض یعنی پشتیبانی نمی‌شود. */
+    val supportsContactless: Boolean get() = false
+
+    /** آیا کارت بدون تماس در میدان است؟ در صورت وجود، کارت فعال (activate) می‌شود. */
+    fun detectContactlessCard(): Boolean = false
+
+    /** ارسال APDU به کارت بدون تماس؛ پاسخ شامل SW1 SW2 است. */
+    fun transmitContactless(apdu: ByteArray): ByteArray? = null
+
+    fun closeContactless() {}
     suspend fun setDateTime(dataTime: String)
     suspend fun getBatteryStatus(): Boolean
     fun disableHome()

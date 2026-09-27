@@ -31,7 +31,8 @@ class GetPinViewModel @Inject constructor(
         return purchaseUseCase(
             pinBlock = pinBlock,
             track2 = track2,
-            amount = amount,pan=pan
+            amount = amount,pan=pan,
+            iccData = iccData,
         )
     }
 }
