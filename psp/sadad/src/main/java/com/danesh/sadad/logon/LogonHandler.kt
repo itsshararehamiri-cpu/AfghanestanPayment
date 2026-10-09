@@ -14,6 +14,7 @@ import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.sadad.SadadNetworkResult
 import com.danesh.sadad.device.SadadDeviceWorkflow
 import com.danesh.sadad.diagnostics.traceIso
+import com.danesh.sadad.util.Field63Parser
 import com.danesh.sadad.util.SadadIsoHandlerSupport
 import com.danesh.sadad.util.SadadTransactionMessages
 import javax.inject.Inject
@@ -29,6 +30,7 @@ class LogonHandler @Inject constructor(
     private val configurationStore: DeviceConfigurationStore,
     private val contextProvider: TransactionContextProvider,
     private val workingKeyInjector: SadadLogonWorkingKeyInjector,
+    private val supportPasswordUpdater: SadadSupportPasswordUpdater,
 ) : HandlerTransaction<LogonRequest, SadadNetworkResult, IsoMessage>() {
 
     override val isReversible: Boolean = false
@@ -85,6 +87,7 @@ class LogonHandler @Inject constructor(
             if (response != null) {
                 persistTerminalIds(response)
                 parseAndApplyField48(response)
+                applySupportPassword(response)
             }
             SadadNetworkResult(
                 detail = transport.map(
@@ -204,6 +207,20 @@ class LogonHandler @Inject constructor(
         StartupTraceFile.line("LogonHandler", "inject working keys")
         kotlinx.coroutines.runBlocking { workingKeyInjector.inject(parsed) }
         StartupTraceFile.line("LogonHandler", "inject working keys done")
+    }
+
+    /**
+     * Host FC 001 پاسخ LOGON: رمز منوی پشتیبان (بعد از تزریق کلیدها تا کلید DATA تازه استفاده شود).
+     * خطای این بخش LOGON را ناموفق نمی‌کند.
+     */
+    private fun applySupportPassword(response: IsoMessage) {
+        val blocks = runCatching { Field63Parser.parse(response.privateUseField63) }
+            .onFailure { Log.w("LOGON", "DE63 parse failed for support password: ${it.message}") }
+            .getOrDefault(emptyList())
+        val result = runCatching { supportPasswordUpdater.apply(blocks) }
+            .onFailure { Log.e("LOGON", "support password update failed", it) }
+            .getOrNull()
+        StartupTraceFile.line("LogonHandler", "support password update=$result")
     }
 
     /**

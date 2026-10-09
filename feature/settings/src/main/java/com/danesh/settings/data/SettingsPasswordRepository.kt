@@ -1,6 +1,7 @@
 package com.danesh.settings.data
 
 import android.content.Context
+import com.danesh.common.security.SupportPasswordStore
 import com.danesh.settings.config.DefaultMerchantPasswordProvider
 import com.danesh.settings.config.MerchantPasswordLockPolicy
 import com.danesh.settings.model.MerchantPasswordCheck
@@ -14,6 +15,7 @@ class SettingsPasswordRepository @Inject constructor(
     @ApplicationContext context: Context,
     defaultPasswordProvider: DefaultMerchantPasswordProvider,
     private val lockPolicy: MerchantPasswordLockPolicy,
+    private val supportPasswordStore: SupportPasswordStore,
 ) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -86,8 +88,9 @@ class SettingsPasswordRepository @Inject constructor(
         prefs.edit().putBoolean(KEY_MUST_CHANGE_MERCHANT_PASSWORD, false).apply()
     }
 
+    /** رمز سوئیچ (در صورت وجود) وگرنه رمز پیش‌فرض معکوس ساعت. */
     fun validateSupportPassword(password: String): Boolean =
-        SupportAccessPassword.matches(password)
+        SupportAccessPassword.matches(password, hostPassword = supportPasswordStore.hostPassword())
 
     companion object {
         private const val PREFS_NAME = "settings_access_prefs"

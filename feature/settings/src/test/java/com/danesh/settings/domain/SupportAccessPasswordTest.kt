@@ -58,4 +58,16 @@ class SupportAccessPasswordTest {
         assertFalse(SupportAccessPassword.matches("0326", calendar))
         assertFalse(SupportAccessPassword.matches("2222", calendar))
     }
+
+    @Test
+    fun hostPasswordReplacesClockPassword() {
+        val calendar = Calendar.getInstance(Locale.US).apply {
+            set(Calendar.HOUR_OF_DAY, 15)
+            set(Calendar.MINUTE, 24)
+        }
+        assertTrue(SupportAccessPassword.matches("987654", calendar, hostPassword = "987654"))
+        assertFalse(SupportAccessPassword.matches("4251", calendar, hostPassword = "987654"))
+        assertTrue(SupportAccessPassword.matches("4251", calendar, hostPassword = null))
+        assertTrue(SupportAccessPassword.matches("4251", calendar, hostPassword = ""))
+    }
 }
