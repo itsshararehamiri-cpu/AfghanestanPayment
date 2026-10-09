@@ -24,6 +24,7 @@ fun MenuFeatureSettingsScreen(
     uiState: MenuFeatureSettingsUiState,
     onBackClick: () -> Unit,
     onFeatureEnabledChange: (MenuItemType, Boolean) -> Unit,
+    onCouponProductsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -57,6 +58,15 @@ fun MenuFeatureSettingsScreen(
                         },
                     )
                     Spacer(modifier = Modifier.height(10.dp))
+                    if (item.type == MenuItemType.COUPON && item.enabled) {
+                        SettingsNavigationRow(
+                            label = stringResource(R.string.settings_coupon_products),
+                            icon = item.type.iconRes,
+                            iconContentDescription = stringResource(R.string.settings_coupon_products),
+                            onClick = onCouponProductsClick,
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
             }
 

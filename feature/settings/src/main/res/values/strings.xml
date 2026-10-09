@@ -367,4 +367,5 @@
     <string name="settings_optional_receipt_failed">ثبت کف و سقف رسید اختیاری ناموفق بود؛ مقادیر قبلی حفظ شد. %1$s</string>
     <string name="settings_optional_receipt_no_host_values">سوئیچ مقادیر رسید اختیاری را برنگرداند؛ مقادیر قبلی حفظ شد.</string>
     <string name="settings_optional_receipt_unsupported">این قابلیت برای پرداخت‌یار فعال پشتیبانی نمی‌شود.</string>
+    <string name="settings_coupon_products">کالاهای کالابرگ (فعال/غیرفعال)</string>
 </resources>

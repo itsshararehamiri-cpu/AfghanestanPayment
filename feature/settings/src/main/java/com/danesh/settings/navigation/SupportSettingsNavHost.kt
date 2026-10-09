@@ -42,6 +42,7 @@ import com.danesh.settings.ui.MenuFeatureSettingsRoute
 import com.danesh.settings.ui.SupportSettingsRoute
 import com.danesh.settings.ui.SupportSettingsRouteNonBp
 import com.danesh.settings.ui.MicroPaymentIndexSettingsRoute
+import com.danesh.coupon.ui.CouponProductsSettingsRoute
 import com.danesh.settings.ui.VatPercentageSettingsRoute
 import com.danesh.settings.ui.WifiSelectionRoute
 
@@ -56,6 +57,7 @@ private object SupportSettingsRoutes {
     const val SUPPORT_SERVICES_FLOW = "support_settings_services_flow"
     const val VAT_PERCENTAGE = "support_settings_vat_percentage"
     const val MICRO_PAYMENT_INDEX = "support_settings_micro_payment_index"
+    const val COUPON_PRODUCTS = "support_settings_coupon_products"
     const val EXIT_PASSWORD = "support_settings_exit_password"
     const val MAIN_SERVER = "support_settings_main_server"
     const val WIFI_SELECTION = "support_settings_wifi_selection"
@@ -238,6 +240,15 @@ fun SupportSettingsNavHost(
 
         composable(SupportSettingsRoutes.MENU_FEATURES) {
             MenuFeatureSettingsRoute(
+                onBackClick = { navController.popBackStack() },
+                onCouponProductsClick = {
+                    navController.navigate(SupportSettingsRoutes.COUPON_PRODUCTS)
+                },
+            )
+        }
+
+        composable(SupportSettingsRoutes.COUPON_PRODUCTS) {
+            CouponProductsSettingsRoute(
                 onBackClick = { navController.popBackStack() },
             )
         }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="coupon_title">Kalabarg</string>
+    <string name="coupon_choose_products">Choose products</string>
+    <string name="coupon_no_enabled_products">No product is enabled; enable products in kalabarg settings.</string>
+    <string name="coupon_cart">Cart</string>
+    <string name="coupon_cart_hint">Tap a product to add it.</string>
+    <string name="coupon_cart_empty">Select at least one product.</string>
+    <string name="coupon_enter_amounts">Enter the amount for every product.</string>
+    <string name="coupon_amount_required">Enter the amount</string>
+    <string name="coupon_other_limit">At most %1$d \"Other\" items can be added.</string>
+    <string name="coupon_already_added">This product is already in the cart.</string>
+    <string name="coupon_amount">Amount (Rial)</string>
+    <string name="coupon_unit_amount">Unit amount (Rial)</string>
+    <string name="coupon_amount_placeholder">Enter amount</string>
+    <string name="coupon_count">Count</string>
+    <string name="coupon_line_total">Line total</string>
+    <string name="coupon_remove">Remove</string>
+    <string name="coupon_tag_countable">Per item</string>
+    <string name="coupon_tag_other_limit">Up to %1$d</string>
+    <string name="coupon_total_amount">Total amount</string>
+    <string name="coupon_credit_amount">Paid by kalabarg</string>
+    <string name="coupon_cash_amount">Payable by card</string>
+    <string name="coupon_tracking_number">Kalabarg tracking code</string>
+    <string name="coupon_inquire">Kalabarg inquiry</string>
+    <string name="coupon_inquiring">Inquiring kalabarg…</string>
+    <string name="coupon_inquiry_failed">Kalabarg inquiry failed</string>
+    <string name="coupon_inquiry_result_title">Kalabarg inquiry result</string>
+    <string name="coupon_pay">Pay and enter PIN</string>
+    <string name="coupon_cancel_inquiry">Cancel inquiry</string>
+    <string name="coupon_inquiry_cancelled">The inquiry was cancelled</string>
+    <string name="coupon_inquiry_cancel_failed">Cancelling the inquiry failed. %1$s</string>
+    <string name="coupon_purchase_success">Kalabarg purchase was successful</string>
+    <string name="coupon_purchase_failed">Kalabarg purchase failed</string>
+    <string name="coupon_ok">OK</string>
+    <string name="coupon_products_title">Kalabarg products</string>
+    <string name="coupon_products_description">Enabled products are offered when doing a kalabarg inquiry.</string>
+    <string name="coupon_products_enabled_count">%1$d of %2$d products enabled</string>
+    <string name="coupon_products_enable_all">Enable all</string>
+    <string name="coupon_products_disable_all">Disable all</string>
+    <string name="coupon_products_empty">No kalabarg product list is defined for this PSP.</string>
+</resources>

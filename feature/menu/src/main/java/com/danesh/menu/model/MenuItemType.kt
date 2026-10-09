@@ -14,6 +14,8 @@ enum class MenuItemType(
     BILL_INQUIRY(R.string.menu_bill_inquiry, R.drawable.ic_bill),
     TOPUP(R.string.menu_topup, R.drawable.ic_charge),
     VOUCHER(R.string.menu_voucher, R.drawable.ic_charge),
+    /** کالابرگ (سبد کالا). */
+    COUPON(R.string.menu_coupon, R.drawable.ic_purchase),
 
     SUPPORT(R.string.menu_support, R.drawable.ic_support),
     TRANSFER(R.string.menu_transfer, R.drawable.ic_card_to_card),
@@ -55,6 +57,7 @@ val homeMenuItems = listOf(
     MenuItemType.WALLET_TO_WALLET,
     MenuItemType.TOPUP,
     MenuItemType.VOUCHER,
+    MenuItemType.COUPON,
     MenuItemType.SETTINGS,
     MenuItemType.REPORT
 )

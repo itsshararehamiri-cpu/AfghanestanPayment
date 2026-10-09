@@ -29,4 +29,5 @@
     <string name="menu_configuration_blocked_message">Complete terminal setup in Settings before starting this transaction.</string>
     <string name="menu_configuration_required_title">Terminal is not configured yet</string>
     <string name="menu_configuration_required_description">Configure the terminal in Settings before using payment services.</string>
+    <string name="menu_coupon">Kalabarg</string>
 </resources>

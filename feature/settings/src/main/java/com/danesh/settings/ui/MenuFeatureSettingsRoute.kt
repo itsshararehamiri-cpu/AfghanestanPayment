@@ -9,6 +9,8 @@ import com.danesh.settings.presentation.MenuFeatureSettingsViewModel
 @Composable
 fun MenuFeatureSettingsRoute(
     onBackClick: () -> Unit,
+    /** فهرست کالاهای کالابرگ (بعد از فعال‌سازی کالابرگ یا از ردیف مدیریت کالاها). */
+    onCouponProductsClick: () -> Unit = {},
     viewModel: MenuFeatureSettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -16,6 +18,11 @@ fun MenuFeatureSettingsRoute(
     MenuFeatureSettingsScreen(
         uiState = uiState,
         onBackClick = onBackClick,
-        onFeatureEnabledChange = viewModel::setFeatureEnabled,
+        onFeatureEnabledChange = { type, enabled ->
+            viewModel.setFeatureEnabled(type, enabled)
+            // با فعال شدن کالابرگ مستقیم به فهرست کالاها می‌رود تا کالاها فعال/غیرفعال شوند.
+            if (type == com.danesh.menu.model.MenuItemType.COUPON && enabled) onCouponProductsClick()
+        },
+        onCouponProductsClick = onCouponProductsClick,
     )
 }

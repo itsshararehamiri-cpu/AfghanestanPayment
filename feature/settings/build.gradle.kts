@@ -67,4 +67,5 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":feature:menu"))
     implementation(project(":feature:support"))
+    implementation(project(":feature:coupon"))
 }

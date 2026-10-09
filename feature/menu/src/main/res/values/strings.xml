@@ -28,4 +28,5 @@
     <string name="menu_configuration_blocked_message">برای انجام این تراکنش، ابتدا باید دستگاه را از بخش تنظیمات پیکربندی کنید.</string>
     <string name="menu_configuration_required_title">دستگاه هنوز پیکربندی نشده است</string>
     <string name="menu_configuration_required_description">برای استفاده از خدمات پرداخت، لطفاً ابتدا دستگاه را پیکربندی کنید.</string>
+    <string name="menu_coupon">کالابرگ</string>
 </resources>

@@ -30,4 +30,5 @@
     <string name="menu_configuration_blocked_message">د دې معاملې لپاره، لومړی باید ټرمینال له تنظیماتو برخې څخه پیکربندي کړئ.</string>
     <string name="menu_configuration_required_title">ټرمینال لا پیکربندي نه دی</string>
     <string name="menu_configuration_required_description">د تادیې خدماتو کارولو لپاره، لومړی ټرمینال پیکربندي کړئ.</string>
+    <string name="menu_coupon">کالابرگ</string>
 </resources>

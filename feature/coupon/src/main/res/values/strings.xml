@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="coupon_title">کالابرگ</string>
+    <string name="coupon_choose_products">انتخاب کالا</string>
+    <string name="coupon_no_enabled_products">هیچ کالایی فعال نیست؛ از تنظیمات کالابرگ کالاها را فعال کنید.</string>
+    <string name="coupon_cart">سبد خرید</string>
+    <string name="coupon_cart_hint">برای افزودن، روی کالای مورد نظر بزنید.</string>
+    <string name="coupon_cart_empty">حداقل یک کالا انتخاب کنید.</string>
+    <string name="coupon_enter_amounts">مبلغ همهٔ کالاها را وارد کنید.</string>
+    <string name="coupon_amount_required">مبلغ را وارد کنید</string>
+    <string name="coupon_other_limit">حداکثر %1$d مورد «سایر» قابل افزودن است.</string>
+    <string name="coupon_already_added">این کالا قبلاً به سبد اضافه شده است.</string>
+    <string name="coupon_amount">مبلغ (ریال)</string>
+    <string name="coupon_unit_amount">مبلغ هر عدد (ریال)</string>
+    <string name="coupon_amount_placeholder">مبلغ را وارد کنید</string>
+    <string name="coupon_count">تعداد</string>
+    <string name="coupon_line_total">جمع این کالا</string>
+    <string name="coupon_remove">حذف</string>
+    <string name="coupon_tag_countable">تعدادی</string>
+    <string name="coupon_tag_other_limit">تا %1$d مورد</string>
+    <string name="coupon_total_amount">مبلغ کل</string>
+    <string name="coupon_credit_amount">پرداختی از کالابرگ</string>
+    <string name="coupon_cash_amount">قابل پرداخت با کارت</string>
+    <string name="coupon_tracking_number">کد پیگیری کالابرگ</string>
+    <string name="coupon_inquire">استعلام کالابرگ</string>
+    <string name="coupon_inquiring">در حال استعلام کالابرگ…</string>
+    <string name="coupon_inquiry_failed">استعلام کالابرگ ناموفق بود</string>
+    <string name="coupon_inquiry_result_title">نتیجهٔ استعلام کالابرگ</string>
+    <string name="coupon_pay">پرداخت و وارد کردن رمز</string>
+    <string name="coupon_cancel_inquiry">لغو استعلام</string>
+    <string name="coupon_inquiry_cancelled">استعلام لغو شد</string>
+    <string name="coupon_inquiry_cancel_failed">لغو استعلام ناموفق بود. %1$s</string>
+    <string name="coupon_purchase_success">خرید کالابرگ با موفقیت انجام شد</string>
+    <string name="coupon_purchase_failed">خرید کالابرگ ناموفق بود</string>
+    <string name="coupon_ok">تأیید</string>
+    <string name="coupon_products_title">کالاهای کالابرگ</string>
+    <string name="coupon_products_description">کالاهایی که فعال باشند هنگام استعلام کالابرگ برای انتخاب نمایش داده می‌شوند.</string>
+    <string name="coupon_products_enabled_count">%1$d از %2$d کالا فعال</string>
+    <string name="coupon_products_enable_all">فعال کردن همه</string>
+    <string name="coupon_products_disable_all">غیرفعال کردن همه</string>
+    <string name="coupon_products_empty">فهرست کالای کالابرگ برای این پرداخت‌یار تعریف نشده است.</string>
+</resources>

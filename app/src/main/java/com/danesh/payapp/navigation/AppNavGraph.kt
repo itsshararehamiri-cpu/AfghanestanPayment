@@ -41,6 +41,7 @@ import com.danesh.support.navigation.SupportDirectLaunch
 import com.danesh.support.navigation.SupportNavHost
 import com.danesh.topup.navigation.TopUpNavHost
 import com.danesh.voucher.navigation.VoucherNavHost
+import com.danesh.coupon.navigation.CouponNavHost
 import com.danesh.wallet_to_wallet.navigation.WalletToWalletNavHost
 import com.example.bill.navigation.BillNavHost
 
@@ -54,6 +55,7 @@ object AppRoutes {
     const val WALLET_TO_WALLET = "wallet_to_wallet"
     const val TOP_UP = "top_up"
     const val VOUCHER = "voucher"
+    const val COUPON = "coupon"
 
     const val SUPPORT = "support"
     const val SUPPORT_SERVICE =
@@ -139,6 +141,7 @@ private fun AppNavHostContent(onExitClick:()-> Unit) {
                         MenuItemType.WALLET_TO_WALLET -> navController.navigate(AppRoutes.WALLET_TO_WALLET)
                         MenuItemType.TOPUP -> navController.navigate(AppRoutes.TOP_UP)
                         MenuItemType.VOUCHER -> navController.navigate(AppRoutes.VOUCHER)
+                        MenuItemType.COUPON -> navController.navigate(AppRoutes.COUPON)
 
                         MenuItemType.SUPPORT -> navController.navigate(AppRoutes.SUPPORT)
                         MenuItemType.CASH_DEPOSIT -> navController.navigate(AppRoutes.CASH_DEPOSIT)
@@ -200,6 +203,11 @@ private fun AppNavHostContent(onExitClick:()-> Unit) {
         }
         composable(AppRoutes.VOUCHER) {
             VoucherNavHost(
+                onFlowComplete = { navController.popBackStackIfAvailable() },
+            )
+        }
+        composable(AppRoutes.COUPON) {
+            CouponNavHost(
                 onFlowComplete = { navController.popBackStackIfAvailable() },
             )
         }

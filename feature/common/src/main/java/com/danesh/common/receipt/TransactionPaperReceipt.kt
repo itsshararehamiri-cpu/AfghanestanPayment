@@ -71,6 +71,7 @@ fun TransactionPaperReceipt(
         TransactionType.CASH_OUT -> CashOutPaperReceipt(result, receiptType, isPaperReceipt)
         TransactionType.CARD_TO_CARD, TransactionType.CARD_TO_WALLET, TransactionType.WALLET_TO_WALLET ->
             TransferPaperReceipt(result, receiptType, isPaperReceipt)
+        TransactionType.COUPON_PURCHASE -> CouponPaperReceipt(result, receiptType, isPaperReceipt)
         else -> StandardPaperReceipt(result, receiptType, isPaperReceipt)
     }
 }
@@ -117,6 +118,51 @@ private fun StandardPaperReceipt(
             )
         }
         PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
+    }
+}
+
+/**
+ * رسید خرید کالابرگ (سداد): بعد از مشخصات پایانه/کارت، «عملیات موفق»، مبلغ کل و سپس سطرهای
+ * Function Code 029 سوئیچ (پرداختی از کالابرگ، مبلغ کل، کد پیگیری کالابرگ).
+ */
+@Composable
+private fun CouponPaperReceipt(
+    result: TransactionResultDetail,
+    receiptType: ReceiptType,
+    isPaperReceipt: Boolean,
+) {
+    val context = LocalContext.current
+    val firstColor = if (isPaperReceipt) Color.Black else MaterialTheme.colorScheme.onSurface
+    val modifierRowReceipt = Modifier.rowReceiptModifier(isPaperReceipt)
+    Column(modifier = Modifier.containerReceiptModifier(isPaperReceipt, context)) {
+        PaperReceiptHeader(result, receiptType, isPaperReceipt, firstColor, modifierRowReceipt)
+        AddTypeDateTime(
+            modifier = modifierRowReceipt,
+            type = stringResource(result.transactionType.titleRes()),
+            date = result.date,
+            time = result.time,
+            textColor = firstColor,
+            isPaperReceipt = isPaperReceipt,
+        )
+        HorizontalDivider(isPaperReceipt = isPaperReceipt)
+        PaperReceiptCommonBody(result, isPaperReceipt, firstColor, modifierRowReceipt, result.receiptPan())
+        if (result.isSuccess) {
+            ShowSuccessResult(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Alignment.CenterHorizontally),
+                firstColor = firstColor,
+            )
+        }
+        if (result.amount.isNotBlank()) {
+            AddAmount(
+                modifier = modifierRowReceipt,
+                result.amount,
+                isPaperReceipt = isPaperReceipt,
+                textColor = firstColor,
+            )
+        }
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor, showSuccess = false)
     }
 }
 
@@ -545,6 +591,8 @@ private fun ColumnScope.PaperReceiptFooter(
     receiptType: ReceiptType,
     isPaperReceipt: Boolean,
     firstColor: Color,
+    /** false وقتی رسید «عملیات موفق» را قبلاً (بالای مبلغ) چاپ کرده است. */
+    showSuccess: Boolean = true,
 ) {
     com.danesh.common.AddHostPrintItems(
         modifier = Modifier.rowReceiptModifier(isPaperReceipt),
@@ -554,12 +602,14 @@ private fun ColumnScope.PaperReceiptFooter(
         isPaperReceipt = isPaperReceipt,
     )
     if (result.isSuccess) {
-        ShowSuccessResult(
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.CenterHorizontally),
-            firstColor = firstColor,
-        )
+        if (showSuccess) {
+            ShowSuccessResult(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Alignment.CenterHorizontally),
+                firstColor = firstColor,
+            )
+        }
     } else {
         UnSuccessPaperReceiptFooter(result, isPaperReceipt, firstColor)
     }

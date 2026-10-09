@@ -339,4 +339,5 @@
     <string name="settings_optional_receipt_failed">Updating optional receipt limits failed; previous values were kept. %1$s</string>
     <string name="settings_optional_receipt_no_host_values">The switch did not return optional receipt limits; previous values were kept.</string>
     <string name="settings_optional_receipt_unsupported">This feature is not supported by the active PSP.</string>
+    <string name="settings_coupon_products">Kalabarg products (enable/disable)</string>
 </resources>
