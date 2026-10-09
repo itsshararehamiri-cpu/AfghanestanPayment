@@ -859,3 +859,37 @@ fun ShowSuccessResult(modifier: Modifier, firstColor: Color) {
         style = MaterialTheme.typography.titleMedium.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold).withAppFont()
     )
 }
+/**
+ * سطرهای چاپی ارسالی سوئیچ ([com.danesh.api.HostPrintItem]) — فقط آن‌هایی که برای این نوع رسید هستند.
+ * نوع KEY/VALUE در یک سطر؛ نوع «هر مقدار در یک سطر» کپشن را در یک سطر و مقدار را در سطر بعد چاپ می‌کند.
+ */
+@Composable
+fun AddHostPrintItems(
+    modifier: Modifier = Modifier,
+    items: List<com.danesh.api.HostPrintItem>,
+    receiptType: com.danesh.common.receipt.ReceiptType,
+    textColor: Color,
+    isPaperReceipt: Boolean = false,
+) {
+    val visible = items.filter { item ->
+        when (item.target) {
+            com.danesh.api.HostPrintTarget.BOTH -> true
+            com.danesh.api.HostPrintTarget.CUSTOMER ->
+                receiptType != com.danesh.common.receipt.ReceiptType.MERCHANT_RECEIPT
+            com.danesh.api.HostPrintTarget.MERCHANT ->
+                receiptType == com.danesh.common.receipt.ReceiptType.MERCHANT_RECEIPT
+        }
+    }
+    visible.forEach { item ->
+        if (item.keyValue) {
+            RowReceipt(modifier, item.caption, item.value, textColor, isPaperReceipt, ltrValue = true)
+        } else {
+            if (item.caption.isNotBlank()) {
+                RowReceipt(modifier, item.caption, "", textColor, isPaperReceipt)
+            }
+            if (item.value.isNotBlank()) {
+                RowReceipt(modifier, "", item.value, textColor, isPaperReceipt, ltrValue = true)
+            }
+        }
+    }
+}

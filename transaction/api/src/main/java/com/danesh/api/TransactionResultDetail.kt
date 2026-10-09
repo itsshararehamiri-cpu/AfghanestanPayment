@@ -202,7 +202,36 @@ data class TransactionResultDetail(
     @SerializedName("couponCreditRequired")
     val couponCreditRequired: String = "",
 
+    /**
+     * سطرهای چاپی که سوئیچ فرستاده (مثلاً Function Code 029 سداد) — کپشن/مقدار و مقصد رسید.
+     * فیلد اختیاری Gson: در JSONهای قدیمی ممکن است null باشد؛ از [hostPrintItemsOrEmpty] استفاده کنید.
+     */
+    @SerializedName("hostPrintItems")
+    val hostPrintItems: List<HostPrintItem>? = emptyList(),
+
 )
+
+/** یک سطر چاپی ارسال‌شده توسط سوئیچ. */
+data class HostPrintItem(
+    @SerializedName("caption")
+    val caption: String = "",
+    @SerializedName("value")
+    val value: String = "",
+    /** true = «کپشن: مقدار» در یک سطر؛ false = کپشن و مقدار هر کدام در یک سطر جدا. */
+    @SerializedName("keyValue")
+    val keyValue: Boolean = true,
+    @SerializedName("target")
+    val target: HostPrintTarget = HostPrintTarget.BOTH,
+)
+
+enum class HostPrintTarget {
+    CUSTOMER,
+    MERCHANT,
+    BOTH,
+}
+
+fun TransactionResultDetail.hostPrintItemsOrEmpty(): List<HostPrintItem> = hostPrintItems.orEmpty()
+
 
 fun Int.toTransactionType(): TransactionType = when (this) {
     0 -> TransactionType.BALANCE

@@ -41,6 +41,7 @@ object SadadHostDataReceipt {
             merchantReceiptText = host.merchantWinnerMessage?.takeIf { it.isNotBlank() }
                 ?: detail.merchantReceiptText,
             amount = amount,
+            hostPrintItems = host.printItems.ifEmpty { detail.hostPrintItems.orEmpty() },
         )
     }
 

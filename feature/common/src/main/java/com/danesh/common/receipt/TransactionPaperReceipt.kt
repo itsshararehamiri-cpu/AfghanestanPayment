@@ -116,7 +116,7 @@ private fun StandardPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -168,7 +168,7 @@ private fun BalancePaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -221,7 +221,7 @@ private fun BillPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -290,7 +290,7 @@ private fun VoucherPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -333,7 +333,7 @@ private fun TopUpPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -382,7 +382,7 @@ private fun CashDepositPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -441,7 +441,7 @@ private fun TransferPaperReceipt(
                 textColor = firstColor,
             )
         }
-        PaperReceiptFooter(result, isPaperReceipt, firstColor)
+        PaperReceiptFooter(result, receiptType, isPaperReceipt, firstColor)
     }
 }
 
@@ -542,9 +542,17 @@ private fun PaperReceiptCommonBody(
 @Composable
 private fun ColumnScope.PaperReceiptFooter(
     result: TransactionResultDetail,
+    receiptType: ReceiptType,
     isPaperReceipt: Boolean,
     firstColor: Color,
 ) {
+    com.danesh.common.AddHostPrintItems(
+        modifier = Modifier.rowReceiptModifier(isPaperReceipt),
+        items = result.hostPrintItems.orEmpty(),
+        receiptType = receiptType,
+        textColor = firstColor,
+        isPaperReceipt = isPaperReceipt,
+    )
     if (result.isSuccess) {
         ShowSuccessResult(
             modifier = Modifier

@@ -19,8 +19,8 @@ data class SadadHostData(
     val topupVatPercent: Double? = null,
     /** 026: نام سازمان قبض. */
     val billOrganization: BillOrganization? = null,
-    /** 029: داده چاپ (خام — ساختار در سند کامل نیست). */
-    val printData: String? = null,
+    /** 029: سطرهای چاپی (کپشن/مقدار) — بخش‌های ناقص نادیده گرفته می‌شوند. */
+    val printItems: List<com.danesh.api.HostPrintItem> = emptyList(),
     /** 033: رسید اختیاری. */
     val optionalReceipt: OptionalReceipt? = null,
     /** 043: کد یکتای پایانه (کد کارتخوان) به ازای هر شماره پایانه. */
@@ -130,7 +130,7 @@ object SadadHostFunctionCodes {
                 val nameEn = if (r.remaining >= 3) r.take(r.digits(3).toInt()).trim() else ""
                 current.copy(billOrganization = SadadHostData.BillOrganization(nameFa, nameEn))
             }
-            PRINT_DATA -> current.copy(printData = data)
+            PRINT_DATA -> current.copy(printItems = SadadPrintDataParser.parse(data))
             OPTIONAL_RECEIPT -> {
                 val r = FixedReader(data)
                 val active = r.take(1) == "1"
