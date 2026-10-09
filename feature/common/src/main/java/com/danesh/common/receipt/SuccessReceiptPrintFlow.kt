@@ -3,6 +3,7 @@ package com.danesh.common.receipt
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.danesh.api.CustomerReceiptMode
 import com.danesh.common.receipt.MerchantReceiptPrintMode.DISABLED
 import com.danesh.common.receipt.MerchantReceiptPrintMode.MANDATORY
 import com.danesh.common.receipt.MerchantReceiptPrintMode.OPTIONAL
@@ -18,6 +19,8 @@ enum class MerchantReceiptPhase {
 class SuccessReceiptPrintFlow(
     private val printMode: MerchantReceiptPrintMode,
     private val merchantReceiptEnabled: Boolean = true,
+    /** رسید مشتری بر اساس کف/سقف رسید اختیاری: چاپ نشود / پرسیده شود / اجباری. */
+    private val customerMode: CustomerReceiptMode = CustomerReceiptMode.MANDATORY,
 ) {
     private val effectivePrintMode: MerchantReceiptPrintMode
         get() = if (merchantReceiptEnabled) printMode else DISABLED
@@ -42,6 +45,10 @@ class SuccessReceiptPrintFlow(
 
     private var autoPrintCustomerTriggered = false
 
+    /** دیالوگ «رسید مشتری چاپ شود؟» (مبلغ بین کف و سقف رسید اختیاری). */
+    var customerPromptVisible by mutableStateOf(false)
+        private set
+
     fun receiptUiKey(): Any = activeReceiptType to receiptContentVersion
 
     fun canNavigateHome(): Boolean = isFlowComplete()
@@ -57,6 +64,35 @@ class SuccessReceiptPrintFlow(
 
     fun shouldAutoPrintCustomer(): Boolean =
         !autoPrintCustomerTriggered && !customerReceiptHandled
+
+    /**
+     * وقتی bitmap رسید آماده شد: بسته به [customerMode] رسید مشتری خودکار چاپ می‌شود،
+     * از کاربر پرسیده می‌شود، یا (مبلغ کمتر از کف) اصلاً چاپ نمی‌شود.
+     */
+    fun onCustomerReceiptReady() {
+        if (!shouldAutoPrintCustomer()) return
+        when (customerMode) {
+            CustomerReceiptMode.MANDATORY -> triggerAutoPrintCustomer()
+            CustomerReceiptMode.ASK -> {
+                autoPrintCustomerTriggered = true
+                customerPromptVisible = true
+            }
+            CustomerReceiptMode.NONE -> {
+                autoPrintCustomerTriggered = true
+                onCustomerReceiptHandled()
+            }
+        }
+    }
+
+    fun onCustomerPrintAccepted() {
+        customerPromptVisible = false
+        requestPrint(ReceiptType.CUSTOMER_RECEIPT)
+    }
+
+    fun onCustomerPrintDeclined() {
+        customerPromptVisible = false
+        onCustomerReceiptHandled()
+    }
 
     fun triggerAutoPrintCustomer() {
         if (shouldAutoPrintCustomer()) {

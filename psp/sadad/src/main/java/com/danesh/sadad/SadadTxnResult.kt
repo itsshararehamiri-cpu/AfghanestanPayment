@@ -12,6 +12,8 @@ class SadadTxnResult(
 
 class SadadNetworkResult(
     val detail: TransactionResultDetail,
+    /** Host FC 033 پاسخ (کف/سقف رسید اختیاری اعمال‌شده توسط سوئیچ)، اگر آمده باشد. */
+    val optionalReceipt: com.danesh.api.OptionalReceiptLimits? = null,
 ) : TransactionResult {
     override val isSuccess: Boolean get() = detail.isSuccess
 }

@@ -94,6 +94,8 @@ import com.danesh.sadad.transactionsummary.SadadTransactionSummaryRequest
 import com.danesh.sadad.transactionsummary.TransactionSummaryHandler
 import com.danesh.sadad.voucher.VoucherHandler
 import com.danesh.sadad.wallet_to_wallet.WalletToWalletHandler
+import com.danesh.api.OptionalReceiptLimits
+import com.danesh.api.OptionalReceiptUpdateResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -349,6 +351,38 @@ class SadadGateway @Inject constructor(
             throw error
         }
     }
+
+    /**
+     * کف/سقف رسید اختیاری: پیام 0800 (LOGON) با Client FC 034؛ مقدار نهایی از Host FC 033 پاسخ.
+     * اگر تراکنش ناموفق باشد یا سوئیچ FC 033 نفرستد، مقادیر قبلی دست نمی‌خورد.
+     */
+    override suspend fun updateOptionalReceipt(limits: OptionalReceiptLimits): OptionalReceiptUpdateResult =
+        withContext(Dispatchers.IO) {
+            val result = executor.execute(
+                request = LogonRequest(optionalReceipt = limits),
+                handler = logonHandler,
+            )
+            val detail = result.detail
+            val applied = result.optionalReceipt
+            when {
+                !detail.isSuccess -> OptionalReceiptUpdateResult(
+                    isSuccess = false,
+                    responseCode = detail.responseCode,
+                    responseMessage = detail.responseMessage,
+                )
+                applied == null -> OptionalReceiptUpdateResult(
+                    isSuccess = false,
+                    responseCode = detail.responseCode,
+                    responseMessage = "",
+                )
+                else -> OptionalReceiptUpdateResult(
+                    isSuccess = true,
+                    limits = applied,
+                    responseCode = detail.responseCode,
+                    responseMessage = detail.responseMessage,
+                )
+            }
+        }
 
     override suspend fun init(input: InitInput): InitOutput = withContext(Dispatchers.IO) {
         Log.d("TAG", "init: ddddddddddddddnmnmf")

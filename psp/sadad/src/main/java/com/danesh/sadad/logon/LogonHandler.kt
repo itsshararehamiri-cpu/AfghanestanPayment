@@ -15,6 +15,8 @@ import com.danesh.sadad.SadadNetworkResult
 import com.danesh.sadad.device.SadadDeviceWorkflow
 import com.danesh.sadad.diagnostics.traceIso
 import com.danesh.sadad.util.Field63Parser
+import com.danesh.sadad.util.SadadHostFunctionCodes
+import com.danesh.sadad.util.toLimits
 import com.danesh.sadad.util.SadadIsoHandlerSupport
 import com.danesh.sadad.util.SadadTransactionMessages
 import javax.inject.Inject
@@ -38,7 +40,7 @@ class LogonHandler @Inject constructor(
     override val skipQueueFlush: Boolean = true
 
     override fun buildMessage(request: LogonRequest): IsoMessage =
-         kotlinx.coroutines.runBlocking {  logonMessageBuilder.build()}
+         kotlinx.coroutines.runBlocking { logonMessageBuilder.build(request.optionalReceipt) }
 
     override fun queueFailure(request: LogonRequest): SadadNetworkResult {
         StartupTraceFile.line("LogonHandler", "queueFailure")
@@ -97,6 +99,8 @@ class LogonHandler @Inject constructor(
                     isSuccess = true,
                     responseMessage = messages.success(),
                 ),
+                optionalReceipt = response?.let { SadadHostFunctionCodes.parse(it.privateUseField63).optionalReceipt }
+                    ?.toLimits(),
             )
         } catch (error: Exception) {
             Log.e("LOGON", "logon success path failed (field48 inject)", error)

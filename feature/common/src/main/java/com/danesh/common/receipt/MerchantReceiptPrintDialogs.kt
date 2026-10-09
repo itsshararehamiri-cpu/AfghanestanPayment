@@ -97,3 +97,43 @@ fun MerchantReceiptMandatoryDialog(
         )
     }
 }
+
+/** رسید اختیاری: مبلغ بین کف و سقف — از مشتری پرسیده می‌شود رسید می‌خواهد یا نه. */
+@Composable
+fun CustomerReceiptOptionalDialog(
+    onConfirm: () -> Unit,
+    onDecline: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDecline,
+        properties = DialogProperties(dismissOnClickOutside = false),
+        title = {
+            Text(
+                text = stringResource(R.string.customer_receipt_optional_dialog_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.customer_receipt_optional_dialog_message),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(R.string.merchant_receipt_dialog_confirm),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDecline) {
+                Text(
+                    text = stringResource(R.string.merchant_receipt_dialog_decline),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        },
+    )
+}

@@ -25,6 +25,7 @@ class PspSettingsMenuVisibility @Inject constructor(
             showSupportMicroPaymentIndex = isBehpardakht,
             usesSimplifiedSupportSettings = !isBehpardakht,
             showMerchantStartup = appRuntimeConfig.activePsp.isSadad,
+            showOptionalReceipt = appRuntimeConfig.activePsp.isSadad,
         )
     }
 }

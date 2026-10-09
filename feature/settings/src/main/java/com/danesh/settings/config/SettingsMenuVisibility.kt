@@ -10,6 +10,8 @@ data class SettingsMenuVisibility(
     val usesSimplifiedSupportSettings: Boolean = false,
     /** سداد: ردیف «شروع به کار» (LOGON) در تنظیمات پذیرنده. */
     val showMerchantStartup: Boolean = false,
+    /** سداد: کف و سقف رسید اختیاری (تراکنش 0800 با FC 034). */
+    val showOptionalReceipt: Boolean = false,
 )
 
 fun interface SettingsMenuVisibilityProvider {

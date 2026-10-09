@@ -5,6 +5,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.danesh.api.DefaultPurchaseAmountRules
+import com.danesh.api.MicroPaymentIndexRules
+import com.danesh.common.receipt.OptionalReceiptStore
 import com.danesh.api.SupportCatalog
 import com.danesh.api.TerminalReplacementService
 import com.danesh.common.connection.ConnectionPreferences
@@ -57,6 +59,7 @@ class MerchantSettingsViewModel @Inject constructor(
     private val settingsMenuVisibilityProvider: SettingsMenuVisibilityProvider,
     private val merchantSupportServiceResolver: MerchantSupportServiceResolver,
     private val startupRunner: TerminalStartupRunner,
+    private val optionalReceiptStore: OptionalReceiptStore,
 ) : ViewModel() {
 
     val availableLanguages: List<AppLanguage> = languageOptions.availableSettingsLanguages()
@@ -150,8 +153,15 @@ class MerchantSettingsViewModel @Inject constructor(
                 showDefaultPurchaseAmount = menuFeaturePreferences.isFeatureEnabled(
                     MenuItemType.PURCHASE.name,
                 ),
+                optionalReceiptDisplay = optionalReceiptDisplay(),
             )
         }
+    }
+
+    private fun optionalReceiptDisplay(): String {
+        val limits = optionalReceiptStore.get()?.takeIf { it.active } ?: return ""
+        return "${MicroPaymentIndexRules.formatDisplay(limits.lowerRials)} - " +
+            MicroPaymentIndexRules.formatDisplay(limits.upperRials)
     }
 
     fun onSettlementClick(
@@ -308,6 +318,8 @@ class MerchantSettingsViewModel @Inject constructor(
         return MerchantSettingsUiState(
             defaultMerchantPassword = passwordRepository.defaultMerchantPassword,
             showStartup = menuVisibility.showMerchantStartup,
+            showOptionalReceipt = menuVisibility.showOptionalReceipt,
+            optionalReceiptDisplay = optionalReceiptDisplay(),
             isChangeAccountEnabled = menuFeaturePreferences.isFeatureEnabled(
                 MenuItemType.CHANGE_ACCOUNT.name,
             ),

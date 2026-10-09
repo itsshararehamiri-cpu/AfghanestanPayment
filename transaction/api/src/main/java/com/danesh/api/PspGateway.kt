@@ -252,5 +252,12 @@ interface PspGateway {
     suspend fun couponInquiry(input: CouponInquiryInput): CouponInquiryOutput
     suspend fun couponPurchase(input: CouponPurchaseInput): CouponPurchaseOutput
 
+    /**
+     * ارسال کف/سقف رسید اختیاری به سوئیچ؛ مقادیر نهایی از پاسخ سوئیچ برگردانده می‌شود.
+     * PSPهایی که پشتیبانی نمی‌کنند همین پیاده‌سازی پیش‌فرض را دارند.
+     */
+    suspend fun updateOptionalReceipt(limits: OptionalReceiptLimits): OptionalReceiptUpdateResult =
+        OptionalReceiptUpdateResult(isSuccess = false, unsupported = true)
+
 
 }

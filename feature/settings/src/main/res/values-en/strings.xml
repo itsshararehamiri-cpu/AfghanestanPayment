@@ -326,4 +326,17 @@
     <string name="settings_sadad_done">Done</string>
     <string name="settings_sadad_error_not_card_c">The inserted card is not card C. Please insert card C.</string>
     <string name="settings_sadad_card_wait_timeout_swap">Card C was not inserted in time. Please try again.</string>
+    <string name="settings_optional_receipt">Optional receipt</string>
+    <string name="settings_optional_receipt_title">Optional receipt limits</string>
+    <string name="settings_optional_receipt_description">Below the lower limit no customer receipt is printed; between the limits the customer is asked; above the upper limit the customer receipt is mandatory. Values are applied after the switch confirms them.</string>
+    <string name="settings_optional_receipt_lower">Lower limit (Rial)</string>
+    <string name="settings_optional_receipt_upper">Upper limit (Rial)</string>
+    <string name="settings_optional_receipt_value">%1$s to %2$s</string>
+    <string name="settings_optional_receipt_error_empty">Please enter the amount</string>
+    <string name="settings_optional_receipt_error_invalid">The entered amount is invalid</string>
+    <string name="settings_optional_receipt_error_range">Upper limit must be greater than or equal to the lower limit</string>
+    <string name="settings_optional_receipt_saved">Optional receipt limits were applied by the switch</string>
+    <string name="settings_optional_receipt_failed">Updating optional receipt limits failed; previous values were kept. %1$s</string>
+    <string name="settings_optional_receipt_no_host_values">The switch did not return optional receipt limits; previous values were kept.</string>
+    <string name="settings_optional_receipt_unsupported">This feature is not supported by the active PSP.</string>
 </resources>

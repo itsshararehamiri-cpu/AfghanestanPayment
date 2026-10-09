@@ -72,6 +72,7 @@ fun MerchantSettingsScreen(
     onThemeChange: (AppThemeMode) -> Unit = {},
     onStartupClick: () -> Unit = {},
     onDismissStartupResult: () -> Unit = {},
+    onOptionalReceiptClick: () -> Unit = {},
 ) {
     var showFontSheet by rememberSaveable { mutableStateOf(false) }
     var showLanguageSheet by rememberSaveable { mutableStateOf(false) }
@@ -142,7 +143,7 @@ fun MerchantSettingsScreen(
 //                )
 //            }
 
-            if (uiState.showShowFee || uiState.showMicroPaymentIndex || uiState.showDefaultPurchaseAmount) {
+            if (uiState.showShowFee || uiState.showMicroPaymentIndex || uiState.showDefaultPurchaseAmount || uiState.showOptionalReceipt) {
                 Spacer(modifier = Modifier.height(20.dp))
 
 //                if (uiState.showShowFee) {
@@ -168,6 +169,18 @@ fun MerchantSettingsScreen(
 //
 //                    Spacer(modifier = Modifier.height(10.dp))
 //                }
+
+                if (uiState.showOptionalReceipt) {
+                    SettingsNavigationRow(
+                        label = stringResource(R.string.settings_optional_receipt),
+                        icon = R.drawable.ic_card_tick,
+                        iconContentDescription = stringResource(R.string.settings_optional_receipt),
+                        value = uiState.optionalReceiptDisplay.ifBlank { null },
+                        onClick = onOptionalReceiptClick,
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
 
                 if (uiState.showDefaultPurchaseAmount) {
                     SettingsNavigationRow(

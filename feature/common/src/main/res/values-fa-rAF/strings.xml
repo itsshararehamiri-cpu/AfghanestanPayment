@@ -212,4 +212,6 @@
     <string name="transaction_communication_error_send">درخواست به سرور نرسید. لطفاً اتصال دستگاه را چک کنید و دوباره کوشش کنید.</string>
     <string name="transaction_communication_error_receive">جواب سرور به وقتش نرسید. اگر پولی از حساب کم شده باشد، خودکار دوباره برمی‌گردد. لطفاً چند لحظه بعد دوباره کوشش کنید.</string>
     <string name="transaction_communication_error_queue">یک تراکنش قبلی هنوز با سرور تصفیه نشده است. چند لحظه صبر کنید و دوباره کوشش کنید.</string>
+    <string name="customer_receipt_optional_dialog_title">رسید مشتری</string>
+    <string name="customer_receipt_optional_dialog_message">آیا رسید مشتری چاپ شود؟</string>
 </resources>

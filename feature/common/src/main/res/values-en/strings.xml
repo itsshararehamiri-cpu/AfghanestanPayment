@@ -207,4 +207,6 @@
     <string name="transaction_communication_error_send">The request didn\'t reach the server. Please check the connection and try again.</string>
     <string name="transaction_communication_error_receive">The server didn\'t answer in time. If any money was taken from the card, it will be returned automatically. Please try again in a moment.</string>
     <string name="transaction_communication_error_queue">A previous transaction is still being settled with the server. Please wait a moment and try again.</string>
+    <string name="customer_receipt_optional_dialog_title">Customer receipt</string>
+    <string name="customer_receipt_optional_dialog_message">Print the customer receipt?</string>
 </resources>

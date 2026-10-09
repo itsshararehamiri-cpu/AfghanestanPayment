@@ -5,6 +5,7 @@ import com.danesh.api.TransactionContextProvider
 import com.danesh.api.TransactionResultDetail
 import com.danesh.api.TransactionTransportCodes
 import com.danesh.api.TransactionType
+import com.danesh.common.receipt.OptionalReceiptStore
 import com.danesh.common.strings.TransportErrorNormalizer
 import com.danesh.iso.IsoMessage
 import com.danesh.iso.IsoTransactionResultMapper
@@ -24,6 +25,7 @@ class SadadIsoHandlerSupport @Inject constructor(
     private val contextProvider: TransactionContextProvider,
     private val initProfileStore: SadadInitProfileStore,
     private val topupVatStore: SadadTopupVatStore,
+    private val optionalReceiptStore: OptionalReceiptStore,
 ) {
     fun map(
         transactionType: TransactionType,
@@ -58,6 +60,7 @@ class SadadIsoHandlerSupport @Inject constructor(
         val hostData = SadadHostFunctionCodes.parse(response?.privateUseField63)
         if (isSuccess) {
             saveTopupVat(hostData)
+            saveOptionalReceipt(hostData)
             saveTerminalUniqueCode(hostData, withMessage.terminalId)
         }
         val terminalUniqueCode = runCatching { initProfileStore.get().taxMemoryUniqueCode }
@@ -92,6 +95,13 @@ class SadadIsoHandlerSupport @Inject constructor(
                 Log.d(SadadHostFunctionCodes.TUC_TAG, "043 code='$code' unchanged")
             }
         }.onFailure { Log.e(SadadHostFunctionCodes.TUC_TAG, "043 save failed", it) }
+    }
+
+    /** Host Function Code 033: کف/سقف رسید اختیاری که سوئیچ اعمال کرده است. */
+    private fun saveOptionalReceipt(hostData: SadadHostData) {
+        val limits = hostData.optionalReceipt?.toLimits() ?: return
+        runCatching { optionalReceiptStore.save(limits) }
+            .onFailure { Log.w("SadadHostFC", "033 save failed: ${it.message}") }
     }
 
     /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ (با دقت اعشار). */

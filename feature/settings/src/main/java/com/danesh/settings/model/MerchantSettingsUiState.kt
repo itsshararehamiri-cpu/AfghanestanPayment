@@ -31,6 +31,10 @@ data class MerchantSettingsUiState(
     val showMicroPaymentIndex: Boolean = true,
     /** سداد: ردیف «شروع به کار» (LOGON). */
     val showStartup: Boolean = false,
+    /** سداد: ردیف کف/سقف رسید اختیاری. */
+    val showOptionalReceipt: Boolean = false,
+    /** نمایش مقدار فعلی کف/سقف (خالی = تنظیم نشده). */
+    val optionalReceiptDisplay: String = "",
     val startupInProgress: StartupOperation? = null,
     val startupResult: StartupStepResult? = null,
 )

@@ -193,3 +193,12 @@ object SadadHostFunctionCodes {
         }
     }
 }
+
+/** FC 033 → مدل مشترک؛ مقدار نامعتبر/ناقص `null` می‌شود. */
+fun SadadHostData.OptionalReceipt.toLimits(): com.danesh.api.OptionalReceiptLimits? {
+    if (!isActive) return com.danesh.api.OptionalReceiptLimits(active = false, lowerRials = 0, upperRials = 0)
+    val lower = lowerBoundAmount.toLongOrNull() ?: return null
+    val upper = upperBoundAmount.toLongOrNull() ?: return null
+    if (lower > upper) return null
+    return com.danesh.api.OptionalReceiptLimits(active = true, lowerRials = lower, upperRials = upper)
+}

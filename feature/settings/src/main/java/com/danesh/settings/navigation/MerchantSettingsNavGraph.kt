@@ -20,11 +20,13 @@ import com.danesh.settings.presentation.MerchantSettingsViewModel
 import com.danesh.settings.ui.ChangePasswordRoute
 import com.danesh.settings.ui.DefaultPurchaseAmountSettingsRoute
 import com.danesh.settings.ui.MerchantSettingsScreen
+import com.danesh.settings.ui.OptionalReceiptSettingsRoute
 
 private object MerchantSettingsRoutes {
     const val SETTINGS = "merchant_settings"
     const val CHANGE_PASSWORD = "merchant_change_password"
     const val DEFAULT_PURCHASE_AMOUNT = "merchant_default_purchase_amount"
+    const val OPTIONAL_RECEIPT = "merchant_optional_receipt"
 }
 
 @Composable
@@ -110,10 +112,18 @@ fun MerchantSettingsNavHost(
                 onThemeChange = { selectedTheme = it.name },
                 onStartupClick = merchantSettingsViewModel::runStartup,
                 onDismissStartupResult = merchantSettingsViewModel::dismissStartupResult,
+                onOptionalReceiptClick = {
+                    navController.navigate(MerchantSettingsRoutes.OPTIONAL_RECEIPT)
+                },
             )
         }
         composable(MerchantSettingsRoutes.DEFAULT_PURCHASE_AMOUNT) {
             DefaultPurchaseAmountSettingsRoute(
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+        composable(MerchantSettingsRoutes.OPTIONAL_RECEIPT) {
+            OptionalReceiptSettingsRoute(
                 onBackClick = { navController.popBackStack() },
             )
         }

@@ -41,7 +41,7 @@ fun SuccessReceiptPrintEffects(
 
     LaunchedEffect(receiptBitmap) {
         if (receiptBitmap != null && printFlow.shouldAutoPrintCustomer()) {
-            printFlow.triggerAutoPrintCustomer()
+            printFlow.onCustomerReceiptReady()
         }
     }
 
@@ -103,6 +103,13 @@ fun SuccessReceiptPrintEffects(
                 navigateHomeOnce()
             }
         }
+    }
+
+    if (printFlow.customerPromptVisible) {
+        CustomerReceiptOptionalDialog(
+            onConfirm = { printFlow.onCustomerPrintAccepted() },
+            onDecline = { printFlow.onCustomerPrintDeclined() },
+        )
     }
 
     if (printFlow.merchantPhase == MerchantReceiptPhase.OPTIONAL_DIALOG) {

@@ -210,4 +210,6 @@
     <string name="transaction_communication_error_send">غوښتنه سرور ته ونه رسېده. مهرباني وکړئ اتصال وګورئ او بیا هڅه وکړئ.</string>
     <string name="transaction_communication_error_receive">د سرور ځواب په وخت ونه رسېد. که پیسې مو له حساب څخه کمې شوې وي، په اتومات ډول بېرته راګرځي. لږ وروسته بیا هڅه وکړئ.</string>
     <string name="transaction_communication_error_queue">یوه پخوانۍ معامله لا له سرور سره نه ده تصفیه شوې. لږ صبر وکړئ او بیا هڅه وکړئ.</string>
+    <string name="customer_receipt_optional_dialog_title">رسید مشتری</string>
+    <string name="customer_receipt_optional_dialog_message">آیا رسید مشتری چاپ شود؟</string>
 </resources>
