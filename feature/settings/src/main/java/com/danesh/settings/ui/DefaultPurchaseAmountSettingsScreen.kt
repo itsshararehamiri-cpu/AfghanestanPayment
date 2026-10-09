@@ -1,5 +1,9 @@
 package com.danesh.settings.ui
 
+import androidx.compose.ui.text.input.KeyboardType
+import com.danesh.common.currency.amountInWordsWithCurrency
+import com.danesh.ui.textinput.AmountTransactionField
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -101,13 +105,15 @@ fun DefaultPurchaseAmountSettingsScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                SettingsTextField(
+                AmountTransactionField(
+                    label = stringResource(R.string.settings_merchant_default_amount_value_label),
                     value = uiState.amountDigits,
                     onValueChange = onAmountChange,
-                    label = stringResource(R.string.settings_merchant_default_amount_value_label),
                     placeholder = stringResource(R.string.settings_merchant_default_amount_value_hint),
+                    iconRes = com.danesh.ui.R.drawable.ic_coin,
+                    keyboardType = KeyboardType.Number,
                     errorMessage = uiState.amountError,
-                    inputFilter = SettingsTextInputFilter.DigitsOnly,
+                    amountInWords = amountInWordsWithCurrency(uiState.amountDigits),
                 )
             }
 

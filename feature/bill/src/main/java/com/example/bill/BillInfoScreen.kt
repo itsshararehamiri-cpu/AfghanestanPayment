@@ -117,7 +117,7 @@ private fun BillInfoContent(
                     value = uiState.amount,
                     onValueChange = onAmountChange,
                     placeholder = stringResource(R.string.enter_amount),
-                    iconRes = com.danesh.ui.R.drawable.ic_money_send,
+                    iconRes = com.danesh.ui.R.drawable.ic_coin,
                     errorMessage = uiState.amountError,
                     keyboardType = KeyboardType.Decimal,
                     amountInWords = amountInWordsWithCurrency(uiState.amount),

@@ -235,7 +235,7 @@ private fun QrPaymentInfoCard(details: QrPaymentDetails) {
         PurchaseSolidDivider()
         ElectronicReceiptDetailRow(
             label = stringResource(R.string.balance_label_payable_amount),
-            icon = R.drawable.ic_payable_amount,
+            icon = com.danesh.ui.R.drawable.ic_coin,
             labelColor = Color(0xFFFFFFFF),
             verticalPadding = 14.dp,
             valueContent = { PayableAmountValue(amount = details.payableAmount) },

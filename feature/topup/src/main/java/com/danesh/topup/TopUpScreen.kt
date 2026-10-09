@@ -30,6 +30,7 @@ import com.danesh.topup.ui.ChargeGroupRow
 import com.danesh.topup.ui.OperatorSelectionRow
 import com.danesh.topup.ui.theme.TopUpColors
 import com.danesh.ui.button.GradientActionButton
+import com.danesh.ui.textinput.AmountTransactionField
 import com.danesh.ui.textinput.TransactionField
 import com.danesh.ui.theme.AppColors
 import com.danesh.ui.theme.appTextStyle
@@ -134,12 +135,12 @@ private fun TopUpContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 if (uiState.variableAmount) {
-                    TransactionField(
+                    AmountTransactionField(
                         label = topUpAmountFieldLabel(),
                         value = uiState.amountText,
                         onValueChange = onAmountChange,
                         placeholder = stringResource(R.string.topup_amount_placeholder),
-                        iconRes = R.drawable.ic_payable_amount,
+                        iconRes = com.danesh.ui.R.drawable.ic_coin,
                         keyboardType = KeyboardType.Number,
                         errorMessage = uiState.amountError,
                         amountInWords = amountInWordsWithCurrency(uiState.amountText),

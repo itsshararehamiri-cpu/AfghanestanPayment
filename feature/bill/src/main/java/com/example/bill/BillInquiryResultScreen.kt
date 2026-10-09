@@ -154,7 +154,7 @@ private fun BillInquiryResultCard(details: BillInquiryResultDetails) {
             )
             BillDetailRow(
                 label = stringResource(R.string.bill_label_payable_amount),
-                icon = R.drawable.ic_payable_amount,
+                icon = com.danesh.ui.R.drawable.ic_coin,
                 value = details.payableAmount,
                 valueColor = Color(0XFFFFFFFF),
                 valueFontWeight = FontWeight.Bold,

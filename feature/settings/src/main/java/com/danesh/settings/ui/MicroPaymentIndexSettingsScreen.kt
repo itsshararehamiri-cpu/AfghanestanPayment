@@ -20,7 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.danesh.settings.R
 import com.danesh.settings.model.MicroPaymentIndexSettingsUiState
+import com.danesh.common.currency.amountInWordsWithCurrency
 import com.danesh.ui.button.GradientActionButton
+import com.danesh.ui.textinput.AmountTransactionField
 import com.danesh.ui.theme.appScreenBackground
 import com.danesh.ui.toolbar.Toolbar
 
@@ -61,12 +63,15 @@ fun MicroPaymentIndexSettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SettingsTextField(
+            AmountTransactionField(
+                label = stringResource(R.string.settings_support_micro_payment_index_hint),
                 value = uiState.inputValue,
                 onValueChange = onInputChange,
                 placeholder = stringResource(R.string.settings_support_micro_payment_index_hint),
-                errorMessage = uiState.errorMessage,
+                iconRes = com.danesh.ui.R.drawable.ic_coin,
                 keyboardType = KeyboardType.Number,
+                errorMessage = uiState.errorMessage,
+                amountInWords = amountInWordsWithCurrency(uiState.inputValue),
             )
 
             Spacer(modifier = Modifier.height(20.dp))
