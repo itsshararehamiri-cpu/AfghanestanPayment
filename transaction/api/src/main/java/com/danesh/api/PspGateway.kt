@@ -103,13 +103,23 @@ data class CouponPurchaseInput(
     val pinBlock: String,
     val pan: String,
     val amount: Long = 0,
+    /** مبلغی که از اعتبار کالابرگ پرداخت می‌شود (پاسخ استعلام) — سداد. */
+    val creditAmount: Long = 0,
     /** فیلد 37 (RRN) پاسخ استعلام کالابرگ */
     val inquiryRrn: String,
     /** فیلد 44 (شماره پیگیری کالابرگ) پاسخ استعلام کالابرگ */
     val couponTrackingNumber: String,
 )
 
+/** لغو استعلام کالابرگ (سداد FC 058) با شماره پیگیری استعلام. */
+data class CouponCancelInput(
+    val track2: String,
+    val pan: String,
+    val couponTrackingNumber: String,
+)
+
 typealias CashDepositOutput = TransactionResultDetail
+typealias CouponCancelOutput = TransactionResultDetail
 typealias CouponListOutput = TransactionResultDetail
 typealias CouponInquiryOutput = TransactionResultDetail
 typealias CouponPurchaseOutput = TransactionResultDetail
@@ -251,6 +261,14 @@ interface PspGateway {
     suspend fun getCouponList(input: CouponListInput): CouponListOutput
     suspend fun couponInquiry(input: CouponInquiryInput): CouponInquiryOutput
     suspend fun couponPurchase(input: CouponPurchaseInput): CouponPurchaseOutput
+
+    /** لغو استعلام کالابرگ؛ PSPهایی که پشتیبانی نمی‌کنند نتیجهٔ ناموفق برمی‌گردانند. */
+    suspend fun couponCancel(input: CouponCancelInput): CouponCancelOutput =
+        TransactionResultDetail(
+            isSuccess = false,
+            responseMessage = "Coupon cancel is not available for this PSP",
+            transactionType = TransactionType.COUPON_INQUIRY,
+        )
 
     /**
      * ارسال کف/سقف رسید اختیاری به سوئیچ؛ مقادیر نهایی از پاسخ سوئیچ برگردانده می‌شود.

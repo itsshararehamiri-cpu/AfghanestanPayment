@@ -70,6 +70,11 @@ abstract class TransactionModule {
     ): ChargeCatalog
 
     @Binds
+    abstract fun bindCouponCatalog(
+        impl: com.danesh.bp.voucher.EmptyCouponCatalog,
+    ): com.danesh.api.CouponCatalog
+
+    @Binds
     abstract fun bindSupportMenuPersister(
         impl: BpSupportMenuStore,
     ): com.danesh.bp.support.SupportMenuResponsePersister

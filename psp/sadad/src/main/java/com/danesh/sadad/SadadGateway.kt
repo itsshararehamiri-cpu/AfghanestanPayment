@@ -96,6 +96,12 @@ import com.danesh.sadad.voucher.VoucherHandler
 import com.danesh.sadad.wallet_to_wallet.WalletToWalletHandler
 import com.danesh.api.OptionalReceiptLimits
 import com.danesh.api.OptionalReceiptUpdateResult
+import com.danesh.sadad.commoditybasket.CommodityBasketCancelHandler
+import com.danesh.sadad.commoditybasket.CommodityBasketInquiryHandler
+import com.danesh.sadad.commoditybasket.CommodityBasketSaleHandler
+import com.danesh.sadad.commoditybasket.SadadCommodityBasketCancelRequest
+import com.danesh.sadad.commoditybasket.SadadCommodityBasketInquiryRequest
+import com.danesh.sadad.commoditybasket.SadadCommodityBasketSaleRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -131,6 +137,9 @@ class SadadGateway @Inject constructor(
     private val gamBondHandler: GamBondHandler,
     private val saleGisStationHandler: SaleGisStationHandler,
     private val fuelStationInquiryHandler: FuelStationInquiryHandler,
+    private val commodityBasketInquiryHandler: CommodityBasketInquiryHandler,
+    private val commodityBasketSaleHandler: CommodityBasketSaleHandler,
+    private val commodityBasketCancelHandler: CommodityBasketCancelHandler,
 ) : PspGateway {
 
     override suspend fun bill(input: BillInput): BillOutput = withContext(Dispatchers.IO) {
@@ -162,21 +171,50 @@ class SadadGateway @Inject constructor(
             transactionType = com.danesh.api.TransactionType.COUPON_LIST,
         )
 
+    /** استعلام کالابرگ: فقط کارت (بدون رمز). */
     override suspend fun couponInquiry(input: com.danesh.api.CouponInquiryInput): com.danesh.api.CouponInquiryOutput =
-        TransactionResultDetail(
-            isSuccess = false,
-            responseCode = "40",
-            responseMessage = "Coupon inquiry is not available for this PSP",
-            transactionType = com.danesh.api.TransactionType.COUPON_INQUIRY,
-        )
+        withContext(Dispatchers.IO) {
+            val total = input.items.sumOf { item ->
+                (item.amount.filter(Char::isDigit).toLongOrNull() ?: 0L) * item.quantity.coerceAtLeast(1)
+            }
+            executor.execute(
+                request = SadadCommodityBasketInquiryRequest(
+                    track2 = input.track2,
+                    pan = input.pan,
+                    items = input.items,
+                    totalAmount = total,
+                ),
+                handler = commodityBasketInquiryHandler,
+            ).detail
+        }
 
+    /** خرید کالابرگ: با رمز؛ همان مبالغ و شماره پیگیری پاسخ استعلام ارسال می‌شود. */
     override suspend fun couponPurchase(input: com.danesh.api.CouponPurchaseInput): com.danesh.api.CouponPurchaseOutput =
-        TransactionResultDetail(
-            isSuccess = false,
-            responseCode = "40",
-            responseMessage = "Coupon purchase is not available for this PSP",
-            transactionType = com.danesh.api.TransactionType.COUPON_PURCHASE,
-        )
+        withContext(Dispatchers.IO) {
+            executor.execute(
+                request = SadadCommodityBasketSaleRequest(
+                    track2 = input.track2,
+                    pan = input.pan,
+                    pinBlock = input.pinBlock,
+                    transactionAmount = input.amount,
+                    creditAmount = input.creditAmount,
+                    traceItem = input.couponTrackingNumber,
+                ),
+                handler = commodityBasketSaleHandler,
+            ).detail
+        }
+
+    override suspend fun couponCancel(input: com.danesh.api.CouponCancelInput): com.danesh.api.CouponCancelOutput =
+        withContext(Dispatchers.IO) {
+            executor.execute(
+                request = SadadCommodityBasketCancelRequest(
+                    track2 = input.track2,
+                    orderTraceId = input.couponTrackingNumber,
+                ),
+                handler = commodityBasketCancelHandler,
+            ).detail
+        }
+
     override suspend fun balance(input: BalanceInput): BalanceOutput = withContext(Dispatchers.IO) {
         executor.execute(
             request = BalanceUserInput(pinBlock = input.pinBlock, track2 = input.track2, pan = input.pan),

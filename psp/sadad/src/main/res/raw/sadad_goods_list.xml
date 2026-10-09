@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  فهرست کالاهای کالابرگ سداد (SERVICE="GOODBASKET").
+  فهرست کامل سداد را جایگزین این فایل کنید؛ ساختار هر کالا:
+  <MENUITEM CLASS="" FN="نام فارسی" ENABLE="TRUE" HIDDEN="FALSE" EN="ENGLISH NAME" SERVICEIDENTIFIER="بارکد ۱۳ رقمی">
+    <SERVICEDESCRIPTOR SERVICE="GOODBASKET" />
+  </MENUITEM>
+  اختیاری: COUNTABLE="TRUE" برای کالای تعدادی (مبلغ × تعداد) — پوشک و شیر خشک از روی نام هم تشخیص داده می‌شوند.
+  اختیاری: UNIT="01" کد واحد کالا در استعلام.
+  ENABLE روی نمایش کالا اثر ندارد؛ فعال/غیرفعال کردن از تنظیمات کالابرگ انجام می‌شود.
+  «سایر» (1111111111111) داخل برنامه اضافه می‌شود و نباید اینجا تکرار شود.
+-->
+<MENU>
+	<MENUITEM CLASS="" FN="ماست" ENABLE="TRUE" HIDDEN="FALSE" EN="YOGURT" SERVICEIDENTIFIER="6612569878415">
+		<SERVICEDESCRIPTOR SERVICE="GOODBASKET" />
+	</MENUITEM>
+</MENU>

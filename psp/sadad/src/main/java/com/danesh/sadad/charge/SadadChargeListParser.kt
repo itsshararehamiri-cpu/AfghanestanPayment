@@ -109,12 +109,29 @@ internal object SadadChargeListParser {
  * (معمولاً Xerces کنار jPOS). در ریلیز R8 آن کلاس را حذف می‌کند و باز شدن
  * شارژ موبایل و کد شارژ با `FactoryConfigurationError` می‌افتد.
  */
-private class XmlNode(
+internal class XmlNode(
     val tag: String,
     private val attributes: Map<String, String>,
     val children: List<XmlNode>,
 ) {
     fun attr(name: String): String = attributes[name].orEmpty()
+
+    /** نام attribute بدون حساسیت به حروف بزرگ/کوچک (فهرست‌های سداد هر دو شکل را دارند). */
+    fun attrIgnoreCase(name: String): String =
+        attributes.entries.firstOrNull { it.key.equals(name, ignoreCase = true) }?.value.orEmpty()
+
+    /** همهٔ نوادگان (عمق اول). */
+    fun allDescendants(): List<XmlNode> {
+        val out = mutableListOf<XmlNode>()
+        fun walk(node: XmlNode) {
+            node.children.forEach { child ->
+                out += child
+                walk(child)
+            }
+        }
+        walk(this)
+        return out
+    }
 
     fun childMenuItems(): List<XmlNode> = children.filter { it.tag == "MenuItem" }
 

@@ -69,6 +69,11 @@ abstract class TransactionModule {
     ): ChargeCatalog
 
     @Binds
+    abstract fun bindCouponCatalog(
+        impl: com.danesh.sadad.commoditybasket.SadadGoodsCatalog,
+    ): com.danesh.api.CouponCatalog
+
+    @Binds
     abstract fun bindHostTimeSynchronizer(
         impl: NoOpHostTimeSynchronizer,
     ): HostTimeSynchronizer

@@ -70,6 +70,11 @@ abstract class TransactionModule {
     ): ChargeCatalog
 
     @Binds
+    abstract fun bindCouponCatalog(
+        impl: com.danesh.hp.voucher.EmptyCouponCatalog,
+    ): com.danesh.api.CouponCatalog
+
+    @Binds
     abstract fun bindHostTimeSynchronizer(
         impl: NoOpHostTimeSynchronizer,
     ): HostTimeSynchronizer
