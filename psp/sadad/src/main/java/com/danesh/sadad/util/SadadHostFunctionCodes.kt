@@ -15,7 +15,7 @@ data class SadadHostData(
     val discount: Discount? = null,
     /** 008: پاسخ استعلام قبض. */
     val billInquiry: BillInquiry? = null,
-    /** 018: درصد مالیات بر ارزش افزوده شارژ. */
+    /** 018: درصد مالیات بر ارزش افزوده شارژ (با دقت اعشار اعلام‌شده توسط سوئیچ). */
     val topupVatPercent: Double? = null,
     /** 026: نام سازمان قبض. */
     val billOrganization: BillOrganization? = null,
@@ -123,12 +123,7 @@ object SadadHostFunctionCodes {
                     ),
                 )
             }
-            TOPUP_HOST_DATA -> {
-                val r = FixedReader(data)
-                val floatingPoint = r.digits(1).toInt()
-                val vat = r.digits(7).toLong()
-                current.copy(topupVatPercent = vat / Math.pow(10.0, floatingPoint.toDouble()))
-            }
+            TOPUP_HOST_DATA -> current.copy(topupVatPercent = parseTopupVat(data)?.toDouble())
             BILL_PAYMENT_EXTRA_DATA -> {
                 val r = FixedReader(data)
                 val nameFa = decodeText(r.take(r.digits(3).toInt()))
@@ -164,6 +159,18 @@ object SadadHostFunctionCodes {
             }
             else -> current
         }
+    }
+
+    /**
+     * FC 018: رقم اول = تعداد ارقام اعشار، بقیه = مقدار مالیات (مثلاً `2` + `0001000` = 10.00٪).
+     * طول بخش مالیات ثابت فرض نمی‌شود؛ هر چه بعد از رقم اول بیاید (فقط ارقام) خوانده می‌شود.
+     */
+    fun parseTopupVat(data: String): java.math.BigDecimal? {
+        val trimmed = data.trim()
+        if (trimmed.length < 2 || !trimmed.all(Char::isDigit)) return null
+        val scale = trimmed[0].digitToInt()
+        val value = java.math.BigDecimal(trimmed.substring(1)).movePointLeft(scale).stripTrailingZeros()
+        return value.takeIf { it.signum() > 0 && it <= java.math.BigDecimal(100) }
     }
 
     /** متن فارسی سداد: هگز ایران‌سیستم یا بایت خام. */

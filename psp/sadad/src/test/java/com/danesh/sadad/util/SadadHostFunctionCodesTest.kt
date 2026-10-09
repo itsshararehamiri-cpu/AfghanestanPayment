@@ -52,6 +52,15 @@ class SadadHostFunctionCodesTest {
     }
 
     @Test
+    fun topupVatKeepsDecimalPrecision() {
+        assertEquals(java.math.BigDecimal("9.5"), SadadHostFunctionCodes.parseTopupVat("1" + "0000095"))
+        assertEquals(java.math.BigDecimal("10"), SadadHostFunctionCodes.parseTopupVat("0" + "10"))
+        assertNull(SadadHostFunctionCodes.parseTopupVat("x"))
+        assertEquals(220_000L, com.danesh.sadad.topup.SadadTopupAmounts.payableWithTax(200_000L, java.math.BigDecimal("10")))
+        assertEquals(219_000L, com.danesh.sadad.topup.SadadTopupAmounts.payableWithTax(200_000L, java.math.BigDecimal("9.5")))
+    }
+
+    @Test
     fun malformedCodeIsIgnoredOthersKept() {
         val host = SadadHostFunctionCodes.parse(
             field63("007" to "12", "003" to "96A897", "013" to "whatever"),

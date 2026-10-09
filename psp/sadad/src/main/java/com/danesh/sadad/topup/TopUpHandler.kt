@@ -33,7 +33,8 @@ class TopUpHandler @Inject constructor(
 
     override fun queueFailure(request: SadadTopUpRequest): SadadTopUpResult {
         val message = buildMessage(request)
-        return SadadTopUpResult(
+        return topUpResult(
+            request,
             detail = transport.map(
                 transactionType = TransactionType.TOPUP,
                 request = message,
@@ -51,7 +52,8 @@ class TopUpHandler @Inject constructor(
         request: SadadTopUpRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): SadadTopUpResult = SadadTopUpResult(
+    ): SadadTopUpResult = topUpResult(
+        request,
         detail = transport.map(
             transactionType = TransactionType.TOPUP,
             request = sentMessage,
@@ -65,7 +67,8 @@ class TopUpHandler @Inject constructor(
         request: SadadTopUpRequest,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): SadadTopUpResult = SadadTopUpResult(
+    ): SadadTopUpResult = topUpResult(
+        request,
         detail = transport.map(
             transactionType = TransactionType.TOPUP,
             request = sentMessage,
@@ -79,7 +82,8 @@ class TopUpHandler @Inject constructor(
         request: SadadTopUpRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTopUpResult = SadadTopUpResult(
+    ): SadadTopUpResult = topUpResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
@@ -93,7 +97,8 @@ class TopUpHandler @Inject constructor(
         request: SadadTopUpRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTopUpResult = SadadTopUpResult(
+    ): SadadTopUpResult = topUpResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
@@ -107,7 +112,8 @@ class TopUpHandler @Inject constructor(
         request: SadadTopUpRequest,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTopUpResult = SadadTopUpResult(
+    ): SadadTopUpResult = topUpResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.TOPUP,
             sentMessage = sentMessage,
@@ -122,4 +128,10 @@ class TopUpHandler @Inject constructor(
         sentMessage: IsoMessage,
         e: Exception,
     ): SadadTopUpResult = receiveFailure(request, sentMessage, e)
+
+    /** رسید شارژ مبلغ بدون مالیات را نشان می‌دهد (DE4 شامل مالیات است). */
+    private fun topUpResult(request: SadadTopUpRequest, detail: com.danesh.api.TransactionResultDetail): SadadTopUpResult {
+        val net = request.amount.filter(Char::isDigit).trimStart('0')
+        return SadadTopUpResult(detail = if (net.isEmpty()) detail else detail.copy(amount = net))
+    }
 }

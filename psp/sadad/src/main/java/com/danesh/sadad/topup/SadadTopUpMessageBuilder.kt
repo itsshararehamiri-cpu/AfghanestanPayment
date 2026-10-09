@@ -21,16 +21,19 @@ class SadadTopUpMessageBuilder @Inject constructor(
     private val messageProvider: IsoMessageProvider,
     private val macCalculator: SadadMacCalculator,
     private val chargeCatalog: ChargeCatalog,
+    private val vatStore: SadadTopupVatStore,
 ) {
     suspend fun build(request: TopUpUserInput): IsoMessage {
         messageSupport.beginSession()
         val product = chargeCatalog.findProduct(request.productId)
         val chargeDigits = request.amount.filter { it.isDigit() }
         val chargeAmount = chargeDigits.padStart(12, '0').takeLast(12)
-        val taxPercent = chargeCatalog.operators(ChargeKind.TOPUP)
-            .firstOrNull { it.providerId == product?.providerId }
-            ?.taxPercent ?: 0
-        val payable = payableWithTax(chargeDigits.toLongOrNull() ?: 0L, taxPercent)
+        // اولویت با مالیات اعلام‌شده توسط سوئیچ (FC 018)، سپس taxPercent فایل ChargeList.
+        val taxPercent = vatStore.get()
+            ?: chargeCatalog.operators(ChargeKind.TOPUP)
+                .firstOrNull { it.providerId == product?.providerId }
+                ?.taxPercent?.toBigDecimal()
+        val payable = SadadTopupAmounts.payableWithTax(chargeDigits.toLongOrNull() ?: 0L, taxPercent)
         val operatorCode = (product?.providerId ?: request.operatorCode)
             .filter { it.isDigit() }.padStart(3, '0').takeLast(3)
         val categoryCode = (product?.categoryId ?: "1")
@@ -59,10 +62,5 @@ class SadadTopUpMessageBuilder @Inject constructor(
         message.setPackager(SadadIso93BPackager())
         macCalculator.applyTransactionMac(message)
         return message
-    }
-
-    private fun payableWithTax(charge: Long, taxPercent: Int): Long {
-        if (taxPercent <= 0) return charge
-        return charge + charge * taxPercent / 100
     }
 }

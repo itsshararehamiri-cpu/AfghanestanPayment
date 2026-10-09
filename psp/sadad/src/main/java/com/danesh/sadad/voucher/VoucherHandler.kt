@@ -33,7 +33,8 @@ class VoucherHandler @Inject constructor(
 
     override fun queueFailure(request: VoucherUserInput): SadadTxnResult {
         val message = buildMessage(request)
-        return SadadTxnResult(
+        return voucherResult(
+            request,
             detail = transport.map(
                 transactionType = TransactionType.VOUCHER,
                 request = message,
@@ -51,7 +52,8 @@ class VoucherHandler @Inject constructor(
         request: VoucherUserInput,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): SadadTxnResult = SadadTxnResult(
+    ): SadadTxnResult = voucherResult(
+        request,
         detail = overlayChargeResponse(
             transport.map(
                 transactionType = TransactionType.VOUCHER,
@@ -68,7 +70,8 @@ class VoucherHandler @Inject constructor(
         request: VoucherUserInput,
         sentMessage: IsoMessage,
         response: IsoMessage?,
-    ): SadadTxnResult = SadadTxnResult(
+    ): SadadTxnResult = voucherResult(
+        request,
         detail = overlayChargeResponse(
             transport.map(
                 transactionType = TransactionType.VOUCHER,
@@ -85,7 +88,8 @@ class VoucherHandler @Inject constructor(
         request: VoucherUserInput,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTxnResult = SadadTxnResult(
+    ): SadadTxnResult = voucherResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.VOUCHER,
             sentMessage = sentMessage,
@@ -99,7 +103,8 @@ class VoucherHandler @Inject constructor(
         request: VoucherUserInput,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTxnResult = SadadTxnResult(
+    ): SadadTxnResult = voucherResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.VOUCHER,
             sentMessage = sentMessage,
@@ -113,7 +118,8 @@ class VoucherHandler @Inject constructor(
         request: VoucherUserInput,
         sentMessage: IsoMessage,
         error: Exception,
-    ): SadadTxnResult = SadadTxnResult(
+    ): SadadTxnResult = voucherResult(
+        request,
         detail = transport.failureDetail(
             transactionType = TransactionType.VOUCHER,
             sentMessage = sentMessage,
@@ -189,5 +195,11 @@ class VoucherHandler @Inject constructor(
 
     private companion object {
         const val TAG = "sharjHoma"
+    }
+
+    /** رسید شارژ مبلغ بدون مالیات را نشان می‌دهد (DE4 شامل مالیات است). */
+    private fun voucherResult(request: VoucherUserInput, detail: com.danesh.api.TransactionResultDetail): SadadTxnResult {
+        val net = request.amount.filter(Char::isDigit).trimStart('0')
+        return SadadTxnResult(detail = if (net.isEmpty()) detail else detail.copy(amount = net))
     }
 }

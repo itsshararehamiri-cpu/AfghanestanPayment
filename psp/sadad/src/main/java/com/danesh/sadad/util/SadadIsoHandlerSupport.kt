@@ -11,6 +11,7 @@ import com.danesh.iso.IsoTransactionResultMapper
 import com.danesh.sadad.field54.SadadField54Parser
 import com.danesh.sadad.init.SadadInitProfileStore
 import com.danesh.sadad.iso.SadadIsoMessageFactory
+import com.danesh.sadad.topup.SadadTopupVatStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,6 +23,7 @@ class SadadIsoHandlerSupport @Inject constructor(
     private val responseCodeText: SadadResponseCodeText,
     private val contextProvider: TransactionContextProvider,
     private val initProfileStore: SadadInitProfileStore,
+    private val topupVatStore: SadadTopupVatStore,
 ) {
     fun map(
         transactionType: TransactionType,
@@ -92,12 +94,14 @@ class SadadIsoHandlerSupport @Inject constructor(
         }.onFailure { Log.e(SadadHostFunctionCodes.TUC_TAG, "043 save failed", it) }
     }
 
-    /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ. */
+    /** Function Code 018: درصد مالیات شارژ اعلام‌شده توسط سوئیچ (با دقت اعشار). */
     private fun saveTopupVat(hostData: SadadHostData) {
-        val percent = hostData.topupVatPercent ?: return
-        val rounded = Math.round(percent).toInt()
-        if (rounded !in 1..100) return
-        runCatching { contextProvider.saveVatPercentage(rounded.toString()) }
+        val percent = hostData.topupVatPercent?.toBigDecimal()?.stripTrailingZeros() ?: return
+        runCatching { topupVatStore.save(percent) }
+            .onFailure { Log.w("SadadHostFC", "018 save failed: ${it.message}") }
+        // تنظیم «درصد مالیات» عمومی اپ فقط عدد صحیح می‌پذیرد.
+        val rounded = percent.setScale(0, java.math.RoundingMode.HALF_UP).toInt()
+        if (rounded in 1..100) runCatching { contextProvider.saveVatPercentage(rounded.toString()) }
     }
 
     private fun mappedResponseMessage(detail: TransactionResultDetail): String {
