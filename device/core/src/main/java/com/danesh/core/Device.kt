@@ -16,25 +16,23 @@ interface Device {
     val hasKeyboard:Boolean
    suspend fun getModel(): String
 
-  suspend fun writeMasterKey(masterKey: ByteArray, index: Int = INDEX_TMK)
-  suspend fun writeMacKey(macKey: ByteArray, index: Int = INDEX_MAC, wrappingTmk: ByteArray? = null)
-  suspend fun writeDataKey(dataKey: ByteArray)
-  suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
-      writeDataKey(dataKey)
-  }
-  suspend fun writePinKey(pinKey: ByteArray)
-  suspend fun writePinKey(pinKey: ByteArray, index: Int) {
-      writePinKey(pinKey)
-  }
-  suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int = INDEX_MAC)
-  suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray)
-  suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) {
-      loadTmkEncryptedPinKey(encryptedKey)
-  }
-  suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray)
-  suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) {
-      loadTmkEncryptedDataKey(encryptedKey)
-  }
+  /**
+   * نوشتن/بارگذاری کلید روی PED. هیچ‌کدام exception بیرون نمی‌دهند؛ نتیجه در [KeyLoadResult]
+   * برمی‌گردد (برای رفتار قبلی از [getOrThrow] استفاده کنید).
+   */
+  suspend fun writeMasterKey(masterKey: ByteArray, index: Int = INDEX_TMK): KeyLoadResult
+  suspend fun writeMacKey(macKey: ByteArray, index: Int = INDEX_MAC, wrappingTmk: ByteArray? = null): KeyLoadResult
+  suspend fun writeDataKey(dataKey: ByteArray): KeyLoadResult = writeDataKey(dataKey, INDEX_DATA)
+  suspend fun writeDataKey(dataKey: ByteArray, index: Int): KeyLoadResult
+  suspend fun writePinKey(pinKey: ByteArray): KeyLoadResult = writePinKey(pinKey, INDEX_PIN)
+  suspend fun writePinKey(pinKey: ByteArray, index: Int): KeyLoadResult
+  suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int = INDEX_MAC): KeyLoadResult
+  suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray): KeyLoadResult =
+      loadTmkEncryptedPinKey(encryptedKey, INDEX_PIN)
+  suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int): KeyLoadResult
+  suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray): KeyLoadResult =
+      loadTmkEncryptedDataKey(encryptedKey, INDEX_DATA)
+  suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int): KeyLoadResult
   fun clearMasterKeyCache() {}
 
   fun hasWorkingMacKeyOnPed(): Boolean = false
@@ -47,7 +45,8 @@ interface Device {
 
   @Deprecated("Keys are not cached in app memory")
   fun restoreMasterKeyCache(masterKey: ByteArray, index: Int = INDEX_TMK) {}
-  suspend fun awaitPinpadReady(timeoutMs: Long = 30_000L): Boolean = true
+  /** [timeoutMs] = null یعنی مقدار تنظیمات دستگاه ([DeviceTimeouts.pinpadReadyMs]). */
+  suspend fun awaitPinpadReady(timeoutMs: Long? = null): Boolean = true
   suspend  fun getMac(
         data: ByteArray,
         index: Int = INDEX_MAC,

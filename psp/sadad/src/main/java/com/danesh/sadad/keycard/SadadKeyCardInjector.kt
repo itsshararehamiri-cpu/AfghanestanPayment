@@ -3,6 +3,7 @@ package com.danesh.sadad.keycard
 import com.danesh.api.DeviceConfigurationStore
 import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.core.Device
+import com.danesh.core.getOrThrow
 import com.danesh.core.SensitiveBytes
 import com.danesh.sadad.key.SadadWorkingMacState
 import javax.inject.Inject
@@ -55,13 +56,13 @@ class SadadKeyCardInjector @Inject constructor(
             workingMacState.clearWorkingMac()
             workingMacState.saveKeyIndices(cardCIndex = keyIndex, rsaKeyIndex = rsaKeyIndex)
             StartupTraceFile.line("Inject", "write TMK index=$keyIndex len=${keys.terminalMasterKey.size}")
-            device.writeMasterKey(keys.terminalMasterKey, index = keyIndex)
+            device.writeMasterKey(keys.terminalMasterKey, index = keyIndex).getOrThrow()
             StartupTraceFile.line("Inject", "write MAC index=$keyIndex len=${keys.initMacKey.size}")
-            device.writeMacKey(keys.initMacKey, index = keyIndex)
+            device.writeMacKey(keys.initMacKey, index = keyIndex).getOrThrow()
             StartupTraceFile.line("Inject", "write DATA index=$keyIndex len=${keys.dataKey.size}")
-            device.writeDataKey(keys.dataKey, index = keyIndex)
+            device.writeDataKey(keys.dataKey, index = keyIndex).getOrThrow()
             StartupTraceFile.line("Inject", "write PIN index=$keyIndex len=${keys.pinKey.size}")
-            device.writePinKey(keys.pinKey, index = keyIndex)
+            device.writePinKey(keys.pinKey, index = keyIndex).getOrThrow()
             configurationStore.markConfigured()
 
             val pedKcv = runCatching { device.getKcvAt(keyIndex) }.getOrNull()

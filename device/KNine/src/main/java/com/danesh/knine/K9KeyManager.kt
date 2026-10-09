@@ -1,6 +1,6 @@
 package com.danesh.knine
 
-import android.util.Log
+import com.danesh.core.DeviceKeyIndexes
 import com.danesh.core.DeviceTrace
 import com.danesh.core.MacKeyType
 import com.pos.sdk.pinpad.KeyType
@@ -21,18 +21,23 @@ private const val KEY_SDK = "K9.SDK"
 internal class K9KeyManager(
     private val pinpadProvider: () -> PinpadDevice?,
     private val dataCbcModeProvider: () -> Boolean,
-    private val indexTmk: Int,
-    private val indexMac: Int,
-    private val indexPin: Int,
-    private val indexData: Int,
+    /** اندیس‌ها از تنظیمات بیرونی ([com.danesh.core.DeviceSettingsProvider]) خوانده می‌شوند. */
+    private val indexes: () -> DeviceKeyIndexes,
+    /** نام MacType پیش‌فرض SDK (مثلاً `TYPE_X919_00`) — از تنظیمات بیرونی. */
+    private val defaultMacTypeName: () -> String,
 ) {
     private var activeTmkIndex: Int = 1
     private var workingTmkIndex: Int = 1
     private val masterKeys = mutableMapOf<Int, ByteArray>()
 
-    /** MacType فعال برای BP — پس از diagnose با مرجع نرم‌افزار به‌روز می‌شود. */
+    /** MacType کشف‌شده توسط diagnose؛ تا آن موقع مقدار تنظیمات ([defaultMacTypeName]). */
     @Volatile
-    private var resolvedMacType: MacType = BP_MAC_TYPE_DEFAULT
+    private var diagnosedMacType: MacType? = null
+
+    private val resolvedMacType: MacType
+        get() = diagnosedMacType
+            ?: runCatching { MacType.valueOf(defaultMacTypeName()) }.getOrNull()
+            ?: FALLBACK_MAC_TYPE
     /** MAK کاری plaintext (F62 logon) برای محاسبه MAC نرم‌افزاری — جدا از TMK cache. */
     @Volatile
     private var workingMakPlain: ByteArray? = null
@@ -77,7 +82,7 @@ internal class K9KeyManager(
         masterKeys[index]?.fill(0)
         masterKeys[index] = key.copyOf()
         activeTmkIndex = index
-        if (index == indexTmk) {
+        if (index == indexes().masterKey) {
             workingTmkIndex = index
             DeviceTrace.step(
                 KEY_SDK,
@@ -95,7 +100,6 @@ internal class K9KeyManager(
         val encrypted = encryptWithMasterKey(key, tmkIndex)
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedMak(tmkIndex, index, encrypted)
-            Log.d("TAG", "writePlaintextMacKeycalled->$ok")
             com.danesh.common.diagnostics.StartupTraceFile.line(
                 "PedWrite",
                 "MAC index=$index tmkIndex=$tmkIndex result=$ok len=${key.size}",
@@ -117,14 +121,13 @@ internal class K9KeyManager(
         }
     }
 
-    suspend fun writePlaintextDataKey(dataKey: ByteArray, index: Int = indexData) {
+    suspend fun writePlaintextDataKey(dataKey: ByteArray, index: Int = indexes().dataKey) {
         val device = requirePinpad("writePlaintextDataKey")
         preparePinpad(device)
         val tmkIndex = activeTmkIndex
         val encrypted = encryptWithMasterKey(normalizeDesKey(dataKey), tmkIndex)
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedDek(tmkIndex, index, encrypted)
-            Log.d("TAG", "writePlaintexddtDataKey: dd$ok")
             com.danesh.common.diagnostics.StartupTraceFile.line(
                 "PedWrite",
                 "DATA index=$index tmkIndex=$tmkIndex result=$ok",
@@ -135,10 +138,10 @@ internal class K9KeyManager(
         }
     }
 
-    suspend fun writePlaintextPinKey(pinKey: ByteArray, index: Int = indexPin) {
+    suspend fun writePlaintextPinKey(pinKey: ByteArray, index: Int = indexes().pinKey) {
         val device = requirePinpad("writePlaintextPinKey")
         preparePinpad(device)
-        val tmkIndex = 16//activeTmkIndex
+        val tmkIndex = activeTmkIndex
         val encrypted = encryptWithMasterKey(normalizeDesKey(pinKey), tmkIndex)
         withEcbForKeyLoading(device) {
             val ok = device.loadTmkEncryptedPik(tmkIndex, index, encrypted)
@@ -181,7 +184,7 @@ internal class K9KeyManager(
         }
     }
 
-    suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int = indexPin) {
+    suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int = indexes().pinKey) {
         val device = requirePinpad("loadTmkEncryptedPinKey")
         preparePinpad(device)
         val tmkIndex = workingTmkIndex
@@ -209,7 +212,7 @@ internal class K9KeyManager(
         }
     }
 
-    suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int = indexData) {
+    suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int = indexes().dataKey) {
         val device = requirePinpad("loadTmkEncryptedDataKey")
         preparePinpad(device)
         val tmkIndex = workingTmkIndex
@@ -241,20 +244,14 @@ internal class K9KeyManager(
         return runCatching { HexUtils.bytesToHexString(bytes) }.getOrDefault("")
     }
 
-    fun getCheckValue(index: Int, keyType: KeyType): ByteArray{
-        try {
-            Log.d("TAG", "getCheckValue: index=${index},keyType=$keyType")
-            val device = pinpadProvider()
-            return device!!.getCheckValue(keyType, index) ?: ByteArray(0)
-        }
-        catch (e: Exception){
-            Log.d("TAG", "getCheckValue: cause${e.cause}")
-            Log.d("TAG", "getCheckValue: message${e.message}")
-            return ByteArray(0)
-        }
+    /** KCV کلید روی PED؛ اگر PED در دسترس نباشد یا خطا بدهد آرایه خالی. */
+    fun getCheckValue(index: Int, keyType: KeyType): ByteArray {
+        val device = pinpadProvider() ?: return ByteArray(0)
+        return runCatching { device.getCheckValue(keyType, index) }
+            .onFailure { DeviceTrace.warn(KEY_SDK, "getCheckValue index=$index keyType=$keyType failed: ${it.message}") }
+            .getOrNull() ?: ByteArray(0)
     }
     suspend fun getMac(data: ByteArray, index: Int, keyType: MacKeyType): ByteArray {
-        Log.d("TAG", "getMac: dddddd->${HexUtils.bytesToHexString(data)}")
         DeviceTrace.step(KEY_SDK, "getMac input length=${data.size} makIndex=$index keyType=$keyType")
         val device = pinpadProvider()
         if (device == null) {
@@ -265,7 +262,7 @@ internal class K9KeyManager(
             DeviceTrace.error(KEY_SDK, "getMac data is empty")
             return ByteArray(0)
         }
-        // BP host / AnsiX919Mac: zero-pad → TYPE_X919_00 (نه TYPE_X919 که معمولاً pad 0x80 است).
+        // MacType از تنظیمات بیرونی؛ اگر diagnose نوع بهتری پیدا کرد از همان استفاده می‌شود.
         // اگر diagnose MacType بهتری پیدا کرد، از همان استفاده می‌شود (MacMode همان caller می‌ماند —
         // WORKING/MAK مالی همیشه WORK_KEY است).
         DeviceTrace.step(
@@ -275,7 +272,7 @@ internal class K9KeyManager(
         return calcPedMac(device, data, index, keyType, resolvedMacType)
     }
 
-    /** MAC با MacType صریح (بدون تغییر resolvedMacType) — برای پیام‌های هم‌تراز سداد. */
+    /** MAC با MacType صریح (بدون تغییر MacType فعال). */
     fun getMacWithType(data: ByteArray, index: Int, keyType: MacKeyType, macTypeName: String): ByteArray {
         val device = pinpadProvider() ?: return ByteArray(0)
         if (data.isEmpty()) return ByteArray(0)
@@ -291,7 +288,7 @@ internal class K9KeyManager(
      * پروب MacType × MacMode وقتی خروجی PED با مرجع نرم‌افزاری (هاست) فرق دارد.
      * اگر تطبیق پیدا شود، برای getMacهای بعدی همان ترکیب را نگه می‌دارد.
      *
-     * توجه: برای Logon BP، ارسال MAC نرم‌افزار با RC=00 کافی است؛ این پروب فقط علت
+     * توجه: این پروب فقط علت
      * اختلاف PED را مشخص می‌کند و مانع موفقیت پروتکل نیست.
      */
     suspend fun diagnoseMacMismatch(
@@ -367,7 +364,7 @@ internal class K9KeyManager(
             }
         }
         if (matchedType != null && matchedKeyType != null) {
-            resolvedMacType = matchedType
+            diagnosedMacType = matchedType
             DeviceTrace.step(
                 KEY_SDK,
                 "diagnoseMacMismatch | MATCH → resolvedMacType=$matchedType " +
@@ -398,10 +395,6 @@ internal class K9KeyManager(
         keyType: MacKeyType,
         macType: MacType,
     ): ByteArray {
-        Log.d(
-            "TAG",
-            "calcPedMac called with = , data = ${HexUtils.bytesToHexString(data)}, index = $index, keyType = $keyType, macType = $macType"
-        )
         // MAC همیشه ECB — CBC مسیر DEK نباید روی getMac اثر بگذارد.
         return withEcbForKeyLoading(device) {
             val macMode = when (keyType) {
@@ -428,8 +421,6 @@ internal class K9KeyManager(
                 "PedMac",
                 "device.getMac slot=$index result=${if (mac == null) "null" else "len=${mac.size}"}",
             )
-            Log.d("TAG", "getCheckValCuedmac->${bytesToHexOrEmpty(makKcv)} slot=$index")
-            Log.d("TAG", "calcPedMac: ddddd->${bytesToHexOrEmpty(mac)}")
             if (mac != null && mac.isNotEmpty()) {
                 DeviceTrace.step(KEY_SDK, "getMac ok macType=$macType macLen=${mac.size}")
                 mac
@@ -462,7 +453,7 @@ internal class K9KeyManager(
         val key = normalizeDesKey(masterKey)
         masterKeys[index] = key.copyOf()
         activeTmkIndex = index
-        if (index == indexTmk) {
+        if (index == indexes().masterKey) {
             workingTmkIndex = index
         }
         calcKcvHex(key)?.let { kcv ->
@@ -541,12 +532,12 @@ internal class K9KeyManager(
                 }
             }
             if (!ok) {
-                // برای BP رایج است: PED ciphertext خام هاست را رد می‌کند؛
+                // بعضی هاست‌ها ciphertext خامی می‌فرستند که PED رد می‌کند؛
                 // decrypt نرم‌افزاری زیر TMK + wrap مجدد SDK → inject موفق.
                 DeviceTrace.step(
                     KEY_SDK,
                     "$operation fallback — decrypt F62 زیر TMK + injectPlaintextWorkingKey " +
-                            "(مستقیم reject شده؛ این مسیر برای BP طبیعی است اگر plaintextKCV درست باشد)",
+                            "(مستقیم reject شده؛ اگر plaintextKCV درست باشد این مسیر طبیعی است)",
                 )
                 val plain = expectedPlain
                     ?: error("$operation cannot verify or re-wrap without the current Init Terminal TMK")
@@ -591,7 +582,7 @@ internal class K9KeyManager(
         DeviceTrace.step(
             KEY_SDK,
             "$operation | workingTmkIndex=$tmkIndex activeTmkIndex=$activeTmkIndex " +
-                    "pikIndex=$indexPin makIndex=$indexMac dekIndex=$indexData",
+                    "pikIndex=${indexes().pinKey} makIndex=${indexes().macKey} dekIndex=${indexes().dataKey}",
         )
         val cached = masterKeys[tmkIndex]
         if (cached != null) {
@@ -704,11 +695,8 @@ internal class K9KeyManager(
     }
 
     private companion object {
-        /**
-         * به‌پرداخت: ANSI X9.19 با zero-pad (مثل AnsiX919Mac و هاست).
-         * TYPE_X919 در SDK Centerm معمولاً pad 0x80 می‌زند و با هاست BP یکی نیست.
-         */
-        val BP_MAC_TYPE_DEFAULT: MacType = MacType.TYPE_X919_00
+        /** فقط وقتی نام MacType تنظیمات در SDK نباشد. */
+        val FALLBACK_MAC_TYPE: MacType = MacType.TYPE_X919_00
     }
 
     private fun isValidDesBlockSize(data: ByteArray): Boolean =

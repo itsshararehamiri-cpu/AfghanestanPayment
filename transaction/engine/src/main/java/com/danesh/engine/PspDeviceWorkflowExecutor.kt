@@ -3,6 +3,7 @@ package com.danesh.engine
 import android.util.Log
 import com.danesh.api.PspKeyLoadStep
 import com.danesh.core.Device
+import com.danesh.core.getOrThrow
 import com.danesh.core.DeviceTrace
 import com.danesh.core.SensitiveBytes
 import javax.inject.Inject
@@ -27,7 +28,7 @@ class PspDeviceWorkflowExecutor @Inject constructor(
                         )
                         pendingWrapTmk?.let { SensitiveBytes.wipe(it) }
                         pendingWrapTmk = step.key.copyOf()
-                        device.writeMasterKey(masterKey = step.key, index = tmkIndex)
+                        device.writeMasterKey(masterKey = step.key, index = tmkIndex).getOrThrow()
                         SensitiveBytes.wipe(step.key)
                         DeviceTrace.step("Executor", "inject TMK index=$tmkIndex نتیجه=موفق")
                     }
@@ -40,7 +41,7 @@ class PspDeviceWorkflowExecutor @Inject constructor(
                             "Executor",
                             "قبل از inject MAK index=$makIndex keyLen=${step.key.size}",
                         )
-                        device.writeMacKey(macKey = step.key, index = makIndex, wrappingTmk = wrap)
+                        device.writeMacKey(macKey = step.key, index = makIndex, wrappingTmk = wrap).getOrThrow()
                         SensitiveBytes.wipe(step.key)
                         pendingWrapTmk?.let { SensitiveBytes.wipe(it) }
                         pendingWrapTmk = null
@@ -64,7 +65,7 @@ class PspDeviceWorkflowExecutor @Inject constructor(
                         device.loadTmkEncryptedMacKey(
                             encryptedKey = step.encryptedKey,
                             index = makIndex,
-                        )
+                        ).getOrThrow()
                         SensitiveBytes.wipe(step.encryptedKey)
                         DeviceTrace.step("Executor", "inject MAK index=$makIndex نتیجه=موفق")
                     }
@@ -75,7 +76,7 @@ class PspDeviceWorkflowExecutor @Inject constructor(
                             "قبل از inject PIK index=${device.INDEX_PIN} " +
                                 "encryptedLen=${step.encryptedKey.size}",
                         )
-                        device.loadTmkEncryptedPinKey(step.encryptedKey)
+                        device.loadTmkEncryptedPinKey(step.encryptedKey).getOrThrow()
                         SensitiveBytes.wipe(step.encryptedKey)
                         DeviceTrace.step("Executor", "inject PIK index=${device.INDEX_PIN} نتیجه=موفق")
                     }
@@ -85,7 +86,7 @@ class PspDeviceWorkflowExecutor @Inject constructor(
                             "Executor",
                             "قبل از inject DEK index=${device.INDEX_DATA} encryptedLen=${step.encryptedKey.size}",
                         )
-                        device.loadTmkEncryptedDataKey(step.encryptedKey)
+                        device.loadTmkEncryptedDataKey(step.encryptedKey).getOrThrow()
                         SensitiveBytes.wipe(step.encryptedKey)
                         DeviceTrace.step("Executor", "inject DEK index=${device.INDEX_DATA} نتیجه=موفق")
                     }
@@ -95,7 +96,6 @@ class PspDeviceWorkflowExecutor @Inject constructor(
         } finally {
             pendingWrapTmk?.let { SensitiveBytes.wipe(it) }
         }
-        device.getCheckValue("gggggg")
         DeviceTrace.step("Executor", "all steps completed")
     }
 

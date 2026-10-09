@@ -3,6 +3,7 @@ package com.danesh.sadad.logon
 import android.util.Log
 import com.danesh.common.diagnostics.StartupTraceFile
 import com.danesh.core.Device
+import com.danesh.core.getOrThrow
 import com.danesh.core.SensitiveBytes
 import com.danesh.sadad.key.SadadWorkingMacState
 import com.danesh.sadad.key.decodeHexKey
@@ -58,10 +59,10 @@ class SadadLogonWorkingKeyInjector @Inject constructor(
                 "LOGON",
                 "store working PIN/MAC/DATA at index=$workingIndex (unwrap index=$cardCIndex)",
             )
-            device.writeMasterKey(wrapTmk.copyOf(), index = cardCIndex)
-            device.writePinKey(plainPin, index = workingIndex)
-            device.writeMacKey(plainMac, index = workingIndex)
-            device.writeDataKey(plainData, index = workingIndex)
+            device.writeMasterKey(wrapTmk.copyOf(), index = cardCIndex).getOrThrow()
+            device.writePinKey(plainPin, index = workingIndex).getOrThrow()
+            device.writeMacKey(plainMac, index = workingIndex).getOrThrow()
+            device.writeDataKey(plainData, index = workingIndex).getOrThrow()
             wrappingKeys.storeWorkingMacKey(plainMac)
             wrappingKeys.storeWorkingDataKey(plainData)
             workingMacState.markWorkingMacLoaded()

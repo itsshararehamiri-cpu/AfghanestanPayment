@@ -3,12 +3,17 @@
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import androidx.annotation.StringRes
 import com.centerm.system.sdk.aidl.DeviceService
 import com.centerm.system.sdk.aidl.SystemDevicesFactory
 import com.danesh.core.Device
 import com.danesh.core.DeviceDefaults
+import com.danesh.core.DeviceKeyIndexes
+import com.danesh.core.DeviceKeyType
+import com.danesh.core.DeviceSettings
+import com.danesh.core.DeviceSettingsProvider
+import com.danesh.core.KeyLoadError
+import com.danesh.core.KeyLoadResult
 import com.danesh.core.DeviceTrace
 import com.danesh.core.KCV
 import com.danesh.core.MacKeyType
@@ -45,9 +50,15 @@ import javax.inject.Inject
 private const val SDK = "K9.SDK"
 private const val DEFAULT_MODEL = "K9"
 
+/**
+ * پیاده‌سازی [Device] روی دستگاه K9 (SDK سنترم).
+ *
+ * این کلاس فقط به SDK دستگاه وابسته است: اندیس کلیدها، زمان‌های انتظار، طول رمز و الگوریتم MAC
+ * همه از [DeviceSettingsProvider] (پیکربندی برنامه / PSP فعال) خوانده می‌شوند.
+ */
 class K9 @Inject constructor(
-    @ApplicationContext private val context: Context
-
+    @ApplicationContext private val context: Context,
+    private val settingsProvider: DeviceSettingsProvider,
 ) : Device {
     private var deviceManager: DeviceManager? = null
     private var mIcCardDevice: IcCardDevice? = null
@@ -63,21 +74,17 @@ class K9 @Inject constructor(
         val manager = deviceManager ?: return null
         return runCatching { manager.icDevice }.getOrNull()?.also { icDeviceHandle = it }
     }
-    private val cardType: Byte = 0
-    override val INDEX_DATA: Int
-        get() = 16
-    override val INDEX_MAC: Int
-        get() = 16
-    override val INDEX_TMK: Int
-        get() = 16
-    override val INDEX_BOOTSTRAP_TMK: Int
-        get() = 16
-    override val INDEX_BOOTSTRAP_MAC: Int
-        get() = 16
-    override val INDEX_PIN: Int
-        get() = 16
-    override val INDEX_TEK: Int
-        get() = 16
+
+    private val settings: DeviceSettings get() = settingsProvider.settings()
+    private val keyIndexes: DeviceKeyIndexes get() = settings.keyIndexes
+
+    override val INDEX_DATA: Int get() = keyIndexes.dataKey
+    override val INDEX_MAC: Int get() = keyIndexes.macKey
+    override val INDEX_TMK: Int get() = keyIndexes.masterKey
+    override val INDEX_BOOTSTRAP_TMK: Int get() = keyIndexes.bootstrapMasterKey
+    override val INDEX_BOOTSTRAP_MAC: Int get() = keyIndexes.bootstrapMacKey
+    override val INDEX_PIN: Int get() = keyIndexes.pinKey
+    override val INDEX_TEK: Int get() = keyIndexes.transportKey
     override val hasKeyboard: Boolean
         get() = false
 
@@ -87,10 +94,8 @@ class K9 @Inject constructor(
     private val keyManager = K9KeyManager(
         pinpadProvider = { pinpadOrNull() },
         dataCbcModeProvider = { dataCbcMode },
-        indexTmk = INDEX_TMK,
-        indexMac = INDEX_MAC,
-        indexPin = INDEX_PIN,
-        indexData = INDEX_DATA,
+        indexes = { keyIndexes },
+        defaultMacTypeName = { settings.macAlgorithm },
     )
 
     private fun pinpadOrNull() = deviceManager?.pinpadDevice
@@ -100,129 +105,98 @@ class K9 @Inject constructor(
         DevicesFactory.create(context, object : ResultCallback<DeviceManager> {
             override fun onFinish(d: DeviceManager?) {
                 if (d == null) {
-                } else deviceManager = d
+                    DeviceTrace.error(SDK, "DevicesFactory.create returned null DeviceManager")
+                } else {
+                    deviceManager = d
+                }
             }
 
-            override fun onError(p0: Int, p1: String?) {
+            override fun onError(code: Int, message: String?) {
+                DeviceTrace.error(SDK, "DevicesFactory.create failed ${sdkError(code, message)}")
             }
 
         })
 
     }
 
-    override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) {
-        // کلید پایانه نباید در لاگ نوشته شود؛ فقط تزریق به PED.
-        keyManager.writeMasterKey(masterKey, index)
-        Log.d(
-            "TAG", "K9K9K9>-writeMasterKey${HexUtils.bytesToHexString(masterKey)},index=$index"
+    override suspend fun writeMasterKey(masterKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.MASTER, index) { keyManager.writeMasterKey(masterKey, index) }
+
+    /** [wrappingTmk] لازم نیست: TMK فعال (آخرین [writeMasterKey]) برای رمز کردن کلید استفاده می‌شود. */
+    override suspend fun writeMacKey(macKey: ByteArray, index: Int, wrappingTmk: ByteArray?): KeyLoadResult =
+        keyOperation(DeviceKeyType.MAC, index) { keyManager.writePlaintextMacKey(macKey, index) }
+
+    override suspend fun writeDataKey(dataKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.DATA, index) { keyManager.writePlaintextDataKey(dataKey, index) }
+
+    override suspend fun writePinKey(pinKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.PIN, index) { keyManager.writePlaintextPinKey(pinKey, index) }
+
+    override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.MAC, index) { keyManager.loadTmkEncryptedMacKey(encryptedKey, index) }
+
+    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.PIN, index) { keyManager.loadTmkEncryptedPinKey(encryptedKey, index) }
+
+    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int): KeyLoadResult =
+        keyOperation(DeviceKeyType.DATA, index) { keyManager.loadTmkEncryptedDataKey(encryptedKey, index) }
+
+    /** اجرای عملیات کلید و تبدیل هر خطا به [KeyLoadResult.Failure] (هیچ exception بیرون نمی‌رود). */
+    private suspend fun keyOperation(
+        keyType: DeviceKeyType,
+        index: Int,
+        block: suspend () -> Unit,
+    ): KeyLoadResult = try {
+        block()
+        KeyLoadResult.Success(keyType, index)
+    } catch (error: kotlinx.coroutines.CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        val failure = KeyLoadResult.Failure(
+            keyType = keyType,
+            index = index,
+            error = classifyKeyError(error),
+            message = exceptionDetail(error),
+            cause = error,
         )
-        Log.d("TAG", "writeMasterKey: dddd${getCheckValue()}")
+        DeviceTrace.error(SDK, "$keyType key load failed index=$index error=${failure.error}", throwable = error)
+        failure
     }
 
-    override suspend fun writeMacKey(
-        macKey: ByteArray, index: Int, wrappingTmk: ByteArray?
-    ) {
-        // wrappingTmk نادیده گرفته می‌شود: keyManager از TMK کش‌شده‌ی خودش
-        // (فعال‌شده توسط writeMasterKey) برای رمزنگاری این کلید plaintext استفاده می‌کند،
-        // دقیقاً مشابه writeDataKey/writePinKey.
-        keyManager.writePlaintextMacKey(macKey, index)
-        Log.d(
-            "TAG", "nnN${HexUtils.bytesToHexString(macKey)},index=$index"
-        )
-        Log.d("TAG", "writeMacKey: dddd${getCheckValue()}")
-    }
-
-    override suspend fun writeDataKey(dataKey: ByteArray) {
-        writeDataKey(dataKey, INDEX_DATA)
-    }
-
-    override suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
-        keyManager.writePlaintextDataKey(dataKey, index)
-        Log.d(
-            "TAG", "K9K9K9>-writeDataKey${HexUtils.bytesToHexString(dataKey)},index=$index"
-        )
-        Log.d("TAG", "writeDataKey: ${getCheckValue()}")
-    }
-
-    override suspend fun writePinKey(pinKey: ByteArray) {
-        writePinKey(pinKey, INDEX_PIN)
-    }
-
-    override suspend fun writePinKey(pinKey: ByteArray, index: Int) {
-        keyManager.writePlaintextPinKey(pinKey, index)
-        Log.d(
-            "TAG", "K9K9K9>-writePinKey${HexUtils.bytesToHexString(pinKey)},index=$index"
-        )
-        Log.d("TAG", "writePinKey: ${getCheckValue()}")
-    }
-
-    override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) {
-        keyManager.loadTmkEncryptedMacKey(encryptedKey, index)
-        Log.d(
-            "TAG",
-            "K9K9K9>-loadTmkEncryptedMacKey${HexUtils.bytesToHexString(encryptedKey)},index=$index"
-        )
-        Log.d("TAG", "loadTmkEncryptedMacKey: ${getCheckValue()}")
-
-    }
-
-    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) {
-        loadTmkEncryptedPinKey(encryptedKey, INDEX_PIN)
-    }
-
-    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) {
-        keyManager.loadTmkEncryptedPinKey(encryptedKey, index)
-        Log.d(
-            "TAG",
-            "K9K9K9>-loadTmkEncryptedPinKey${HexUtils.bytesToHexString(encryptedKey)},index=$index"
-        )
-        Log.d("TAG", "loadTmkEncryptedPinKey: ${getCheckValue()}")
-    }
-
-    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) {
-        loadTmkEncryptedDataKey(encryptedKey, INDEX_DATA)
-    }
-
-    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) {
-        keyManager.loadTmkEncryptedDataKey(encryptedKey, index)
-        Log.d(
-            "TAG",
-            "K9K9K9>-loadTmkEncryptedDataKey${HexUtils.bytesToHexString(encryptedKey)},index=$index"
-        )
-        Log.d("TAG", "loadTmkEncryptedDataKey: ${getCheckValue()}")
+    private fun classifyKeyError(error: Throwable): KeyLoadError {
+        val message = error.message.orEmpty()
+        return when {
+            pinpadOrNull() == null || message.contains("pinpad unavailable", ignoreCase = true) ->
+                KeyLoadError.DEVICE_UNAVAILABLE
+            message.contains("KCV mismatch", ignoreCase = true) -> KeyLoadError.KCV_MISMATCH
+            message.contains("TMK", ignoreCase = false) && message.contains("not loaded|missing".toRegex()) ->
+                KeyLoadError.MASTER_KEY_MISSING
+            message.contains("length", ignoreCase = true) -> KeyLoadError.INVALID_KEY
+            message.contains("PED", ignoreCase = false) && message.contains("failed") -> KeyLoadError.REJECTED_BY_DEVICE
+            else -> KeyLoadError.UNKNOWN
+        }
     }
 
     override fun clearMasterKeyCache() {
         keyManager.clearMasterKeyCache()
-        Log.d(
-            "TAG", "K9K9K9>-clearMasterKeyCache"
-        )
     }
 
     override fun peekWorkingMacKey(): ByteArray? {
-        Log.d(
-            "TAG", "K9K9K9>-peekWorkingMacKey"
-        )
         return keyManager.peekWorkingMacKey()
     }
 
     override fun clearWorkingMacKeyCache() {
 
         keyManager.clearWorkingMacKeyCache()
-        Log.d(
-            "TAG", "K9K9K9>-clearWorkingMacKeyCache"
-        )
     }
 
     override fun restoreMasterKeyCache(masterKey: ByteArray, index: Int) {
         keyManager.restoreMasterKeyCache(masterKey, index)
-        Log.d(
-            "TAG", "K9K9K9>-restoreMasterKeyCache"
-        )
     }
 
-    override suspend fun awaitPinpadReady(timeoutMs: Long): Boolean {
-        val deadline = System.currentTimeMillis() + timeoutMs
+    override suspend fun awaitPinpadReady(timeoutMs: Long?): Boolean {
+        val effectiveTimeout = timeoutMs ?: settings.timeouts.pinpadReadyMs
+        val deadline = System.currentTimeMillis() + effectiveTimeout
         while (System.currentTimeMillis() < deadline) {
             if (pinpadOrNull() != null) {
                 DeviceTrace.step(SDK, "awaitPinpadReady ok")
@@ -232,19 +206,13 @@ class K9 @Inject constructor(
         }
         val ready = pinpadOrNull() != null
         if (!ready) {
-            DeviceTrace.warn(SDK, "awaitPinpadReady timeout ${timeoutMs}ms")
+            DeviceTrace.warn(SDK, "awaitPinpadReady timeout ${effectiveTimeout}ms")
         }
         return ready
     }
 
-    override suspend fun getMac(data: ByteArray, index: Int, keyType: MacKeyType): ByteArray {
-        Log.d(
-            "TAG",
-            "K9K9K9>-getMac,data=${HexUtils.bytesToHexString(data)},index=$index,ket=$keyType"
-        )
-       return keyManager.getMac(data, index, keyType)
-       // return ByteArray(8)
-    }
+    override suspend fun getMac(data: ByteArray, index: Int, keyType: MacKeyType): ByteArray =
+        keyManager.getMac(data, index, keyType)
 
     override suspend fun getMacWithType(
         data: ByteArray,
@@ -260,9 +228,6 @@ class K9 @Inject constructor(
         referenceMac: ByteArray,
     ) {
         keyManager.diagnoseMacMismatch(data, index, keyType, referenceMac)
-        Log.d(
-            "TAG", "K9K9K9>-diagnoseMacMismatch"
-        )
     }
 
     private fun isValidDesBlockSize(data: ByteArray): Boolean =
@@ -274,7 +239,8 @@ class K9 @Inject constructor(
         onError: (String) -> Unit,
         onTimeOut: () -> Unit
     ) {
-        if (deviceManager == null) {
+        val magCardDevice: MagCardDevice? = runCatching { deviceManager?.magneticDevice }.getOrNull()
+        if (magCardDevice == null) {
             onError(
                 errorMessage(
                     context,
@@ -283,9 +249,8 @@ class K9 @Inject constructor(
                 )
             )
         } else {
-            val magCardDevice: MagCardDevice = deviceManager!!.magneticDevice
             magCardDevice.swipeCard(
-                20000, true, object : IMagCardListener.Stub() {
+                settings.timeouts.cardReadMs, true, object : IMagCardListener.Stub() {
                     override fun onSwipeCardTimeout() {
                         onTimeOut()
                     }
@@ -297,10 +262,7 @@ class K9 @Inject constructor(
                     override fun onSwipeCardSuccess(trackData: TrackData?) {
                         if (trackData != null) {
                             val track2 = decodeTrack2("${trackData.secondTrackData}")
-                            Log.d("TAG", "track2: ->$track2")
-//
-                                 onSuccess("38$track2", trackData.cardno)
-                           // onSuccess("9004230100000027=31042210000000000000","9004230100000027")
+                            onSuccess("38$track2", trackData.cardno)
                         } else onError(
                             errorMessage(
                                 context,
@@ -360,11 +322,12 @@ class K9 @Inject constructor(
             )
             return
         }
-        Log.d("TAG", "getPifnBlock: $INDEX_PIN")
         preparePinpad(pinPad)
-        val pinPadInfo = PinPadInfo.builder(pan).setPikId(17).setShowInputBox(true)
-            .setUseRandomKeybord(false).setMinLength(4).setMaxLength(4)// TODO:  
-            .setPinLengthFilter(byteArrayOf(4)).setBeep(true).setCancelable(true)
+        val policy = settings.pinEntry
+        val pinLengths = (policy.minLength..policy.maxLength).map { it.toByte() }.toByteArray()
+        val pinPadInfo = PinPadInfo.builder(pan).setPikId(keyIndexes.pinEntryKey).setShowInputBox(true)
+            .setUseRandomKeybord(false).setMinLength(policy.minLength).setMaxLength(policy.maxLength)
+            .setPinLengthFilter(pinLengths).setBeep(true).setCancelable(true)
             .setEncrpyMode(PinPadInfo.EncrpyMode.MODE_ZERO).setShowMask(true)
             .setExMessage(if(title.isEmpty())context.getString(R.string.password_hint) else title).build()
         pinPad.getPin(pinPadInfo, object : IPinPadPinCallback.Stub() {
@@ -387,8 +350,6 @@ class K9 @Inject constructor(
                     )
                     return
                 }
-                Log.d("TAG", "onReadPidddnSuccess: ${HexUtils.bytesToHexString(pinBlock)}")
-              //  onConfirm("3CFDDD66DF58AB70")
                 onConfirm(HexUtils.bytesToHexString(pinBlock))
             }
 
@@ -406,16 +367,15 @@ class K9 @Inject constructor(
             DeviceTrace.step(SDK, "getSerial from SystemInfoType.SN len=${fromHw.length}")
             return fromHw
         }
-        DeviceTrace.warn(SDK, "getSerial SN unavailable â€” fallback DeviceDefaults.SERIAL")
+        DeviceTrace.warn(SDK, "getSerial SN unavailable - fallback DeviceDefaults.SERIAL")
         return DeviceDefaults.SERIAL
-   //    return "D1V2890000039"
     }
 
     override suspend fun getImei(): String {
         val fromHw = runCatching {
             deviceManager?.systemDevice?.getSystemInfo(SystemInfoType.IMEI)?.trim().orEmpty()
         }.getOrDefault("")
-        // Dual-SIM SDK Ú¯Ø§Ù‡ÛŒ `imei1-imei2` Ù…ÛŒâ€ŒØ¯Ù‡Ø¯Ø› Ø¨Ø±Ø§ÛŒ F63 ÙÙ‚Ø· IMEI Ø§ÙˆÙ„.
+        // SDK دوسیم‌کارته گاهی `imei1-imei2` می‌دهد؛ فقط IMEI اول برگردانده می‌شود.
         val single =
             fromHw.split('-', ',', '/', ';').map { it.trim() }.firstOrNull { it.isNotEmpty() }
                 .orEmpty().filter { it.isDigit() }.ifEmpty { fromHw.trim() }
@@ -430,9 +390,6 @@ class K9 @Inject constructor(
     override suspend fun decryptData(
         data: ByteArray, onSuccess: (data: ByteArray) -> Unit, onError: (String) -> Unit
     ) {
-        Log.d(
-            "TAG", "K9K9K9>-decryptData"
-        )
         val pinpad = pinpadOrNull()
         if (pinpad == null) {
             onError(errorMessage(context, R.string.error_device_unavailable, "deviceManager=null"))
@@ -450,7 +407,9 @@ class K9 @Inject constructor(
         }
 
         preparePinpad(pinpad)
-        val decryptedData = pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode)
+        val decryptedData = runCatching { pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode) }
+            .onFailure { DeviceTrace.error(SDK, "decryptDataByDek failed", throwable = it) }
+            .getOrNull()
         if (decryptedData == null || decryptedData.isEmpty()) {
             onError(
                 errorMessage(
@@ -500,16 +459,6 @@ class K9 @Inject constructor(
         }
     }
 
-    fun addTestData(bitmap: Bitmap, mPrinter: PrinterDevice, context: Context) {
-        try {
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            mPrinter.addBitmapPrintItem(stream.toByteArray())
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-    }
-
     override suspend fun getPrinterError(): String {
         if (deviceManager == null) {
             DeviceTrace.warn(SDK, "getPrinterError deviceManager=null")
@@ -537,9 +486,6 @@ class K9 @Inject constructor(
     }
 
     override fun encrypt(data: ByteArray): ByteArray? {
-        Log.d(
-            "TAG", "K9K9K9>-encrypt"
-        )
         val pinpad = pinpadOrNull() ?: run {
             DeviceTrace.error(SDK, "encrypt pinpadDevice unavailable")
             return null
@@ -549,12 +495,9 @@ class K9 @Inject constructor(
             return null
         }
         preparePinpad(pinpad)
-        val encrypted = pinpad.encryptDataByDek(INDEX_MAC, data, true)//INDEX_DATA
-        Log.d("K9", "ENCRYPTED PIN = [$encrypted]")
-
-        val decrypted = pinpad.decryptDataByDek(17, encrypted, true)
-
-        Log.d("K9", "DECRYPTED PIN = [$decrypted]")
+        val encrypted = runCatching { pinpad.encryptDataByDek(INDEX_DATA, data, dataCbcMode) }
+            .onFailure { DeviceTrace.error(SDK, "encryptDataByDek failed", throwable = it) }
+            .getOrNull()
         if (encrypted == null || encrypted.isEmpty()) {
             DeviceTrace.warn(SDK, "encryptDataByDek returned empty")
             return null
@@ -564,9 +507,6 @@ class K9 @Inject constructor(
     }
 
     override fun decrypt(data: ByteArray): ByteArray? {
-        Log.d(
-            "TAG", "K9K9K9>decrypt"
-        )
         val pinpad = pinpadOrNull() ?: run {
             DeviceTrace.error(SDK, "decrypt pinpadDevice unavailable")
             return null
@@ -576,7 +516,9 @@ class K9 @Inject constructor(
             return null
         }
         preparePinpad(pinpad)
-        val decrypted = pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode)//INDEX_DATA
+        val decrypted = runCatching { pinpad.decryptDataByDek(INDEX_DATA, data, dataCbcMode) }
+            .onFailure { DeviceTrace.error(SDK, "decryptDataByDek failed", throwable = it) }
+            .getOrNull()
         if (decrypted == null || decrypted.isEmpty()) {
             DeviceTrace.warn(SDK, "decryptDataByDek returned empty")
             return null
@@ -586,15 +528,12 @@ class K9 @Inject constructor(
     }
 
     override fun powerOnIcCard(): Boolean {
-        Log.d("TAG", "powerOnIcCard: icciccicc")
         val icCardDevice = icDeviceOrNull()
         if (icCardDevice == null) {
             DeviceTrace.warn(SDK, "powerOnIcCard deviceManager=null")
             return false
         }
         val atr = runCatching { icCardDevice.reset() }.getOrNull()
-        Log.d("TAG", "powerOnIcCardatr: $atr")
-
         if (atr == null) {
             DeviceTrace.warn(SDK, "powerOnIcCard reset failed")
             mIcCardDevice = null
@@ -606,8 +545,6 @@ class K9 @Inject constructor(
     }
 
     override fun powerOffIcCard() {
-        Log.d("TAG", "powerOffIcCard: icciccicc")
-
         val icCardDevice = mIcCardDevice ?: icDeviceHandle
         mIcCardDevice = null
         icDeviceHandle = null
@@ -616,33 +553,23 @@ class K9 @Inject constructor(
             icCardDevice.halt()
             DeviceTrace.step(SDK, "powerOffIcCard halted")
         } catch (e: Exception) {
-            Log.d("TAG", "powerOffIcCard:ss ${e.cause}")
-            Log.d("TAG", "powerOffIcCard:ss ${e.message}")
+            DeviceTrace.warn(SDK, "powerOffIcCard halt failed: ${exceptionDetail(e)}")
         }
     }
 
     override fun isIcCardDetect(): Boolean {
-        Log.d("TAG", "isIcCardDetect: icciccicc")
-
         val icCardDevice = mIcCardDevice ?: icDeviceOrNull() ?: return false
 
-        return runCatching {val v= icCardDevice.exists()
-            Log.d("TAG", "isIcCardDetect:ss ${v}")
-        v}.getOrDefault(false)
+        return runCatching { icCardDevice.exists() }.getOrDefault(false)
     }
 
     override suspend fun sendApdu(byteArray: ByteArray, onError: (String) -> Unit): ByteArray? {
-        Log.d("TAG", "sendApdu: icciccicc")
-
-        Log.d("TAG", "sendApdu: ddddddyt->${HexUtils.bytesToHexString(byteArray)}")
         val icCardDevice = mIcCardDevice
         if (deviceManager == null || icCardDevice == null) {
-            Log.d("TAG", "sendApdu:sendApdu==nu ")
             onError(errorMessage(context, R.string.error_icc_device, "deviceManager=null"))
             return null
         }
         if (!icCardDevice.exists()) {
-            Log.d("TAG", "sendApdu:sendApdu==un")
             onError(
                 errorMessage(
                     context, R.string.error_icc_card_not_found, "iccCard.exists=false"
@@ -650,18 +577,16 @@ class K9 @Inject constructor(
             )
             return null
         }
-        val temp= icCardDevice.send(byteArray)
-
-
-        Log.d("TAG", "sendApdu: res${HexUtils.bytesToHexString(temp)}")
-        Log.d("TAG", "sendApdu:req ${HexUtils.bytesToHexString(byteArray)}")
-
-        return temp
+        return runCatching { icCardDevice.send(byteArray) }
+            .onFailure { error ->
+                DeviceTrace.error(SDK, "sendApdu failed", throwable = error)
+                onError(errorMessage(context, R.string.error_icc_device, exceptionDetail(error)))
+            }
+            .getOrNull()
     }
 
     /**
-     * ØªÙ†Ø¸ÛŒÙ… Ø³Ø§Ø¹Øª Ø³ÛŒØ³ØªÙ… Ø§Ø² ÙÛŒÙ„Ø¯ 7 Ù…ÛŒØ²Ø¨Ø§Ù† (ÙØ±Ù…Øª YYMMDDHHMISS).
-     * Ø§Ø² [SystemDevice.setSystemTime] Ø§Ø³ØªÙØ§Ø¯Ù‡ Ù…ÛŒâ€ŒÚ©Ù†Ø¯.
+     * تنظیم ساعت سیستم از فیلد 7 میزبان (فرمت YYMMDDHHMISS) با [SystemDevice.setSystemTime].
      */
     override suspend fun setDateTime(dataTime: String) {
         val normalized = dataTime.trim()
@@ -716,8 +641,8 @@ class K9 @Inject constructor(
                 scanParams.putInt(IScanner.CAMERA_ID, 1)
                 //torch switch. default false
                 scanParams.putBoolean(IScanner.TORCH, false)
-                //scanning timeout. default 60000ms.
-                scanParams.putInt(IScanner.TIMEOUT, 60_000)
+                // زمان انتظار اسکن از تنظیمات دستگاه.
+                scanParams.putInt(IScanner.TIMEOUT, settings.timeouts.scanMs)
                 //beep after scanning finish. default false
                 scanParams.putBoolean(IScanner.BEEP, true)
                 //scanning continuously. default false.
@@ -746,30 +671,6 @@ class K9 @Inject constructor(
         }
     }
 
-    private fun autoStopScan() {
-//        showNormalMessage("start scanning and will be stoped 5s later.")
-//        scan()
-//        Handler().postDelayed(object : Runnable {
-//            override fun run() {
-//                scanner.stopScan()
-//            }
-//        }, 5000)
-    }
-
-//    private fun decode(scanner: ScanDevice) {
-//        try {
-//            val bitmap = BitmapFactory.decodeStream(requireActivity().getAssets().open("image/qr_code.png"))
-//            val data =  Bundle()
-//            data.putByteArray(IScanner.DATA, DataUtil.getYUVByBitmap(bitmap))
-//            data.putInt(IScanner.WIDTH, bitmap.getWidth())
-//            data.putInt(IScanner.HEIGHT, bitmap.getHeight())
-//            val result = scanner.decode(data)
-//          //  showNormalMessage("decode result is " + HexUtils.bcd2str(result))
-//        } catch ( e:IOException) {
-//            e.printStackTrace()
-//        }
-//    }
-
     override suspend fun getKCv(): KCV = getKcvAt(INDEX_MAC)
 
     override suspend fun getKcvAt(index: Int): KCV {
@@ -791,64 +692,8 @@ class K9 @Inject constructor(
         )
     }
 
-    override fun getCheckValue(tt: String): ByteArray {
-        Log.d(
-            "TAG", "getCheckValuedmac->${
-                HexUtils.bytesToHexString(
-                    keyManager.getCheckValue(
-                        INDEX_MAC, keyType = KeyType.MAK
-                    )
-                )
-            }"
-        )
-//        Log.d(
-//            "TAG", "getCheckValuedpdin->${
-//                HexUtils.bytesToHexString(
-//                    keyManager.getCheckValue(
-//                        INDEX_TMK, keyType = KeyType.TEK
-//                    )
-//                )
-//            }"
-//        )
-        Log.d(
-            "TAG", "getCheckValuedpin->${
-                HexUtils.bytesToHexString(
-                    keyManager.getCheckValue(
-                        INDEX_PIN, keyType = KeyType.PIK
-                    )
-                )
-            }"
-        )
-        Log.d(
-            "TAG", "getCheckValuedmdata->${
-                HexUtils.bytesToHexString(
-                    keyManager.getCheckValue(
-                        INDEX_DATA, keyType = KeyType.DEK
-                    )
-                )
-            }"
-        )
-//        Log.d(
-//            "TAG", "getCheckValuedmdata->${
-//                HexUtils.bytesToHexString(
-//                    keyManager.getCheckValue(
-//                        INDEX_TMK, keyType = KeyType.TEK
-//                    )
-//                )
-//            }"
-//        )
-//        Log.d(
-//            "TAG", "getCheckValuedmdata->${
-//                HexUtils.bytesToHexString(
-//                    keyManager.getCheckValue(
-//                        INDEX_BOOTSTRAP_TMK, keyType = KeyType.TEK
-//                    )
-//                )
-//            }"
-//        )
-
-        return keyManager.getCheckValue(INDEX_MAC, keyType = KeyType.MAK)
-    }
+    override fun getCheckValue(tt: String): ByteArray =
+        keyManager.getCheckValue(INDEX_MAC, keyType = KeyType.MAK)
 
     override suspend fun beep(
         context: Context, onSuccess: () -> Unit, onFailed: (String) -> Unit
@@ -900,13 +745,14 @@ class K9 @Inject constructor(
                 override fun onFinish(deviceService: DeviceService?) {
                     val systemOperation=deviceService?.systemOperation
                     try {
-                        systemOperation?.setDisplayNavigationBar(1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  )
-                    }catch (e: Exception){
-                        e.printStackTrace()
+                        systemOperation?.setDisplayNavigationBar(1)
+                    } catch (e: Exception) {
+                        DeviceTrace.warn(SDK, "setDisplayNavigationBar failed: ${exceptionDetail(e)}")
                     }
                 }
 
-                override fun onError(i: Int, s: String?) {
+                override fun onError(code: Int, message: String?) {
+                    DeviceTrace.warn(SDK, "SystemDevicesFactory.create failed ${sdkError(code, message)}")
                 }
             })
     }
@@ -932,99 +778,6 @@ class K9 @Inject constructor(
             }
         }
     }
-//    private suspend fun level3LoadingTest() {
-//        delay(3000)
-//        val device1=deviceManager!!.pinpadDevice
-//        val tekId = INDEX_TEK
-//        val tmkId = INDEX_MK
-//        val pikId =INDEX_PIN
-//        val makId = INDEX_WK
-//        val tdkId = 1
-//        val dekId = 1
-//
-//        val tek = HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//        val tmk = HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//        val pik =HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//        val mak = HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//        val tdk = HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//        val dek =HexUtils.hexStringToByte("29E9C9CCC2A0021020DBCAB8964B54F2")
-//
-//        showNormalMessage("------------------------------------\n3-Level Keys Loading Test:\n------------------")
-//        try {
-//            var errorFlag = false
-//            fun performLoad(label: String, success: Boolean, id: Int, key: ByteArray): Boolean {
-//                val keyStr = HexUtils.bcd2str(key)
-//                if (success) {
-//                    showNormalMessage("Loading $label:\nID: $id | Key: $keyStr\nResult: true\n------------------")
-//                } else {
-//                    showErrorMessage("Loading $label:\nID: $id | Key: $keyStr\nResult: false\n------------------")
-//                }
-//                return success
-//            }
-//val cbc=false
-//            // Load Keys
-//            errorFlag = errorFlag or !performLoad("TEK", device.loadTek(tekId, tek), tekId, tek)
-//
-//            val enTmk = DES3Utils.encrypt3DES(tmk, tek, cbc)
-//            errorFlag = errorFlag or !performLoad("TMK", device.loadTekEncryptedTmk(tekId, tmkId, enTmk), tmkId, tmk)
-//
-//            val enPik = DES3Utils.encrypt3DES(pik, tmk, cbc)
-//            errorFlag = errorFlag or !performLoad("PIK", device.loadTmkEncryptedPik(tmkId, pikId, enPik), pikId, pik)
-//
-//            val enMak = DES3Utils.encrypt3DES(mak, tmk, cbc)
-//            errorFlag = errorFlag or !performLoad("MAK", device.loadTmkEncryptedMak(tmkId, makId, enMak), makId, mak)
-//
-//            val enTdk = DES3Utils.encrypt3DES(tdk, tmk, cbc)
-//            errorFlag = errorFlag or !performLoad("TDK", device.loadTmkEncryptedTdk(tmkId, tdkId, enTdk), tdkId, tdk)
-//
-//            //if (device.isSupportDEK) {
-//                val enDek = DES3Utils.encrypt3DES(dek, tmk, cbc)
-//                errorFlag = errorFlag or !performLoad("DEK", device.loadTmkEncryptedDek(tmkId, dekId, enDek), dekId, dek)
-//           // }
-//
-//            // CV Checks
-//            fun checkCv(label: String, key: ByteArray, keyType: KeyType, id: Int): Boolean {
-//                val calcCv = DES3Utils.getCheckValue(HexUtils.bcd2str(key))
-//                val readCv = HexUtils.bcd2str(device.getCheckValue(keyType, id))
-//                return if (calcCv == readCv) {
-//                    showNormalMessage("$label Check Value: $calcCv âˆšâˆšâˆš")
-//                    true
-//                } else {
-//                    showErrorMessage("$label Check Value Error\nCalc cv: $calcCv\nRead cv: $readCv\n------------------")
-//                    false
-//                }
-//            }
-//
-//            errorFlag = errorFlag or !checkCv("TEK", tek, KeyType.TEK, tekId)
-//            errorFlag = errorFlag or !checkCv("TMK", tmk, KeyType.TDKEK, tmkId) // Note: Using TDKEK as in your original comment
-//            errorFlag = errorFlag or !checkCv("PIK", pik, KeyType.PIK, pikId)
-//            errorFlag = errorFlag or !checkCv("MAK", mak, KeyType.MAK, makId)
-//            errorFlag = errorFlag or !checkCv("TDK", tdk, KeyType.TDK, tdkId)
-//
-//         //   if (device.su) {
-//                errorFlag = errorFlag or !checkCv("DEK", dek, KeyType.DEK, dekId)
-//         //   }
-//
-//            if (errorFlag) {
-//                showErrorMessage("-------------------------------------\n---------Test Failï¼---------\n-------------------------------------")
-//            } else {
-//                showNormalMessage("-------------------------------------\n---------Test Passï¼---------\n-------------------------------------")
-//            }
-//
-//        } catch (e: Throwable) {
-//            e.printStackTrace()
-//            showErrorMessage(e.message ?: "Unknown Error")
-//        }
-//    }
-
-    private fun showNormalMessage(string: String) {
-        DeviceTrace.debug(SDK, "showNormalMessage $string")
-    }
-
-    private fun showErrorMessage(string: String) {
-        DeviceTrace.warn(SDK, "showErrorMessage $string")
-    }
-
     private fun resolveKnownDeviceError(
         context: Context,
         code: Int,

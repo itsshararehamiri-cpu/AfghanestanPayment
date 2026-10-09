@@ -64,13 +64,13 @@ class BpChargePinDecoderTest {
         override val hasKeyboard = false
 
         override suspend fun getModel(): String = "K9"
-        override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) = Unit
-        override suspend fun writeMacKey(macKey: ByteArray, index: Int, wrappingTmk: ByteArray?) = Unit
-        override suspend fun writeDataKey(dataKey: ByteArray) = Unit
-        override suspend fun writePinKey(pinKey: ByteArray) = Unit
-        override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) = Unit
-        override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) = Unit
-        override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) = Unit
+        override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MASTER, index)
+        override suspend fun writeMacKey(macKey: ByteArray, index: Int, wrappingTmk: ByteArray?) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MAC, index)
+        override suspend fun writeDataKey(dataKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.DATA, index)
+        override suspend fun writePinKey(pinKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.PIN, index)
+        override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MAC, index)
+        override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.PIN, index)
+        override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.DATA, index)
         override suspend fun getMac(
             data: ByteArray,
             index: Int,

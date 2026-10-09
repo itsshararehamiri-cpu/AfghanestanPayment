@@ -2,12 +2,15 @@ package com.danesh.sadad.di
 
 import com.danesh.api.PspDeviceMetadataProvider
 import com.danesh.api.PspDeviceWorkflow
+import com.danesh.core.PspDeviceSettingsOverride
 import com.danesh.sadad.device.SadadDeviceMetadataProvider
+import com.danesh.sadad.device.SadadDeviceSettingsOverride
 import com.danesh.sadad.device.SadadDeviceWorkflow
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoSet
 import javax.inject.Singleton
 
 @Module
@@ -19,6 +22,12 @@ abstract class SadadDeviceModule {
     abstract fun bindPspDeviceWorkflow(
         impl: SadadDeviceWorkflow,
     ): PspDeviceWorkflow
+
+    @Binds
+    @IntoSet
+    abstract fun bindDeviceSettingsOverride(
+        impl: SadadDeviceSettingsOverride,
+    ): PspDeviceSettingsOverride
 
     @Binds
     @Singleton

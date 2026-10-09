@@ -67,27 +67,25 @@ private class FakeDevice : Device {
     val writtenPinKey: ByteArray? get() = writtenPinKeys.values.singleOrNull()
 
     override suspend fun getModel() = "TEST"
-    override suspend fun writeMasterKey(masterKey: ByteArray, index: Int) {
+    override suspend fun writeMasterKey(masterKey: ByteArray, index: Int): com.danesh.core.KeyLoadResult {
         writtenMasterKeys[index] = masterKey.copyOf()
+        return com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MASTER, index)
     }
-    override suspend fun writeMacKey(macKey: ByteArray, index: Int, wrappingTmk: ByteArray?) {
+    override suspend fun writeMacKey(macKey: ByteArray, index: Int, wrappingTmk: ByteArray?): com.danesh.core.KeyLoadResult {
         writtenMacKeys[index] = macKey.copyOf()
+        return com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MAC, index)
     }
-    override suspend fun writeDataKey(dataKey: ByteArray) {
-        writeDataKey(dataKey, INDEX_DATA)
-    }
-    override suspend fun writeDataKey(dataKey: ByteArray, index: Int) {
+    override suspend fun writeDataKey(dataKey: ByteArray, index: Int): com.danesh.core.KeyLoadResult {
         writtenDataKeys[index] = dataKey.copyOf()
+        return com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.DATA, index)
     }
-    override suspend fun writePinKey(pinKey: ByteArray) {
-        writePinKey(pinKey, INDEX_PIN)
-    }
-    override suspend fun writePinKey(pinKey: ByteArray, index: Int) {
+    override suspend fun writePinKey(pinKey: ByteArray, index: Int): com.danesh.core.KeyLoadResult {
         writtenPinKeys[index] = pinKey.copyOf()
+        return com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.PIN, index)
     }
-    override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) = Unit
-    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray) = Unit
-    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray) = Unit
+    override suspend fun loadTmkEncryptedMacKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.MAC, index)
+    override suspend fun loadTmkEncryptedPinKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.PIN, index)
+    override suspend fun loadTmkEncryptedDataKey(encryptedKey: ByteArray, index: Int) = com.danesh.core.KeyLoadResult.Success(com.danesh.core.DeviceKeyType.DATA, index)
     override suspend fun getMac(data: ByteArray, index: Int, keyType: com.danesh.core.MacKeyType) = ByteArray(8)
     override suspend fun readCard(context: android.content.Context, onSuccess: (String, String) -> Unit, onError: (String) -> Unit, onTimeOut: () -> Unit) = Unit
     override suspend fun getPinBlock(title: String, context: android.content.Context, pan: String, onError: (String) -> Unit, onInput: (Int) -> Unit, onConfirm: (String) -> Unit, onCancel: () -> Unit, onTimeOut: () -> Unit) = Unit

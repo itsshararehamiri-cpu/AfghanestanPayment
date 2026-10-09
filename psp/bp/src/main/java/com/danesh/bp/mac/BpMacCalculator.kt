@@ -4,6 +4,7 @@ import com.danesh.bp.key.BpKeyConfig
 import com.danesh.bp.key.BpKeyMaterial
 import com.danesh.bp.key.encodeHexKey
 import com.danesh.core.Device
+import com.danesh.core.getOrThrow
 import com.danesh.core.MacKeyType
 import com.danesh.iso.BpIsoMessage
 import com.danesh.iso.IsoMessage
@@ -141,12 +142,12 @@ class BpMacCalculator @Inject constructor(
             "injectInitialKeys",
             "inject Initial TMK index=$tmkIndex bytes=${initialKey.size}",
         )
-        device.writeMasterKey(initialKey, tmkIndex)
+        device.writeMasterKey(initialKey, tmkIndex).getOrThrow()
         BpMacTrace.step(
             "injectInitialKeys",
             "inject Initial MAK index=$makIndex tmkIndex=$tmkIndex bytes=${initialKey.size}",
         )
-        device.writeMacKey(initialKey, makIndex)
+        device.writeMacKey(initialKey, makIndex).getOrThrow()
         BpMacTrace.step(
             "injectInitialKeys",
             "inject TMK index=$tmkIndex + MAK index=$makIndex انجام شد",
