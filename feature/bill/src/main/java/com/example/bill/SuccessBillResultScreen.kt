@@ -42,6 +42,7 @@ import com.danesh.common.AddAmount
 import com.danesh.common.AddBillId
 import com.danesh.common.AddMaskedPanCardIssuer
 import com.danesh.common.AddMerchantIdTerminalId
+import com.danesh.common.AddTerminalUniqueCode
 import com.danesh.common.AddMerchantNamePhone
 import com.danesh.common.AddPaymentId
 import com.danesh.common.AddRRNStan
@@ -235,6 +236,12 @@ private fun BillReceipt(
             merchantId = result.merchantId,
             terminalId = result.terminalId,
             textColor = firstColor, isPaperReceipt = isPaperReceipt
+        )
+        AddTerminalUniqueCode(
+            modifier = modifierRowReceipt,
+            terminalUniqueCode = result.terminalUniqueCode,
+            textColor = firstColor,
+            isPaperReceipt = isPaperReceipt,
         )
 
         AddMaskedPanCardIssuer(

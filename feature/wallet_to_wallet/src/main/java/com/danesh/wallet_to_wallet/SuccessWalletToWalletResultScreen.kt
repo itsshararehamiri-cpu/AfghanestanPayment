@@ -24,6 +24,7 @@ import com.danesh.api.TransactionResultDetail
 import com.danesh.api.amountRials
 import com.danesh.common.AddAmount
 import com.danesh.common.AddMerchantIdTerminalId
+import com.danesh.common.AddTerminalUniqueCode
 import com.danesh.common.AddMerchantNamePhone
 import com.danesh.common.AddRRNStan
 import com.danesh.common.AddReceiptType
@@ -159,6 +160,12 @@ private fun WalletToWalletReceipt(
             modifier = modifierRowReceipt,
             merchantId = result.merchantId,
             terminalId = result.terminalId,
+            textColor = firstColor,
+            isPaperReceipt = true,
+        )
+        AddTerminalUniqueCode(
+            modifier = modifierRowReceipt,
+            terminalUniqueCode = result.terminalUniqueCode,
             textColor = firstColor,
             isPaperReceipt = true,
         )

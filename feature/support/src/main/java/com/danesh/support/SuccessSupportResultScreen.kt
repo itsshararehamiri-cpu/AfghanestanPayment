@@ -27,6 +27,7 @@ import com.danesh.common.AddAmount
 import com.danesh.common.AddFee
 import com.danesh.common.AddMaskedPanCardIssuer
 import com.danesh.common.AddMerchantIdTerminalId
+import com.danesh.common.AddTerminalUniqueCode
 import com.danesh.common.AddMerchantNamePhone
 import com.danesh.common.AddRRNStan
 import com.danesh.common.AddReceiptType
@@ -167,6 +168,12 @@ private fun PurchaseReceipt(
             merchantId = result.merchantId,
             terminalId = result.terminalId,
             textColor = firstColor, isPaperReceipt = true
+        )
+        AddTerminalUniqueCode(
+            modifier = modifierRowReceipt,
+            terminalUniqueCode = result.terminalUniqueCode,
+            textColor = firstColor,
+            isPaperReceipt = true,
         )
 
         AddMaskedPanCardIssuer(
